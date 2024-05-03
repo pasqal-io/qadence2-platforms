@@ -7,11 +7,7 @@ Installation guidelines
 
 ## Usage
 
-### Engines
-
-For engines (backends), please note that:
-
-* it receives expressions transformed by the compiler library, so consider using `qadence2_platforms.engines.generics.CompiledExpr` instead of importing from the compiler directly
+For now, read the docstrings at `generics.py` and `model/model.py`.
 
 
 ## Documentation
