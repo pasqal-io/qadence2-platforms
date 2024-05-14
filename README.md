@@ -7,8 +7,31 @@ Installation guidelines
 
 ## Usage
 
-For now, read the docstrings at `generics.py` and `model/model.py`.
-
+Example
+```python
+Model(
+    Register(
+        qubits_positions = [(-2,1), (0,1), (1,3)],
+        grid_type = "triangular",
+        grid_scale = 1.0,
+        options = {"initial_state": "010"}
+    ),
+    [
+        Instruction("rx", (0,), Parameter("x0")),
+        Instruction("rx", (1,), Parameter("x1")),
+        Instruction("h", ()),  # () == All qubits
+        Instruction(
+            "qubit_dym",
+            (0, 2),
+            Paramter("t", 1, mutable=True),  # time
+            Paramter("Omega", 4, mutable=False),  # Amplitude modulation with 4 points
+            Paramter("delta", 1, mutable=False),  # detuning
+        )
+    ],
+    directives = {"enable_digital_analog": True},
+    backend_settings = {"return_type": "state-vector"}
+)
+```
 
 ## Documentation
 Documentation guidelines
