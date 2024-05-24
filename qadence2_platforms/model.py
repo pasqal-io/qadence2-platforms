@@ -28,7 +28,30 @@ class Parameter:
 
 
 class Support:
-    pass
+    def __init__(
+        self,
+        *indices: int,
+        target: tuple[int, ...] | None = None,
+        control: tuple[int, ...] | None = None,
+    ) -> None:
+        if indices and (target or control):
+            raise SyntaxError(
+                "Please, provide either qubit indices or target-control tuples"
+            )
+
+        if control and not target:
+            raise SyntaxError("A controlled operation needs both, control and target.")
+
+        if indices:
+            self.target: tuple[int, ...] = indices
+            self.control: tuple[int, ...] = ()
+        else:
+            self.target = target or ()
+            self.control = control or ()
+
+    @classmethod
+    def all(cls) -> Support:
+        return Support()
 
 
 class Instruction:
