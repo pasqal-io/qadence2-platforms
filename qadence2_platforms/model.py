@@ -53,6 +53,14 @@ class Support:
     def all(cls) -> Support:
         return Support()
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Support):
+            return NotImplemented
+
+        return set(self.target) == set(other.target) and set(self.control) == set(
+            other.control
+        )
+
 
 class Instruction:
     """
