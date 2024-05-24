@@ -10,23 +10,25 @@ class Parameter:
 
     Inputs:
         name: Unique parameter name.
-        size: The number of slots occupied by the parameter. For time dependent
-            instructions array variables may be used for modulated pulses.
-        mutable: If `False` the value of the parameter can be assigned only once
-            per runtime.
+        size: Space occuped by the parameter.
+        trainable: Flag if the parameter can change during a training loop.
     """
 
-    def __init__(self, name: str, size: int, *, mutable: bool) -> None:
+    def __init__(self, name: str, size: int, *, trainable: bool) -> None:
         self.name = name
-        self._size = size
-        self.is_mutable = mutable
+        self.size = size
+        self.is_trainable = trainable
 
     def __repr__(self) -> str:
-        mut_flag = "mut " if self.is_mutable else ""
-        return f"{mut_flag}{self.name}[{self._size}]"
+        mut_flag = "mut " if self.is_trainable else ""
+        return f"{mut_flag}{self.name}"
 
     def __len__(self) -> int:
-        return self._size
+        return self.size
+
+
+class Support:
+    pass
 
 
 class Instruction:
@@ -39,7 +41,7 @@ class Instruction:
         args: Arguments of the instruction such as angle, duration, amplitude etc.
     """
 
-    def __init__(self, name: str, support: tuple[int, ...], *args: Any):
+    def __init__(self, name: str, support: Support, *args: Any):
         self.name = name
         self.support = support
         self.args = args
