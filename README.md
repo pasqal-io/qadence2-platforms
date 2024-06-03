@@ -17,8 +17,8 @@ Model(
         options = {"initial_state": "010"}
     ),
     [
-        Instruction("rx", Support(0), Parameter("x0")),
-        Instruction("rx", Support(1), Parameter("x1")),
+        Instruction("rx", Support(0), Parameter("x0", 1, trainable=False)),
+        Instruction("rx", Support(1), 5.2),
         Instruction("h", Support.all),
         Instruction(
             "qubit_dym",
