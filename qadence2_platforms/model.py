@@ -3,68 +3,83 @@ from __future__ import annotations
 from typing import Any, Literal
 
 
-class Parameter:
+class Alloc:
     """
-    Symbolic parameter to be defined at run time. The type of the parameter is
-    defined by the backend.
+    Reserve one slot for a scaler parameter in the environment and n-slots for
+    an array. The type of the parameter is defined by the backend.
 
     Inputs:
-        name: Unique parameter name.
         size: Space occuped by the parameter.
         trainable: Flag if the parameter can change during a training loop.
     """
 
-    def __init__(self, name: str, size: int, *, trainable: bool) -> None:
-        self.name = name
+    def __init__(self, size: int, trainable: bool) -> None:
+        self.dtype = "float"
         self.size = size
         self.is_trainable = trainable
 
-    def __repr__(self) -> str:
-        mut_flag = "mut " if self.is_trainable else ""
-        return f"{mut_flag}{self.name}"
 
-    def __len__(self) -> int:
-        return self.size
+class Assign:
+    """Push a variable to the environment and assign a value to it."""
+
+    def __init__(self, variable_name: str, value: Any) -> None:
+        self.variable = variable_name
+        self.value = value
+
+
+class Load:
+    """To recover the value of a given variable."""
+
+    def __init__(self, variable_name: str) -> None:
+        self.variable = variable_name
+
+
+class Call:
+    """
+    Indicates the call of classical functions only.
+    """
+
+    def __init__(self, function_name: str, *args: Any) -> None:
+        self.call = function_name
+        self.args = args
 
 
 class Support:
+    """
+    Generic representation of the qubit support. For single qubit operations,
+    a muliple index support indicates apply the operation for each index in the
+    support.
+
+    Both target and control lists must be ordered!
+
+    Inputs:
+       target = Index or indices where the operation is applied.
+       control = Index or indices to which the operation is conditioned to.
+    """
+
     def __init__(
         self,
-        *indices: int,
-        target: tuple[int, ...] | None = None,
+        *,
+        target: tuple[int, ...],
         control: tuple[int, ...] | None = None,
     ) -> None:
-        if indices and (target or control):
-            raise SyntaxError(
-                "Please, provide either qubit indices or target-control tuples"
-            )
-
-        if control and not target:
-            raise SyntaxError("A controlled operation needs both, control and target.")
-
-        if indices:
-            self.target: tuple[int, ...] = indices
-            self.control: tuple[int, ...] = ()
-        else:
-            self.target = target or ()
-            self.control = control or ()
+        self.target = target
+        self.control = control or ()
 
     @classmethod
-    def all(cls) -> Support:
-        return Support()
+    def target_all(cls) -> Support:
+        return Support(target=())
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Support):
             return NotImplemented
 
-        return set(self.target) == set(other.target) and set(self.control) == set(
-            other.control
-        )
+        return self.target == other.target and self.control == other.control
 
 
-class Instruction:
+class QuInstruct:
     """
-    An abstract representation of backend instruction.
+    An abstract representation of a QPU instruction.
 
     Inputs:
         name: The instruction name compatible with the standard instruction set.
@@ -76,9 +91,6 @@ class Instruction:
         self.name = name
         self.support = support
         self.args = args
-
-    def __repr__(self) -> str:
-        return f"@{self.name} {self.support} ({', '.join(str(k) for k in self.args)})"
 
 
 class Register:
@@ -130,11 +142,13 @@ class Model:
     def __init__(
         self,
         register: Register,
-        instructions: list[Instruction],
+        inputs: dict[str, Assign],
+        instructions: list[QuInstruct | Assign],
         directives: dict[str, Any] | None = None,
         backend_settings: dict[str, Any] | None = None,
     ) -> None:
         self.register = register
-        self.instr = instructions
+        self.inputs = inputs
+        self.instructions = instructions
         self.directives = directives or dict()
         self.backend_settigns = backend_settings or dict()
