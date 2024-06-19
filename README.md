@@ -10,10 +10,10 @@ Installation guidelines
 Example
 ```python
 Model(
-    Register(
-        type = "triangular",
-        scale = 1.0,
-        allocate = [(-2,1), (0,1), (1,3)],
+    register = AllocQubits(
+        positions = [(-2,1), (0,1), (1,3)],
+        grid_type = "triangular",
+        grid_scale = 1.0,
         options = {"initial_state": "010"}
     ),
     inputs = {
