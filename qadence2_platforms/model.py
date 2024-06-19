@@ -14,7 +14,6 @@ class Alloc:
     """
 
     def __init__(self, size: int, trainable: bool) -> None:
-        self.dtype = "float"
         self.size = size
         self.is_trainable = trainable
 
@@ -93,12 +92,12 @@ class QuInstruct:
         self.args = args
 
 
-class Register:
+class AllocQubits:
     """
     Describes the atomic configuration of the register in a neutral atoms device.
 
     Inputs:
-        qubits_positions: A list of coordinates in a discrete grid been (0,0) the
+        qubit_positions: A list of coordinates in a discrete grid been (0,0) the
             center of the grid.
         grid_type: Allows to select the coordinates sets for the grid: "square"
             (orthogonal) or "triagular" (skew)
@@ -110,12 +109,12 @@ class Register:
 
     def __init__(
         self,
-        qubits_positions: list[tuple[int, int]],
-        grid_type: Literal["square", "triangular"],
+        qubit_positions: list[tuple[int, int]],
+        grid_type: Literal["square", "triangular"] = "square",
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
     ) -> None:
-        self.qubits_positions = qubits_positions
+        self.qubit_positions = qubit_positions
         self.grid_type = grid_type
         self.grid_scale = grid_scale
         self.options = options or dict()
@@ -141,7 +140,7 @@ class Model:
 
     def __init__(
         self,
-        register: Register,
+        register: AllocQubits,
         inputs: dict[str, Assign],
         instructions: list[QuInstruct | Assign],
         directives: dict[str, Any] | None = None,
