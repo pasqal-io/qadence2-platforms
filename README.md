@@ -11,6 +11,7 @@ Example
 ```python
 Model(
     register = AllocQubits(
+        num_qubits = 3,
         positions = [(-2,1), (0,1), (1,3)],
         grid_type = "triangular",
         grid_scale = 1.0,

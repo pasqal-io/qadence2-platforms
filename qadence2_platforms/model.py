@@ -94,26 +94,32 @@ class QuInstruct:
 
 class AllocQubits:
     """
-    Describes the atomic configuration of the register in a neutral atoms device.
+    Describes the register configuration in a neutral atoms device.
 
     Inputs:
-        qubit_positions: A list of coordinates in a discrete grid been (0,0) the
-            center of the grid.
-        grid_type: Allows to select the coordinates sets for the grid: "square"
-            (orthogonal) or "triagular" (skew)
+        num_qubits: Number of atoms to be allocated.
+        qubit_positions: A list of discrete coordinates for 2D grid with (0,0)
+            position at center of the grid. A list of indices in a linear register.
+            An empty list will indicate the backen is free to define the topology.
+        grid_type: Allows to select the coordinates sets for 2D grids: "square"
+            (orthogonal) or "triagular" (skew). A "linear" will allow the backend
+            to define the shape of the register. When the `grid_type` is `None`
+            the backend uses its default structure. Default value is `None`.
         grid_scale: Adjust the distance between atoms based on a standard distance
-            defined by the backend
+            defined by the backend. Default value is 1.
         options: Extra register related properties that may not be supported by
             all backends.
     """
 
     def __init__(
         self,
-        qubit_positions: list[tuple[int, int]],
-        grid_type: Literal["square", "triangular"] = "square",
+        num_qubits: int,
+        qubit_positions: list[tuple[int, int]] | list[int],
+        grid_type: Literal["linear", "square", "triangular"] | None,
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
     ) -> None:
+        self.num_qubits = (num_qubits,)
         self.qubit_positions = qubit_positions
         self.grid_type = grid_type
         self.grid_scale = grid_scale
