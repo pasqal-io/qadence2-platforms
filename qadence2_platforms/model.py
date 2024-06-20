@@ -100,11 +100,13 @@ class AllocQubits:
         num_qubits: Number of atoms to be allocated.
         qubit_positions: A list of discrete coordinates for 2D grid with (0,0)
             position at center of the grid. A list of indices in a linear register.
-            An empty list will indicate the backen is free to define the topology.
+            An empty list will indicate the backen is free to define the topology
+            for devices that implement logical qubits.
         grid_type: Allows to select the coordinates sets for 2D grids: "square"
             (orthogonal) or "triagular" (skew). A "linear" will allow the backend
             to define the shape of the register. When the `grid_type` is `None`
-            the backend uses its default structure. Default value is `None`.
+            the backend uses its default structure (particular useful when
+            shuttling is available). Default value is `None`.
         grid_scale: Adjust the distance between atoms based on a standard distance
             defined by the backend. Default value is 1.
         options: Extra register related properties that may not be supported by
