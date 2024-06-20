@@ -117,11 +117,11 @@ class AllocQubits:
         self,
         num_qubits: int,
         qubit_positions: list[tuple[int, int]] | list[int],
-        grid_type: Literal["linear", "square", "triangular"] | None,
+        grid_type: Literal["linear", "square", "triangular"] | None = None,
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
     ) -> None:
-        self.num_qubits = (num_qubits,)
+        self.num_qubits = num_qubits
         self.qubit_positions = qubit_positions
         self.grid_type = grid_type
         self.grid_scale = grid_scale
