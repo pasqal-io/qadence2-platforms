@@ -10,26 +10,37 @@ Installation guidelines
 Example
 ```python
 Model(
-    Register(
-        qubits_positions = [(-2,1), (0,1), (1,3)],
+    register = AllocQubits(
+        num_qubits = 3,
+        positions = [(-2,1), (0,1), (1,3)],
         grid_type = "triangular",
         grid_scale = 1.0,
         options = {"initial_state": "010"}
     ),
-    [
-        Instruction("rx", Support(0), Parameter("x0", 1, trainable=False)),
-        Instruction("rx", Support(1), 5.2),
-        Instruction("h", Support.all),
-        Instruction(
-            "qubit_dym",
-            Support(0, 2),
-            Paramter("t", 1, trainable=False),  # time
-            Paramter("Omega", 4, trainable=True),  # Amplitude modulation with 4 points
-            Paramter("delta", 1, trainable=False),  # detuning
-        )
+    inputs = {
+        "x": Alloc(1, trainable=False),
+        "t": Alloc(1, trainable=False),      # time
+        "Omega": Alloc(4, trainable=True),   # 4-points amp. modulation
+        "delta": Alloc(1, trainable=False)), # detuning
+    },
+    instructions = [
+        # -- Feature map
+        Assign("%0", Call("mul", 1.57, Load("x")),
+        Assign("%1", Call("sin", Load("%0"))),
+        QuInstruct("rx", Support(target=(0,)), Load("%1")),
+        # --
+        QuInstruct("h", Support.target_all()),
+        QuInstruct("not", Support(target=(1,), control=(0,))),
+        QuInstruct(
+		        "qubit_dyn",
+		        Support(0, 2),
+		        Load("t"),
+		        Load("Omega"),
+		        Load("delta"),
+		    )
     ],
-    directives = {"enable_digital_analog": True},
-    backend_settings = {"return_type": "state-vector"}
+    directives = {"digital-analog": True},
+    data_settings = {"result-type": "state-vector", "data-type": "f32"}
 )
 ```
 
