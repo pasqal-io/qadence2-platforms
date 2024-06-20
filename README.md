@@ -40,7 +40,7 @@ Model(
 		    )
     ],
     directives = {"digital-analog": True},
-    backend_options = {"result-type": "state-vector", "data-type": "f32"}
+    data_settings = {"result-type": "state-vector", "data-type": "f32"}
 )
 ```
 
