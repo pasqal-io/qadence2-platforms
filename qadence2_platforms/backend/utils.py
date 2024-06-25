@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from importlib import import_module
 from types import ModuleType
-from typing import Callable
+from typing import Any, Callable, Generic
+
+from qadence2_platforms.types import BytecodeInstructType, UserInputType
 
 
 def get_device_module(backend: str, device: str) -> ModuleType:
@@ -27,3 +29,20 @@ def get_sequence_instance(backend: str, device: str) -> Callable:
 def get_register_instance(backend: str) -> Callable:
     module_name = f"qadence2_platforms.backend.{backend}.backend"
     return getattr(import_module(name=module_name), "get_backend_register")
+
+
+class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
+    def __init__(self, fn: Callable, *args: Any):
+        self._fn = fn
+        self._args = args
+
+    @property
+    def fn(self) -> Callable:
+        return self._fn
+
+    @property
+    def args(self) -> tuple[Any, ...]:
+        return self._args
+
+    def resolve_args(self, inputs: UserInputType) -> BytecodeInstructType:
+        pass

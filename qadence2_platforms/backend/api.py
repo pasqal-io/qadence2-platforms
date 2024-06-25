@@ -11,29 +11,65 @@ from qadence2_platforms.types import (
     QuInstructType,
     BytecodeInstructType,
     SequenceObjectType,
+    SupportType,
+    ArgsType,
+    BackendInstructResultType,
 )
 
 
-class QuInstructAPI(ABC, Generic[QuInstructType]):
+class QuInstructAPI(
+    ABC,
+    Generic[SequenceObjectType, SupportType, ArgsType, BackendInstructResultType]
+):
     @classmethod
     @abstractmethod
-    def not_fn(cls, seq: QuInstructType, **options: Any) -> Callable: ...
+    def not_fn(
+        cls,
+        seq: SequenceObjectType,
+        support: SupportType,
+        *args: ArgsType,
+        **options: Any,
+    ) -> BackendInstructResultType: ...
 
     @classmethod
     @abstractmethod
-    def z_fn(cls, seq: QuInstructType, **options: Any) -> Callable: ...
+    def z_fn(
+        cls,
+        seq: SequenceObjectType,
+        support: SupportType,
+        *args: ArgsType,
+        **options: Any,
+    ) -> BackendInstructResultType: ...
 
     @classmethod
     @abstractmethod
-    def h_fn(cls, seq: QuInstructType, **options: Any) -> Callable: ...
+    def h_fn(
+        cls,
+        seq: SequenceObjectType,
+        support: SupportType,
+        *args: ArgsType,
+        **options: Any,
+    ) -> BackendInstructResultType: ...
 
     @classmethod
     @abstractmethod
-    def rx_fn(cls, seq: QuInstructType, **options: Any) -> Callable: ...
+    def rx_fn(
+        cls,
+        seq: SequenceObjectType,
+        support: SupportType,
+        *args: ArgsType,
+        **options: Any,
+    ) -> BackendInstructResultType: ...
 
     @classmethod
     @abstractmethod
-    def qubit_dyn_fn(cls, seq: QuInstructType, **options: Any) -> Callable: ...
+    def qubit_dyn_fn(
+        cls,
+        seq: SequenceObjectType,
+        support: SupportType,
+        *args: ArgsType,
+        **options: Any,
+    ) -> BackendInstructResultType: ...
 
 
 class BackendSequenceAPI(

@@ -94,7 +94,7 @@ class Dialect(
                     self.var_dict[instr.variable] = instr.value
                 case QuInstruct():
                     instr_fn = getattr(self.backend_module, instr.name)
-                    instr_iter += instr_fn(self.sequence, instr.support, instr.args),
+                    instr_iter += instr_fn(seq=self.sequence, support=instr.support, *instr.args),
 
         return instr_iter
 

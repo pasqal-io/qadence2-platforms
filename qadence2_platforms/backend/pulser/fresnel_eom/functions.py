@@ -7,20 +7,25 @@ from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
 from qadence2_platforms.types import Scalar
+from qadence2_platforms.qadence_ir import Support
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
+
 # TODO: redefine the functions according to the needs of `BackendInstruct` that is
 #  dependant on `Model` data (`QuInstruct`, `Support`, `Assign`, etc)
 
-def pulse(sequence: Sequence,
-          duration: Scalar,
-          amplitude: Scalar,
-          detuning: Scalar,
-          phase: Scalar,
-          **_: Any,
-          ) -> None:
+def pulse(
+    sequence: Sequence,
+    support: Support,
+    duration: Scalar,
+    amplitude: Scalar,
+    detuning: Scalar,
+    phase: Scalar,
+**_: Any,
+    ) -> None:
+    support_list = "LOCAL" if support.target else "GLOBAL"
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
@@ -30,17 +35,19 @@ def pulse(sequence: Sequence,
     amplitude *= max_amp
     detuning *= max_abs_detuning
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=int(duration), phase=phase)
-    sequence.disable_eom_mode("global")
+    sequence.enable_eom_mode(support_list, amp_on=amplitude, detuning_on=detuning)
+    sequence.add_eom_pulse(support_list, duration=int(duration), phase=phase)
+    sequence.disable_eom_mode(support_list)
 
 
 def rotation(
     sequence: Sequence,
+    support: Support,
     angle: Scalar,
     direction: Literal["x", "y"] | Scalar,
     **_: Any,
 ) -> None:
+    support_list = "LOCAL" if support.target else "GLOBAL"
     amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     duration = 1000 * angle / amplitude
     detuning = 0
@@ -53,34 +60,37 @@ def rotation(
         case _:
             phase = direction
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=int(duration), phase=phase)
-    sequence.disable_eom_mode("global")
+    sequence.enable_eom_mode(support_list, amp_on=amplitude, detuning_on=detuning)
+    sequence.add_eom_pulse(support_list, duration=int(duration), phase=phase)
+    sequence.disable_eom_mode(support_list)
 
 
 def free_evolution(
     sequence: Sequence,
+    support: Support,
     duration: Scalar,
     *_args: Any,
     **_kwargs: Any,
 ) -> None:
+    support_list = "LOCAL" if support.target else "GLOBAL"
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     duration *= 1000 * 2 * np.pi / max_amp
-    sequence.delay(int(duration), "global")  # type: ignore
+    sequence.delay(int(duration), support_list)  # type: ignore
 
 
-def apply_local_shifts(sequence: Sequence, **_: Any) -> None:
+def apply_local_shifts(sequence: Sequence, support: Support, **_: Any) -> None:
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
     time_scale = 1000 * 2 * np.pi / max_abs_detuning
     _local_pulse_core(
-        sequence, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False
+        sequence, support, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False
     )
 
 
 def local_pulse(
     sequence: Sequence,
+    support: Support,
     duration: Scalar | Literal["fill"],
     detuning: Scalar,
     concurrent: bool = False,
@@ -88,17 +98,19 @@ def local_pulse(
 ) -> None:
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     time_scale = 1000 * 2 * np.pi / max_amp
-    _local_pulse_core(sequence, duration, time_scale, detuning, concurrent)
+    _local_pulse_core(sequence, support, duration, time_scale, detuning, concurrent)
 
 
 def _local_pulse_core(
     sequence: Sequence,
+    support: Support,
     duration: Scalar | Literal["fill"],
     time_scale: float,
     detuning: Scalar,
     concurrent: bool = False,
     **_kwargs: Any,
 ) -> None:
+    support_list = "LOCAL" if support.target else "GLOBAL"
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
@@ -109,7 +121,7 @@ def _local_pulse_core(
                 "The option `fill` can only be used on the `concurrent` mode"
             )
 
-        duration = sequence.get_duration("global") - sequence.get_duration("dmm_0")
+        duration = sequence.get_duration(support_list) - sequence.get_duration("dmm_0")
     else:
         duration *= time_scale  # type: ignore
 
@@ -124,19 +136,19 @@ def _local_pulse_core(
 
 def h_pulse(
     sequence: Sequence,
-    amplitude: Scalar,
+    support: Support,
     duration: Scalar = 1000.0,
     **_: Any,
 ) -> None:
-    max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
-    duration *= 1000 * 2 * np.pi / max_amp
-    amplitude *= max_amp
+    support_list = "LOCAL" if support.target else "GLOBAL"
+    amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
+    duration *= 1000 * 2 * np.pi / amplitude
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, correct_phase_drift=True)
+    sequence.enable_eom_mode(support_list, amp_on=amplitude, correct_phase_drift=True)
     sequence.add_eom_pulse(
-        "global",
+        support_list,
         duration=int(duration),
         phase=np.pi / 2,
         post_phase_shift=np.pi
     )
-    sequence.disable_eom_mode("global")
+    sequence.disable_eom_mode(support_list)

@@ -11,8 +11,12 @@ DeviceType = TypeVar("DeviceType")
 DirectivesType = TypeVar("DirectivesType")
 QuInstructType = TypeVar("QuInstructType")
 SequenceObjectType = TypeVar("SequenceObjectType")
+SupportType = TypeVar("SupportType")
+ArgsType = TypeVar("ArgsType")
+BackendInstructResultType = TypeVar("BackendInstructResultType")
 BackendType = TypeVar("BackendType")
 BytecodeInstructType = TypeVar("BytecodeInstructType")
+UserInputType = TypeVar("UserInputType")
 
 
 class BackendName:
