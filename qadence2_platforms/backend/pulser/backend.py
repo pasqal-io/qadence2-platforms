@@ -1,6 +1,15 @@
+"""
+This file is the API-like interface between the compilation and runtime processes
+and the de facto backend library. It may be more expressive in cases where the
+backend library does not provide enough customization or data handling from the
+qadence-core (compilation- and runtime-wise) perspective, which is the case for
+this backend.
+"""
+
 from __future__ import annotations
 
 from dataclasses import replace
+from typing import Union
 import warnings
 
 import numpy as np
@@ -18,7 +27,8 @@ from pulser.devices import (
     IroiseMVP,
 )
 
-from qadence2_platforms.qadence_ir import Model
+from qadence2_platforms.qadence_ir import Model, Alloc, Assign
+from qadence2_platforms.backend.utils import BackendInstructResult
 
 
 _dmm = PulserDMM(
@@ -72,3 +82,10 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     register = layout.define_register(*traps, qubit_ids=range(len(traps)))
 
     return register
+
+
+def resolve_parameters(
+    instructions: BackendInstructResult,
+    variables: dict[str, Union[Alloc, Assign]],
+):
+    pass

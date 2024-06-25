@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from types import ModuleType
-from typing import Any, Callable, Iterator, Generic, Optional
+from typing import Any, Callable, Iterator, Generic, Optional, Union
 
 from qadence2_platforms.types import (
     DeviceType,
     BytecodeInstructType,
     SequenceObjectType,
 )
+from qadence2_platforms.qadence_ir import Alloc, Assign
 
 
 class Bytecode(Iterator, Generic[BytecodeInstructType, SequenceObjectType]):
@@ -23,11 +24,13 @@ class Bytecode(Iterator, Generic[BytecodeInstructType, SequenceObjectType]):
         backend: str,
         sequence: SequenceObjectType,
         instructions: BytecodeInstructType,
+        variables: dict[str, Union[Alloc, Assign]],
         device: DeviceType | None = None
     ):
         self.backend: str = backend
         self.device: Optional[DeviceType] = device
         self.sequence: SequenceObjectType = sequence
+        self.variables: dict[str, Union[Alloc, Assign]] = variables
         self.instructions: BytecodeInstructType = instructions
 
     def __next__(self) -> Callable:

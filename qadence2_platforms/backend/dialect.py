@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from types import ModuleType
 from copy import deepcopy
-from typing import Any, Callable, Union
+from typing import Callable, Generic, Union
 
 from qadence2_platforms.types import (
     BytecodeInstructType,
@@ -10,15 +9,14 @@ from qadence2_platforms.types import (
     DeviceType,
     RegisterType,
 )
-from qadence2_platforms.backend.api import DialectAPI
 from qadence2_platforms.backend.bytecode import Bytecode
 from qadence2_platforms.backend.utils import (
     get_backend_instruct_instance,
     get_sequence_instance,
-    get_register_instance,
+    get_backend_register_fn,
     get_device_module,
 )
-from qadence2_platforms.qadence_ir import Alloc, Assign, Call, Load, QuInstruct, Model
+from qadence2_platforms.qadence_ir import Alloc, Assign, Call, QuInstruct, Model
 
 instr_map = {
     "not": "not_fn",
@@ -30,7 +28,7 @@ instr_map = {
 
 
 class Dialect(
-    DialectAPI[RegisterType, str, DeviceType, BytecodeInstructType, SequenceObjectType]
+    Generic[RegisterType, DeviceType, BytecodeInstructType, SequenceObjectType]
 ):
     """
     <Add the `Dialect` description here>
@@ -59,7 +57,7 @@ class Dialect(
             device=self.device_name
         )
 
-        register_fn: Callable = get_register_instance(self.backend_name)
+        register_fn: Callable = get_backend_register_fn(self.backend_name)
         self.register: RegisterType = register_fn(self.model, self.device)
 
         self.backend_module: Callable = get_backend_instruct_instance(

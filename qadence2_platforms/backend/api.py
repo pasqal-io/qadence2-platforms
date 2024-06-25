@@ -78,10 +78,3 @@ class BackendSequenceAPI(
 ):
     @abstractmethod
     def get_sequence(self) -> SequenceObjectType: ...
-
-
-class DialectAPI(
-    ABC,
-    Generic[RegisterType, DeviceType, BackendType, BytecodeInstructType, SequenceObjectType]
-):
-    pass
