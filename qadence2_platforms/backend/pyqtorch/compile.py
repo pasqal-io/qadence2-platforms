@@ -33,8 +33,8 @@ def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
         args = []
         for symbol in call.args:
             if isinstance(symbol, float):
-                # NOTE we compile constants into each TorchCallable instead of passing them around in the
-                # values dict
+                # NOTE we compile constants into each TorchCallable instead of passing
+                # them around in the values dict
                 args.append(torch.tensor(symbol))
             elif isinstance(symbol, Load):
                 args.append({**params, **inputs}[symbol.variable])
@@ -44,13 +44,13 @@ def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
 
 
 class ParameterBuffer(torch.nn.Module):
-    """A class holding all root parameters either passed by the user or trainable variational parameters."""
+    """A class holding all root parameters either passed by the user
+    or trainable variational parameters."""
 
     def __init__(
         self,
         trainable_vars: list[str],
         non_trainable_vars: list[str],
-        # constants: list[float],
     ) -> None:
         super().__init__()
         self.vparams = {p: torch.rand(1, requires_grad=True) for p in trainable_vars}
@@ -97,7 +97,9 @@ class Embedding(torch.nn.Module):
     def __init__(self, model: Model) -> None:
         super().__init__()
         self.param_buffer = ParameterBuffer.from_model(model)
-        self.var_to_torchcall = self.create_var_to_torchcall_mapping(model)
+        self.var_to_torchcall: dict[str, Callable] = (
+            self.create_var_to_torchcall_mapping(model)
+        )
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """When called, the embedding takes a dict of user-passed name:value pairs for featureparameters
@@ -122,7 +124,7 @@ class Embedding(torch.nn.Module):
     @staticmethod
     def create_var_to_torchcall_mapping(
         model: Model,
-    ) -> dict[str, Callable[[list[str]], torch.Tensor]]:
+    ) -> dict[str, Callable[[dict, dict], torch.Tensor]]:
         assign_to_torch = dict()
         for instr in model.instructions:
             if isinstance(instr, Assign):
