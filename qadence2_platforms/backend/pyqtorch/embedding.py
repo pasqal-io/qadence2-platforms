@@ -3,18 +3,11 @@ from __future__ import annotations
 from logging import getLogger
 from typing import Any, Callable
 
-import pyqtorch as pyq
 import torch
 
 from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
 
 logger = getLogger(__name__)
-C_OPMap = {
-    "add": pyq.Add,
-    "mul": pyq.Scale,
-    "noncommute": pyq.Sequence,
-    "sin": torch.sin,
-}
 
 
 def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
