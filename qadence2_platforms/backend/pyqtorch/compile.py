@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from logging import getLogger
 from typing import Any, Callable
 
@@ -89,9 +90,10 @@ class ParameterBuffer(torch.nn.Module):
 
 
 class Embedding(torch.nn.Module):
-    """A class holding a parameterbuffer (containing concretized vparams and a list of featureparams),
-    and a dictionary of intermediate and leaf variable names mapped to a TorchCall object
-    which can be results of function/expression evaluations.
+    """A class holding:
+    - A parameterbuffer (containing concretized vparams + list of featureparams,
+    - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
+        which can be results of function/expression evaluations.
     """
 
     def __init__(self, model: Model) -> None:
@@ -102,9 +104,9 @@ class Embedding(torch.nn.Module):
         )
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
-        """When called, the embedding takes a dict of user-passed name:value pairs for featureparameters
-        and assigns all intermediate and leaf variables using the current vparam values (in the parambuffer) and the
-        passed values for featureparameters."""
+        """Expects a dict of user-passed name:value pairs for featureparameters
+        and assigns all intermediate and leaf variables using the current vparam values
+        and the passed values for featureparameters."""
         assigned_params: dict[str, torch.Tensor] = {}
         try:
             assert inputs.keys() == self.param_buffer.fparams.keys()
@@ -157,15 +159,31 @@ def compile_circ(
 
 
 class PyqModel(torch.nn.Module):
-    def __init__(self, embeddding: Embedding, circuit: pyq.QuantumCircuit) -> None:
+    def __init__(
+        self,
+        embeddding: Embedding,
+        circuit: pyq.QuantumCircuit,
+        observable: pyq.Observable = None,
+    ) -> None:
         super().__init__()
         self.embedding = embeddding
         self.circuit = circuit
+        self.observable = observable
 
-    def forward(
+    def run(self, state: torch.Tensor, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
+        return pyq.run(self.circuit, state, self.embedding(inputs))
+
+    def sample(
+        self, state: torch.Tensor, inputs: dict[str, torch.Tensor], n_shots: int = 1000
+    ) -> list[Counter]:
+        return pyq.sample(self.circuit, state, self.embedding(inputs), n_shots)  # type: ignore[no-any-return]
+
+    def expectation(
         self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
     ) -> torch.Tensor:
-        return pyq.run(self.circuit, state, self.embedding(inputs))
+        return pyq.expectation(
+            self.circuit, state, self.embedding(inputs), self.observable
+        )
 
 
 def compile(model: Model) -> PyqModel:
