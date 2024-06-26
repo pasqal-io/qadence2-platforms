@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pyqtorch as pyq
+import torch
+
 from qadence2_platforms.backend.pyqtorch.parse import pyq_compile
 from qadence2_platforms.qadence_ir import (
     Alloc,
@@ -35,6 +38,8 @@ def test_pyq_conversion() -> None:
         data_settings={"result-type": "state-vector", "data-type": "f32"},
     )
     embed, circ = pyq_compile(model)
+    wf = pyq.run(circ, pyq.zero_state(2), embed({"x": torch.rand(1)}))
+    assert not torch.all(torch.isnan(wf))
 
 
 if __name__ == "__main__":

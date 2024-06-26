@@ -107,7 +107,11 @@ class Embedding(torch.nn.Module):
             logger.error("Please pass a dict containing name:value for each fparam.")
         for assign_name, fn_or_value in self.assigns_to_torch.items():
             assigned_params[assign_name] = fn_or_value(
-                self.param_buffer.vparams, inputs
+                self.param_buffer.vparams,
+                {
+                    **inputs,
+                    **assigned_params,
+                },  # we add the "intermediate" variables too
             )
 
         return assigned_params
@@ -136,10 +140,12 @@ def compile_circ(
             target = instr.support.target
             native_support = (*control, *target)
             if len(instr.args) > 0:
-                params = list(map(compile_circ, instr.args))
-                return pyq_operations.append(native_op(native_support, *params))
+                assert len(instr.args) == 1, "More than one arg not supported"
+                (maybe_load,) = instr.args
+                assert isinstance(maybe_load, Load), "only support load"
+                pyq_operations.append(native_op(native_support, maybe_load.variable))
             else:
-                return pyq_operations.append(native_op(*native_support))
+                pyq_operations.append(native_op(*native_support))
     return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)
 
 
