@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import pyqtorch as pyq
-
-from qadence2_platforms.backend.pyqtorch.parse import parse_instruction
+from qadence2_platforms.backend.pyqtorch.parse import pyq_compile
 from qadence2_platforms.qadence_ir import (
     Alloc,
     AllocQubits,
@@ -36,9 +34,7 @@ def test_pyq_conversion() -> None:
         directives={"digital": True},
         data_settings={"result-type": "state-vector", "data-type": "f32"},
     )
-    Assign("%0", Call("mul", 1.57, Load("x")))
-    native_operations = parse_instruction(model.instructions)
-    pyq_circuit = pyq.QuantumCircuit(model.register.num_qubits, native_operations)
+    embed, circ = pyq_compile(model)
 
 
 if __name__ == "__main__":
