@@ -25,17 +25,12 @@ classifiers = [
 
 # always specify a version for each package
 # to maintain consistency
-dependencies = [
+dependencies = ["pyqtorch",
 ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 allow-ambiguous-features = true
-
-# add one or more extras in the dependencies
-[project.optional-dependencies]
-extras = [
-]
 
 [project.urls]
 # Documentation = "https://pqs.pages.pasqal.com/qadence2-platforms/"
