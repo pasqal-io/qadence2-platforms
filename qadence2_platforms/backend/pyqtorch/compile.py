@@ -170,6 +170,11 @@ class PyqModel(torch.nn.Module):
         self.circuit = circuit
         self.observable = observable
 
+    def forward(
+        self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
+    ) -> torch.Tensor:
+        return self.run(state, inputs)
+
     def run(self, state: torch.Tensor, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
         return pyq.run(self.circuit, state, self.embedding(inputs))
 
