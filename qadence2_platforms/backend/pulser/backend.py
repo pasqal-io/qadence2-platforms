@@ -8,28 +8,30 @@ this backend.
 
 from __future__ import annotations
 
-from dataclasses import replace
-from typing import Union
 import warnings
+from dataclasses import replace
+from typing import Any, Union
 
 import numpy as np
-
+from pulser.channels import DMM as PulserDMM
+from pulser.devices import (
+    AnalogDevice as PulserAnalogDevice,
+)
+from pulser.devices import (
+    DigitalAnalogDevice as PulserDigitalAnalogDevice,
+)
+from pulser.devices import (
+    IroiseMVP,
+)
 from pulser.devices._device_datacls import BaseDevice as PulserBaseDevice
 from pulser.register.base_register import BaseRegister
 from pulser.register.special_layouts import (
-    TriangularLatticeLayout,
     SquareLatticeLayout,
-)
-from pulser.channels import DMM as PulserDMM
-from pulser.devices import (
-    DigitalAnalogDevice as PulserDigitalAnalogDevice,
-    AnalogDevice as PulserAnalogDevice,
-    IroiseMVP,
+    TriangularLatticeLayout,
 )
 
-from qadence2_platforms.qadence_ir import Model, Alloc, Assign
 from qadence2_platforms.backend.utils import BackendInstructResult
-
+from qadence2_platforms.qadence_ir import Alloc, Assign, Model
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
@@ -58,10 +60,11 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     if model.directives.get("enable_digital_analog"):
         if model.register.grid_scale:
             warnings.warn(
-                "This device uses atomic distance-based strategies to perform digital operations.\n"
-                + "When the `enable_digital_analog` directive is active, the option `grid_scale`\n"
-                + "is ignored. Please be aware that turning off the directive `enable_digital_analog`\n"
-                + "may result in unexpected behaviours from digital operations.",
+                "This device uses atomic distance-based strategies to perform"
+                " digital operations. When the `enable_digital_analog` directive is active,"
+                " the option `grid_scale` is ignored. Please be aware that turning off the "
+                "directive `enable_digital_analog` may result in unexpected behaviours from"
+                " digital operations.",
                 SyntaxWarning,
                 stacklevel=2,
             )
@@ -85,7 +88,10 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
 
 
 def resolve_parameters(
-    instructions: BackendInstructResult,
+    instructions: tuple[BackendInstructResult, ...],
     variables: dict[str, Union[Alloc, Assign]],
-):
-    pass
+) -> Any:
+    for instr in instructions:
+        for arg in instr.args:
+            pass
+

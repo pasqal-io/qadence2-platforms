@@ -149,7 +149,7 @@ class Model:
     def __init__(
         self,
         register: AllocQubits,
-        inputs: dict[str, Assign],
+        inputs: dict[str, Alloc],
         instructions: list[QuInstruct | Assign],
         directives: dict[str, Any] | None = None,
         data_settings: dict[str, Any] | None = None,

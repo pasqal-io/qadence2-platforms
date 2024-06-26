@@ -6,15 +6,12 @@ import numpy as np
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
-from qadence2_platforms.types import Scalar
 from qadence2_platforms.qadence_ir import Support
+from qadence2_platforms.types import Scalar
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
-
-# TODO: redefine the functions according to the needs of `BackendInstruct` that is
-#  dependant on `Model` data (`QuInstruct`, `Support`, `Assign`, etc)
 
 def pulse(
     sequence: Sequence,
@@ -23,8 +20,8 @@ def pulse(
     amplitude: Scalar,
     detuning: Scalar,
     phase: Scalar,
-**_: Any,
-    ) -> None:
+    **_: Any,
+) -> None:
     support_list = "LOCAL" if support.target else "GLOBAL"
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
@@ -54,7 +51,7 @@ def rotation(
 
     match direction:
         case "x":
-            phase = 0
+            phase = 0.0
         case "y":
             phase = np.pi / 2
         case _:
@@ -84,7 +81,12 @@ def apply_local_shifts(sequence: Sequence, support: Support, **_: Any) -> None:
     )
     time_scale = 1000 * 2 * np.pi / max_abs_detuning
     _local_pulse_core(
-        sequence, support, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False
+        sequence,
+        support,
+        duration=1.0,
+        time_scale=time_scale,
+        detuning=1.0,
+        concurrent=False,
     )
 
 
@@ -146,9 +148,6 @@ def h_pulse(
 
     sequence.enable_eom_mode(support_list, amp_on=amplitude, correct_phase_drift=True)
     sequence.add_eom_pulse(
-        support_list,
-        duration=int(duration),
-        phase=np.pi / 2,
-        post_phase_shift=np.pi
+        support_list, duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
     )
     sequence.disable_eom_mode(support_list)

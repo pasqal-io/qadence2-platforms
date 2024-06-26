@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TypeVar
 
-
 Scalar = float
 
 # model generic types
@@ -39,7 +38,7 @@ class BackendName:
 
 
 class DeviceName:
-    FRESNEL = "fresnel"
-    FRESNEL_EOM = "fresnel_eom"
-    ANALOG_DEVICE = "analog_device"
+    FRESNEL = "Fresnel"
+    FRESNEL_EOM = "FresnelEOM"
+    ANALOG_DEVICE = "AnalogDevice"
     NONE = ""

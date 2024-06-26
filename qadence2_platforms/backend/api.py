@@ -1,25 +1,21 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Generic
 from abc import ABC, abstractmethod
+from typing import Any, Generic
 
 from qadence2_platforms.types import (
-    RegisterType,
-    DeviceType,
-    DirectivesType,
-    BackendType,
-    QuInstructType,
-    BytecodeInstructType,
-    SequenceObjectType,
-    SupportType,
     ArgsType,
     BackendInstructResultType,
+    DeviceType,
+    DirectivesType,
+    RegisterType,
+    SequenceObjectType,
+    SupportType,
 )
 
 
 class QuInstructAPI(
-    ABC,
-    Generic[SequenceObjectType, SupportType, ArgsType, BackendInstructResultType]
+    ABC, Generic[SequenceObjectType, SupportType, ArgsType, BackendInstructResultType]
 ):
     @classmethod
     @abstractmethod
@@ -27,7 +23,7 @@ class QuInstructAPI(
         cls,
         seq: SequenceObjectType,
         support: SupportType,
-        *args: ArgsType,
+        *args: Any,
         **options: Any,
     ) -> BackendInstructResultType: ...
 
@@ -37,7 +33,7 @@ class QuInstructAPI(
         cls,
         seq: SequenceObjectType,
         support: SupportType,
-        *args: ArgsType,
+        *args: Any,
         **options: Any,
     ) -> BackendInstructResultType: ...
 
@@ -47,7 +43,7 @@ class QuInstructAPI(
         cls,
         seq: SequenceObjectType,
         support: SupportType,
-        *args: ArgsType,
+        *args: Any,
         **options: Any,
     ) -> BackendInstructResultType: ...
 
@@ -57,7 +53,7 @@ class QuInstructAPI(
         cls,
         seq: SequenceObjectType,
         support: SupportType,
-        *args: ArgsType,
+        *args: Any,
         **options: Any,
     ) -> BackendInstructResultType: ...
 
@@ -67,14 +63,13 @@ class QuInstructAPI(
         cls,
         seq: SequenceObjectType,
         support: SupportType,
-        *args: ArgsType,
+        *args: Any,
         **options: Any,
     ) -> BackendInstructResultType: ...
 
 
 class BackendSequenceAPI(
-    ABC,
-    Generic[RegisterType, DeviceType, DirectivesType, SequenceObjectType]
+    ABC, Generic[RegisterType, DeviceType, DirectivesType, SequenceObjectType]
 ):
     @abstractmethod
     def get_sequence(self) -> SequenceObjectType: ...

@@ -2,14 +2,12 @@ from __future__ import annotations
 
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Callable, Generic
+from typing import Any, Callable, Generic, Iterator, Union
 
 from qadence2_platforms.types import (
     BytecodeInstructType,
     UserInputType,
-    DeviceType,
 )
-from qadence2_platforms.qadence_ir import Model
 
 
 def get_backend_module(backend: str) -> ModuleType:
@@ -17,32 +15,38 @@ def get_backend_module(backend: str) -> ModuleType:
     return import_module(name=module_name, package="backend")
 
 
-def get_device_module(backend: str, device: str) -> ModuleType:
+def get_device_module(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}.backend"
-    return import_module(name=module_name, package=device)
+    return getattr(import_module(name=module_name), device)
 
 
-def get_backend_instruct_instance(backend: str, device: str) -> Callable:
+def get_backend_instruct_instance(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}"
     if device:
         module_name += f".{device}"
-    return getattr(import_module(name=module_name, package="instructions"), "BackendInstruct")
+    return getattr(
+        import_module(name=module_name, package="instructions"), "BackendInstruct"
+    )
 
 
-def get_sequence_instance(backend: str, device: str) -> Callable:
+def get_sequence_instance(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}"
     if device:
         module_name += f".{device}"
-    return getattr(import_module(name=module_name, package="instructions"), "BackendSequence")
+    return getattr(
+        import_module(name=module_name, package="instructions"), "BackendSequence"
+    )
 
 
-def get_backend_register_fn(backend: str) -> Callable:
+def get_backend_register_fn(backend: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}.backend"
     return getattr(import_module(name=module_name), "get_backend_register")
 
 
 class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
-    def __init__(self, fn: Callable, *args: Any):
+    def __init__(self, *args: Any, fn: Union[Callable, None] = None):
+        if not fn:
+            raise ValueError("Must declare `fn` argument.")
         self._fn = fn
         self._args = args
 
@@ -53,6 +57,3 @@ class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
     @property
     def args(self) -> tuple[Any, ...]:
         return self._args
-
-    def resolve_args(self, inputs: UserInputType) -> BytecodeInstructType:
-        pass

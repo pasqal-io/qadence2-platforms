@@ -110,8 +110,8 @@ exclude_lines = [
 ]
 
 [tool.ruff]
-select = ["E", "F", "I", "Q"]
-extend-ignore = ["F841"]
+lint.select = ["E", "F", "I", "Q"]
+lint.extend-ignore = ["F841"]
 line-length = 100
 
 [tool.ruff.isort]
