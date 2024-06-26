@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Callable
+from typing import Any, Callable
 
 import pyqtorch as pyq
 import torch
@@ -26,7 +26,7 @@ Q_OpMap = {
 def TorchCallable(call: Call) -> Callable[[dict, dict], torch.Tensor]:
     fn = getattr(torch, call.call)
 
-    def evaluate(params, inputs) -> torch.Tensor:
+    def evaluate(params: dict, inputs: dict) -> torch.Tensor:
         args = []
         for symbol in call.args:
             if isinstance(symbol, float):
@@ -62,7 +62,7 @@ class ParameterBuffer(torch.nn.Module):
     def dtype(self) -> torch.dtype:
         return self._dtype
 
-    def to(self, args, kwargs) -> None:
+    def to(self, args: Any, kwargs: Any) -> None:
         self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
         # self.constants = {c: t.to(*args, **kwargs) for c, t in self.constants.items()}
         try:
@@ -90,17 +90,13 @@ class Embedding(torch.nn.Module):
     and a list of "assigned parameters" which can be results of function/expression evaluations.
     """
 
-    def __init__(
-        self,
-        param_buffer: ParameterBuffer,
-        assigns_to_torch: dict[str, Callable[[dict, dict], torch.Tensor]],
-    ) -> None:
+    def __init__(self, model: Model) -> None:
         super().__init__()
-        self.param_buffer = param_buffer
-        self.assigns_to_torch = assigns_to_torch
+        self.param_buffer = ParameterBuffer.from_model(model)
+        self.assigns_to_torch = self.parse_assigns(model)
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
-        assigned_params = {}
+        assigned_params: dict[str, torch.Tensor] = {}
         try:
             assert inputs.keys() == self.param_buffer.fparams.keys()
         except Exception as e:
@@ -116,13 +112,13 @@ class Embedding(torch.nn.Module):
 
         return assigned_params
 
-
-def parse_assigns(model: Model) -> dict[str, Callable[[list[str]], torch.Tensor]]:
-    assign_to_torch = dict()
-    for instr in model.instructions:
-        if isinstance(instr, Assign):
-            assign_to_torch[instr.variable] = TorchCallable(instr.value)
-    return assign_to_torch
+    @staticmethod
+    def parse_assigns(model: Model) -> dict[str, Callable[[list[str]], torch.Tensor]]:
+        assign_to_torch = dict()
+        for instr in model.instructions:
+            if isinstance(instr, Assign):
+                assign_to_torch[instr.variable] = TorchCallable(instr.value)
+        return assign_to_torch
 
 
 def compile_circ(
@@ -149,9 +145,19 @@ def compile_circ(
     return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)
 
 
-def pyq_compile(model) -> (Embedding, pyq.QuantumCircuit):
-    buffer = ParameterBuffer.from_model(model)
-    torched_assigns = parse_assigns(model)
-    embedding = Embedding(buffer, torched_assigns)
+class PyqModel(torch.nn.Module):
+    def __init__(self, embeddding: Embedding, circuit: pyq.QuantumCircuit) -> None:
+        super().__init__()
+        self.embedding = embeddding
+        self.circuit = circuit
+
+    def forward(
+        self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
+    ) -> torch.Tensor:
+        return pyq.run(self.circuit, state, self.embedding(inputs))
+
+
+def compile(model: Model) -> PyqModel:
+    embedding = Embedding(model)
     native_circ = compile_circ(model)
-    return embedding, native_circ
+    return PyqModel(embedding, native_circ)

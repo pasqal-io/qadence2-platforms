@@ -3,7 +3,8 @@ from __future__ import annotations
 import pyqtorch as pyq
 import torch
 
-from qadence2_platforms.backend.pyqtorch.compile import pyq_compile
+from qadence2_platforms.backend.pyqtorch.compile import PyqModel
+from qadence2_platforms.backend.pyqtorch.compile import compile as pyq_compile
 from qadence2_platforms.qadence_ir import (
     Alloc,
     AllocQubits,
@@ -16,11 +17,7 @@ from qadence2_platforms.qadence_ir import (
 )
 
 
-def test_call_conversion() -> None:
-    pass
-
-
-def test_pyq_conversion() -> None:
+def test_pyq_compilation() -> None:
     model = Model(
         register=AllocQubits(num_qubits=2, options={"initial_state": "10"}),
         inputs={
@@ -37,10 +34,12 @@ def test_pyq_conversion() -> None:
         directives={"digital": True},
         data_settings={"result-type": "state-vector", "data-type": "f32"},
     )
-    embed, circ = pyq_compile(model)
-    wf = pyq.run(circ, pyq.zero_state(2), embed({"x": torch.rand(1)}))
-    assert not torch.all(torch.isnan(wf))
+    compiled_model: PyqModel = pyq_compile(model)
+    f_params = {"x": torch.rand(1, requires_grad=True)}
+    wf = compiled_model(pyq.zero_state(2), f_params)
+    dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
+    assert not torch.all(torch.isnan(dfdx))
 
 
 if __name__ == "__main__":
-    test_pyq_conversion()
+    test_pyq_compilation()
