@@ -3,56 +3,74 @@ from __future__ import annotations
 from collections import Counter
 from importlib import import_module
 from logging import getLogger
+from typing import Any
 
-import pyqtorch as pyq
 import torch
 
-from qadence2_platforms.backend.pyqtorch.embed import Embedding
 from qadence2_platforms.qadence_ir import Model
 
 logger = getLogger(__name__)
 
 
 class Api(torch.nn.Module):
-    """A class holding the final embedding instance and the pyq.QuantumCircuit."""
+    """A class holding register,embedding, circuit, native backend and optional observable."""
 
     def __init__(
         self,
-        embedding: Embedding,
-        circuit: pyq.QuantumCircuit,
-        observable: pyq.Observable = None,
-        backend: str = "pyqtorch",
+        register: Any,
+        embedding: Any,
+        circuit: Any,
+        native_backend: Any,
+        observable: Any = None,
     ) -> None:
         super().__init__()
+        self.register = register
+        self.init_state = (
+            circuit.from_bitstring(register.init_state)
+            if register.init_state is not None
+            else circuit.init_state()
+        )
         self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
-        self.backend = backend
+        self.native_backend = native_backend
+
+    @property
+    def n_qubits(self) -> int:
+        return self.register.n_qubits  # type: ignore[no-any-return]
 
     def forward(
         self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
     ) -> torch.Tensor:
-        return self.run(state, inputs)
+        if state is None:
+            state = self.init_state
+        return self.native_backend.run(self.circuit, state, self.embedding(inputs))
 
-    def run(self, state: torch.Tensor, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
-        return pyq.run(self.circuit, state, self.embedding(inputs))
+    def run(
+        self, state: torch.Tensor = None, inputs: dict[str, torch.Tensor] = dict()
+    ) -> torch.Tensor:
+        return self.forward(state, inputs)
 
     def sample(
         self, state: torch.Tensor, inputs: dict[str, torch.Tensor], n_shots: int = 1000
     ) -> list[Counter]:
-        return pyq.sample(self.circuit, state, self.embedding(inputs), n_shots)  # type: ignore[no-any-return]
+        return self.native_backend.sample(self.circuit, state, self.embedding(inputs), n_shots)  # type: ignore[no-any-return]
 
     def expectation(
         self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
     ) -> torch.Tensor:
-        return pyq.expectation(
+        return self.native_backend.expectation(
             self.circuit, state, self.embedding(inputs), self.observable
         )
 
 
-def compile(model: Model, backend: str) -> Api:
-    embed = import_module(f"qadence2_platforms.backend.{backend}.embed")
-    compiler = import_module(f"qadence2_platforms.backend.{backend}.compile")
-    embedding = embed.Embedding(model)
-    native_circ = compiler.compile(model)
-    return Api(embedding, native_circ, backend)
+def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
+    try:
+        interface = import_module(f"qadence2_platforms.backend.{backend_name}")
+        native_backend = import_module(backend_name)
+        register_interface = interface.RegisterInterface(model)
+        embedding = interface.Embedding(model)
+        native_circ = interface.Compiler().compile(model)
+        return Api(register_interface, embedding, native_circ, native_backend)
+    except Exception as e:
+        logger.error(f"Unable to import backend {backend_name} due to {e}.")

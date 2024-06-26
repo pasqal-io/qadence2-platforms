@@ -23,11 +23,9 @@ def test_pyq_compilation() -> None:
             "x": Alloc(size=1, trainable=False),
         },
         instructions=[
-            # -- Feature map
             Assign("%0", Call("mul", 1.57, Load("x"))),
             Assign("%1", Call("sin", Load("%0"))),
             QuInstruct("rx", Support(target=(0,)), Load("%1")),
-            # --
             QuInstruct("not", Support(target=(1,), control=(0,))),
         ],
         directives={"digital": True},
@@ -38,7 +36,3 @@ def test_pyq_compilation() -> None:
     wf = compiled_model(pyq.zero_state(2), f_params)
     dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
     assert not torch.all(torch.isnan(dfdx))
-
-
-if __name__ == "__main__":
-    test_pyq_compilation()
