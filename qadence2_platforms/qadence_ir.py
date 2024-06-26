@@ -116,7 +116,7 @@ class AllocQubits:
     def __init__(
         self,
         num_qubits: int,
-        qubit_positions: list[tuple[int, int]] | list[int],
+        qubit_positions: list[tuple[int, int]] | list[int] | None = None,
         grid_type: Literal["linear", "square", "triangular"] | None = None,
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
@@ -149,7 +149,7 @@ class Model:
     def __init__(
         self,
         register: AllocQubits,
-        inputs: dict[str, Assign],
+        inputs: dict[str, Alloc],
         instructions: list[QuInstruct | Assign],
         directives: dict[str, Any] | None = None,
         data_settings: dict[str, Any] | None = None,
