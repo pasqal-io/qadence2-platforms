@@ -10,8 +10,8 @@ Qadence2 expressions is being compiled into an IR comprised of both quantum and 
 ## API
 The `backend` module exposes a single `compile` function which accepts a `Model` and a string denoting the `backend`.
 ## Backend
-Each backend is expected to handle the storage and embedding of parameters in a `Embedding` class
-and the compilation of `model.instructions` into native instructions in the particular backend via a `Compiler`.
+Each submodule under `backend`  is expected to handle the storage and embedding of parameters in a `Embedding` class, the compilation of `model.instructions` into native instructions in the particular backend via a `Compiler`
+and the handling of the register via a `RegisterInterface`.
 
 ## Usage
 
