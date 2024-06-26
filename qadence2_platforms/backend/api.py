@@ -51,8 +51,8 @@ class Api(torch.nn.Module):
 
 
 def compile(model: Model, backend: str) -> Api:
-    embed = import_module("qadence2_platforms.backend.pyqtorch.embed")
-    compiler = import_module("qadence2_platforms.backend.pyqtorch.compile")
+    embed = import_module(f"qadence2_platforms.backend.{backend}.embed")
+    compiler = import_module(f"qadence2_platforms.backend.{backend}.compile")
     embedding = embed.Embedding(model)
     native_circ = compiler.compile(model)
     return Api(embedding, native_circ, backend)
