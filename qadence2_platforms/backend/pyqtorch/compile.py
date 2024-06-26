@@ -161,12 +161,12 @@ def compile_circ(
 class PyqModel(torch.nn.Module):
     def __init__(
         self,
-        embeddding: Embedding,
+        embedding: Embedding,
         circuit: pyq.QuantumCircuit,
         observable: pyq.Observable = None,
     ) -> None:
         super().__init__()
-        self.embedding = embeddding
+        self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
 
