@@ -3,7 +3,7 @@ from __future__ import annotations
 import pyqtorch as pyq
 import torch
 
-from qadence2_platforms.backend.pyqtorch.parse import pyq_compile
+from qadence2_platforms.backend.pyqtorch.compile import pyq_compile
 from qadence2_platforms.qadence_ir import (
     Alloc,
     AllocQubits,
