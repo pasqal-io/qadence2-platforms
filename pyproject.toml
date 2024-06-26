@@ -12,7 +12,8 @@ license = {text = "Proprietary"}
 keywords = ["quantum"]
 authors = [
   { name = "Eduardo Maschio", email = "eduardo.maschio@pasqal.com" },
-  { name = "Kaonan Micadei", email = "kaonan.micadei@pasqal.com" }
+  { name = "Kaonan Micadei", email = "kaonan.micadei@pasqal.com" },
+  { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" }
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -25,18 +26,16 @@ classifiers = [
 
 # always specify a version for each package
 # to maintain consistency
-dependencies = [
+dependencies = ["pyqtorch",
 ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
 allow-ambiguous-features = true
 
-# add one or more extras in the dependencies
 [project.optional-dependencies]
 extras = [
 ]
-
 [project.urls]
 # Documentation = "https://pqs.pages.pasqal.com/qadence2-platforms/"
 Issues = "https://github.com/pasqal-io/wip-qadence2-platforms/issues"
