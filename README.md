@@ -25,7 +25,7 @@ Model(
     },
     instructions = [
         # -- Feature map
-        Assign("%0", Call("mul", 1.57, Load("x")),
+        Assign("%0", Call("mul", 1.57, Load("x"))),
         Assign("%1", Call("sin", Load("%0"))),
         QuInstruct("rx", Support(target=(0,)), Load("%1")),
         # --

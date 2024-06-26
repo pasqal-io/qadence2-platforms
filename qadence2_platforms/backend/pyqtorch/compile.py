@@ -23,13 +23,18 @@ Q_OpMap = {
 }
 
 
-def TorchCallable(call: Call) -> Callable[[dict, dict], torch.Tensor]:
+def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
+    """Convert a `Call` object into a torchified function which can be evaluated using
+    a vparams and inputs dict.
+    """
     fn = getattr(torch, call.call)
 
     def evaluate(params: dict, inputs: dict) -> torch.Tensor:
         args = []
         for symbol in call.args:
             if isinstance(symbol, float):
+                # NOTE we compile constants into each TorchCallable instead of passing them around in the
+                # values dict
                 args.append(torch.tensor(symbol))
             elif isinstance(symbol, Load):
                 args.append({**params, **inputs}[symbol.variable])
@@ -50,7 +55,6 @@ class ParameterBuffer(torch.nn.Module):
         super().__init__()
         self.vparams = {p: torch.rand(1, requires_grad=True) for p in trainable_vars}
         self.fparams = {p: None for p in non_trainable_vars}
-        # self.constants = {str(c): torch.tensor(c) for c in constants}
         self._dtype = torch.float64
         self._device = torch.device("cpu")
 
@@ -64,7 +68,6 @@ class ParameterBuffer(torch.nn.Module):
 
     def to(self, args: Any, kwargs: Any) -> None:
         self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
-        # self.constants = {c: t.to(*args, **kwargs) for c, t in self.constants.items()}
         try:
             k = next(iter(self.vparams))
             t = self.vparams[k]
@@ -86,23 +89,27 @@ class ParameterBuffer(torch.nn.Module):
 
 
 class Embedding(torch.nn.Module):
-    """A class holding a parameterbuffer with concretized vparams a list of featureparams,
-    and a list of "assigned parameters" which can be results of function/expression evaluations.
+    """A class holding a parameterbuffer (containing concretized vparams and a list of featureparams),
+    and a dictionary of intermediate and leaf variable names mapped to a TorchCall object
+    which can be results of function/expression evaluations.
     """
 
     def __init__(self, model: Model) -> None:
         super().__init__()
         self.param_buffer = ParameterBuffer.from_model(model)
-        self.assigns_to_torch = self.parse_assigns(model)
+        self.var_to_torchcall = self.create_var_to_torchcall_mapping(model)
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+        """When called, the embedding takes a dict of user-passed name:value pairs for featureparameters
+        and assigns all intermediate and leaf variables using the current vparam values (in the parambuffer) and the
+        passed values for featureparameters."""
         assigned_params: dict[str, torch.Tensor] = {}
         try:
             assert inputs.keys() == self.param_buffer.fparams.keys()
         except Exception as e:
             logger.error("Please pass a dict containing name:value for each fparam.")
-        for assign_name, fn_or_value in self.assigns_to_torch.items():
-            assigned_params[assign_name] = fn_or_value(
+        for var, torchcall in self.var_to_torchcall.items():
+            assigned_params[var] = torchcall(
                 self.param_buffer.vparams,
                 {
                     **inputs,
@@ -113,11 +120,13 @@ class Embedding(torch.nn.Module):
         return assigned_params
 
     @staticmethod
-    def parse_assigns(model: Model) -> dict[str, Callable[[list[str]], torch.Tensor]]:
+    def create_var_to_torchcall_mapping(
+        model: Model,
+    ) -> dict[str, Callable[[list[str]], torch.Tensor]]:
         assign_to_torch = dict()
         for instr in model.instructions:
             if isinstance(instr, Assign):
-                assign_to_torch[instr.variable] = TorchCallable(instr.value)
+                assign_to_torch[instr.variable] = torch_call(instr.value)
         return assign_to_torch
 
 
