@@ -33,6 +33,9 @@ dependencies = ["pyqtorch",
 allow-direct-references = true
 allow-ambiguous-features = true
 
+[project.optional-dependencies]
+extras = [
+]
 [project.urls]
 # Documentation = "https://pqs.pages.pasqal.com/qadence2-platforms/"
 Issues = "https://github.com/pasqal-io/wip-qadence2-platforms/issues"
