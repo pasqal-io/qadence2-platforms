@@ -10,8 +10,8 @@ from pulser_simulation import QutipEmulator
 
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 
-from .fresnel_eom.sequence import BackendPartialSequence
 from .embedding import EmbeddingModule
+from .fresnel_eom.sequence import BackendPartialSequence
 
 
 class RuntimeInterface(

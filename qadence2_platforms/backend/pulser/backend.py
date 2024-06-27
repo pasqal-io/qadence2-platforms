@@ -109,5 +109,3 @@ class InstructPartialResult:
             f"InstructPartialResult(fn={self.fn.func.__name__},"
             f" params=[{' '.join(p.variable for p in self.args)}])"
         )
-
-

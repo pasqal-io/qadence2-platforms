@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache, partial
-from typing import Callable, Any, Optional, cast
+from typing import Any, Callable, Optional, cast
 
 import numpy as np
 from pulser.devices._device_datacls import BaseDevice
@@ -12,9 +12,9 @@ from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
-from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
-from ..embedding import EmbeddingModule
 from ..backend import InstructPartialResult
+from ..embedding import EmbeddingModule
+from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
 
 
 class BackendPartialSequence:
