@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Callable
+from functools import lru_cache, partial
+from typing import Callable, Any, Optional, cast
 
 import numpy as np
 from pulser.devices._device_datacls import BaseDevice
@@ -11,8 +12,44 @@ from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
-from ..backend import BackendPartialSequence
 from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
+from ..embedding import EmbeddingModule
+from ..backend import InstructPartialResult
+
+
+class BackendPartialSequence:
+    def __init__(self, *instructions: Any):
+        self.partial_instr: tuple[InstructPartialResult, ...] = instructions
+
+    @staticmethod
+    @lru_cache
+    def get_fn_args(fn: partial) -> Any:
+        match fn.func.__name__:
+            case "rotation":
+                return ["angle", "direction"]
+            case "pulse":
+                return ["duration", "amplitude", "detuning", "phase"]
+            case "free_evolution":
+                return ["duration"]
+            case _:
+                return []
+
+    def evaluate(
+        self, embedding: EmbeddingModule, values: Optional[dict] = None
+    ) -> PulserSequence:
+        seq: Optional[PulserSequence] = None
+        assigned_values: dict = embedding(values)
+        for fn, params in self.partial_instr:
+            resolved_params: tuple[Any, ...] = ()
+            params = cast(tuple, params)
+            fn = cast(partial, fn)
+            for param in params:
+                resolved_params += (assigned_values[param.variable],)
+            seq = fn(**dict(zip(self.get_fn_args(fn), resolved_params)))
+
+        if seq:
+            return seq
+        raise ValueError("pulser sequence must not be None.")
 
 
 class Sequence(SequenceApi[BackendPartialSequence, BaseRegister, BaseDevice]):

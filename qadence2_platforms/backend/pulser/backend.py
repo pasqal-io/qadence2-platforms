@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import replace
-from functools import lru_cache, partial
-from typing import Any, Iterator, Optional, cast
+from functools import partial
+from typing import Any, Iterator
 
 import numpy as np
 from pulser.channels import DMM as PulserDMM
@@ -30,9 +30,7 @@ from pulser.register.special_layouts import (
     SquareLatticeLayout,
     TriangularLatticeLayout,
 )
-from pulser.sequence import Sequence as PulserSequence
 
-from qadence2_platforms.backend.pulser import EmbeddingModule
 from qadence2_platforms.qadence_ir import Model
 
 _dmm = PulserDMM(
@@ -113,36 +111,3 @@ class InstructPartialResult:
         )
 
 
-class BackendPartialSequence:
-    def __init__(self, *instructions: Any):
-        self.partial_instr: tuple[InstructPartialResult, ...] = instructions
-
-    @staticmethod
-    @lru_cache
-    def get_fn_args(fn: partial) -> Any:
-        match fn.func.__name__:
-            case "rotation":
-                return ["angle", "direction"]
-            case "pulse":
-                return ["duration", "amplitude", "detuning", "phase"]
-            case "free_evolution":
-                return ["duration"]
-            case _:
-                return []
-
-    def evaluate(
-        self, embedding: EmbeddingModule, values: Optional[dict] = None
-    ) -> PulserSequence:
-        seq: Optional[PulserSequence] = None
-        assigned_values: dict = embedding(values)
-        for fn, params in self.partial_instr:
-            resolved_params: tuple[Any, ...] = ()
-            params = cast(tuple, params)
-            fn = cast(partial, fn)
-            for param in params:
-                resolved_params += (assigned_values[param.variable],)
-            seq = fn(**dict(zip(self.get_fn_args(fn), resolved_params)))
-
-        if seq:
-            return seq
-        raise ValueError("pulser sequence must not be None.")

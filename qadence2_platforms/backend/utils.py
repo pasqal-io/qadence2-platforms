@@ -22,6 +22,11 @@ def get_device_instance(backend: str, device: str) -> Any:
     return getattr(import_module(name=module_name), device, None)
 
 
+def get_dialect_instance(backend: str) -> Any:
+    module_name = f"qadence2_platforms.backend.{backend}"
+    return import_module(name=module_name, package="dialect")
+
+
 def get_embedding_instance(backend: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}.embedding"
     return getattr(import_module(name=module_name), "EmbeddingModule")
