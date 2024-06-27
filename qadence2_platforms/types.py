@@ -28,6 +28,10 @@ ArgsType = TypeVar("ArgsType")
 BackendInstructResultType = TypeVar("BackendInstructResultType")
 BackendType = TypeVar("BackendType")
 
+# dialect generic types
+NativeBackendType = TypeVar("NativeBackendType")
+NativeSequenceType = TypeVar("NativeSequenceType")
+
 # bytecode generic types
 BytecodeInstructType = TypeVar("BytecodeInstructType")
 UserInputType = TypeVar("UserInputType")

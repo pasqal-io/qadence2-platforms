@@ -3,21 +3,26 @@ from __future__ import annotations
 from typing import Any, Generic
 from abc import ABC, abstractmethod
 
-from qadence2_platforms.backend.bytecode import BytecodeApi
-from qadence2_platforms.backend.utils import get_backend_module
 from qadence2_platforms.types import (
     ExpectationResultType,
     InterfaceCallResultType,
-    InterfaceInstructType,
     RunResultType,
     SampleResultType,
+    RegisterType,
+    EmbeddingType,
+    NativeBackendType,
+    NativeSequenceType,
 )
 
 
-class RuntimeInterface(
+class RuntimeInterfaceApi(
     ABC,
     Generic[
-        InterfaceInstructType,
+        RegisterType,
+        EmbeddingType,
+        NativeSequenceType,
+        NativeBackendType,
+
         RunResultType,
         SampleResultType,
         ExpectationResultType,
@@ -29,17 +34,11 @@ class RuntimeInterface(
     It may run with the qadence-core runtime functions when post-processing,
     statistical analysis, etc.
     """
-    def __init__(self, bytecode: BytecodeApi, **options: Any):
-        self.bytecode: BytecodeApi = bytecode
-        self.options: Any = options
 
-    def _resolve_parameters(self) -> Any:
-        resolve_fn = getattr(
-            get_backend_module(self.bytecode.backend), "resolve_parameters"
-        )
-        return resolve_fn(
-            instructions=self.bytecode.instructions, variables=self.bytecode.variables
-        )
+    register: RegisterType
+    embedding: EmbeddingType
+    engine: NativeBackendType
+    sequence: NativeSequenceType
 
     @abstractmethod
     def __call__(self, *args: Any, **kwargs: Any) -> InterfaceCallResultType:

@@ -29,7 +29,7 @@ def get_backend_instruct_instance(backend: str, device: str) -> Any:
     )
 
 
-def get_native_instr_instance(backend: str, device: str) -> Any:
+def get_native_seq_instance(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}"
     if device:
         module_name += f".{device}"

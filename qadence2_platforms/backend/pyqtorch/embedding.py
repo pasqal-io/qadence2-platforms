@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 import torch
 
 from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
+from qadence2_platforms.backend.embedding import (
+    EmbeddingModuleApi,
+    ParameterBufferApi,
+)
 
 logger = getLogger(__name__)
 
@@ -30,7 +34,10 @@ def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
     return evaluate
 
 
-class ParameterBuffer(torch.nn.Module):
+class ParameterBuffer(
+    torch.nn.Module,
+    ParameterBufferApi[torch.dtype, torch.Tensor],
+):
     """A class holding all root parameters either passed by the user
     or trainable variational parameters."""
 
@@ -40,26 +47,33 @@ class ParameterBuffer(torch.nn.Module):
         non_trainable_vars: list[str],
     ) -> None:
         super().__init__()
-        self.vparams = {p: torch.rand(1, requires_grad=True) for p in trainable_vars}
-        self.fparams = {p: None for p in non_trainable_vars}
-        self._dtype = torch.float64
-        self._device = torch.device("cpu")
+        self.vparams: dict[str, torch.Tensor] = {
+            p: torch.rand(1, requires_grad=True) for p in trainable_vars
+        }
+        self.fparams: dict[str, Optional[torch.Tensor] ] = {
+            p: None for p in non_trainable_vars
+        }
+        self._dtype: torch.dtype = torch.float64
+        self._device: torch.device = torch.device("cpu")
 
     @property
     def device(self) -> torch.device:
         return self._device
 
-    @property
-    def dtype(self) -> torch.dtype:
-        return self._dtype
+    # checking whether it works or not to use the generic parent's  class property instead
+    # @property
+    # def dtype(self) -> torch.dtype:
+    #     return self._dtype
 
     def to(self, args: Any, kwargs: Any) -> None:
-        self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
+        self.vparams: dict[str, torch.Tensor] = {
+            p: t.to(*args, **kwargs) for p, t in self.vparams.items()
+        }
         try:
             k = next(iter(self.vparams))
             t = self.vparams[k]
-            self._device = t.device
-            self._dtype = t.dtype
+            self._device: torch.device = t.device
+            self._dtype: torch.dtype = t.dtype
         except Exception:
             pass
 
@@ -75,19 +89,24 @@ class ParameterBuffer(torch.nn.Module):
         return ParameterBuffer(v_p, f_p)
 
 
-class Embedding(torch.nn.Module):
-    """A class holding:
-    - A parameterbuffer (containing concretized vparams + list of featureparams,
-    - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
-        which can be results of function/expression evaluations.
-    """
+NameMappingType = dict[str, Callable[[dict, dict], torch.Tensor]]
 
-    def __init__(self, model: Model) -> None:
+
+class EmbeddingModule(
+    torch.nn.Module,
+    EmbeddingModuleApi[torch.Tensor, NameMappingType],
+):
+    """A class holding:
+        - A parameterbuffer (containing concretized vparams + list of featureparams,
+        - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
+            which can be results of function/expression evaluations.
+        """
+
+    def __init__(self, model: Model):
         super().__init__()
-        self.param_buffer = ParameterBuffer.from_model(model)
-        self.var_to_torchcall: dict[str, Callable] = (
-            self.create_var_to_torchcall_mapping(model)
-        )
+        self.model: Model = model
+        self.param_buffer: ParameterBuffer = ParameterBuffer.from_model(self.model)
+        self.var_to_torchcall: dict[str, Callable] = self.name_mapping()
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Expects a dict of user-passed name:value pairs for featureparameters
@@ -109,12 +128,9 @@ class Embedding(torch.nn.Module):
 
         return assigned_params
 
-    @staticmethod
-    def create_var_to_torchcall_mapping(
-        model: Model,
-    ) -> dict[str, Callable[[dict, dict], torch.Tensor]]:
+    def name_mapping(self) -> NameMappingType:
         assign_to_torch = dict()
-        for instr in model.instructions:
+        for instr in self.model.instructions:
             if isinstance(instr, Assign):
                 assign_to_torch[instr.variable] = torch_call(instr.value)
         return assign_to_torch

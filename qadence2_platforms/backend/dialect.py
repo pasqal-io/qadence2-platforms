@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from types import ModuleType
-from typing import Callable, Generic
+from typing import Callable, Generic, Optional
 from importlib import import_module
 
 from qadence2_platforms.backend.bytecode import BytecodeApi
 from qadence2_platforms.backend.utils import (
     get_backend_register_fn,
     get_device_module,
-    get_native_instr_instance,
+    get_native_seq_instance,
     get_backend_module,
 )
 from qadence2_platforms.qadence_ir import Model
@@ -18,8 +18,8 @@ from qadence2_platforms.types import (
     RegisterType,
     InstructionsObjectType,
 )
-from qadence2_platforms.backend.interface import RuntimeInterface
-from qadence2_platforms.backend.embeddings import EmbeddingModule
+from qadence2_platforms.backend.interface import RuntimeInterfaceApi
+from qadence2_platforms.backend.embedding import EmbeddingModuleApi
 
 
 class DialectApi(
@@ -40,7 +40,7 @@ class DialectApi(
     the SSA form variables will be located in a single source, now called `embedding`.
     """
 
-    def __init__(self, backend: str, model: Model, device: str | None = None):
+    def __init__(self, backend: str, model: Model, device: Optional[str] = None):
         self.model: Model = model
         self.device_name: str = device or ""
         self.backend_name: str = backend
@@ -57,16 +57,16 @@ class DialectApi(
         )
         self.native_backend: ModuleType = import_module(self.backend_name)
 
-        native_instr_instance: Callable = get_native_instr_instance(
+        native_seq_inst: Callable = get_native_seq_instance(
             backend=self.backend_name, device=self.device_name
         )
-        self.native_instructions: InstructionsObjectType = native_instr_instance(
+        self.native_sequence: InstructionsObjectType = native_seq_inst(
             register=self.register, device=self.device, directives=self.model.directives
         )
 
     @property
     @abstractmethod
-    def embedding(self) -> EmbeddingModule:
+    def embedding(self) -> EmbeddingModuleApi:
         raise NotImplementedError()
 
     @abstractmethod
@@ -81,7 +81,7 @@ class DialectApi(
         raise NotImplementedError()
 
     @abstractmethod
-    def compile(self) -> RuntimeInterface:
+    def compile(self) -> RuntimeInterfaceApi:
         """
         It resolves `Model` into an appropriate backend's runtime object. It must load
         the desired backend and device, if available, and use the backend's implementation

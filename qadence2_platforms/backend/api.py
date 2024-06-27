@@ -15,7 +15,7 @@ from qadence2_platforms.types import (
     DeviceType,
     DirectivesType,
     RegisterType,
-    SequenceObjectType,
+    InstructionsObjectType,
     SupportType,
 )
 
@@ -87,7 +87,7 @@ def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
 
 
 class BackendSequenceAPI(
-    ABC, Generic[RegisterType, DeviceType, DirectivesType, SequenceObjectType]
+    ABC, Generic[RegisterType, DeviceType, DirectivesType, InstructionsObjectType]
 ):
     @abstractmethod
-    def get_sequence(self) -> SequenceObjectType: ...
+    def get_sequence(self) -> InstructionsObjectType: ...

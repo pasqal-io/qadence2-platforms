@@ -1,33 +1,32 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generic, Any
+from typing import Generic, Any, Optional
 
 from qadence2_platforms import Model
 from qadence2_platforms.types import (
-    ParameterResultType,
+    ParameterType,
     DType,
-    EmbeddingMappingResultType
+    EmbeddingType,
+    EmbeddingMappingResultType,
 )
 
 
-class ParameterBuffer(ABC, Generic[DType, ParameterResultType]):
+class ParameterBufferApi(ABC, Generic[DType, ParameterType]):
     """
     A generic parameter class to hold all root parameters passed by the user or
     trainable variational parameters.
     """
+    _dtype: DType
+    vparams: dict[str, ParameterType]
+    fparams: dict[str, Optional[ParameterType]]
 
     @property
-    @abstractmethod
     def dtype(self) -> DType:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def __call__(self, *args: Any, **kwargs: Any) -> ParameterResultType:
-        raise NotImplementedError()
+        return self._dtype
 
 
-class EmbeddingModule(ABC, Generic[EmbeddingMappingResultType]):
+class EmbeddingModuleApi(ABC, Generic[EmbeddingType, EmbeddingMappingResultType]):
     """
     A generic module class to hold and handle the parameters and expressions
     functions coming from the `Model`. It may contain the list of user input
@@ -40,7 +39,7 @@ class EmbeddingModule(ABC, Generic[EmbeddingMappingResultType]):
         raise NotImplementedError()
 
     @abstractmethod
-    def __call__(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+    def __call__(self, *args: Any, **kwargs: Any) -> dict[str, EmbeddingType]:
         raise NotImplementedError()
 
     @abstractmethod
