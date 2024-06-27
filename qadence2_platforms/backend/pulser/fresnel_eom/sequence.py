@@ -11,11 +11,11 @@ from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
-from ..backend import SequenceType
+from ..backend import BackendPartialSequence
 from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
 
 
-class Sequence(SequenceApi[SequenceType, BaseRegister, BaseDevice]):
+class Sequence(SequenceApi[BackendPartialSequence, BaseRegister, BaseDevice]):
     instruction_map: dict[str, Callable] = {
         "not": not_fn,
         "h": h_fn,
@@ -51,14 +51,14 @@ class Sequence(SequenceApi[SequenceType, BaseRegister, BaseDevice]):
             seq.config_detuning_map(detuning_map, "dmm_0")
         return seq
 
-    def build_sequence(self) -> SequenceType:
+    def build_sequence(self) -> BackendPartialSequence:
         seq = self._define_sequence()
         pulses_list = []
 
         for instr in self.model.instructions:
             if isinstance(instr, QuInstruct):
                 native_op = self.instruction_map[instr.name](
-                    seq=seq, support=instr.support
+                    seq=seq, support=instr.support, params=instr.args
                 )
                 pulses_list.append(native_op)
-        return pulses_list
+        return BackendPartialSequence(*pulses_list)

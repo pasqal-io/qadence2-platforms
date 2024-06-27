@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import replace
-from typing import Any, Callable, Generic, Union
+from functools import lru_cache, partial
+from typing import Any, Iterator, Optional, cast
 
 import numpy as np
 from pulser.channels import DMM as PulserDMM
@@ -29,13 +30,10 @@ from pulser.register.special_layouts import (
     SquareLatticeLayout,
     TriangularLatticeLayout,
 )
+from pulser.sequence import Sequence as PulserSequence
 
+from qadence2_platforms.backend.pulser import EmbeddingModule
 from qadence2_platforms.qadence_ir import Model
-from qadence2_platforms.types import BytecodeInstructType, UserInputType
-
-
-SequenceType = list[Callable[..., Any]]
-
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
@@ -91,17 +89,60 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     return register
 
 
-class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
-    def __init__(self, *args: Any, fn: Union[Callable, None] = None):
+class InstructPartialResult:
+    def __init__(self, fn: partial, params: Any):
         if fn is None:
             raise ValueError("Must declare `fn` argument.")
-        self._fn = fn
-        self._args = args
-
-    @property
-    def fn(self) -> Callable:
-        return self._fn
+        self.fn: partial = fn
+        self._args: tuple[Any, ...] = params if isinstance(params, tuple) else (params,)
 
     @property
     def args(self) -> tuple[Any, ...]:
         return self._args
+
+    def __iter__(self) -> Iterator[Any]:
+        return iter((self.fn, self.args))
+
+    def __len__(self) -> int:
+        return len(self.args)
+
+    def __repr__(self) -> str:
+        return (
+            f"InstructPartialResult(fn={self.fn.func.__name__},"
+            f" params=[{' '.join(p.variable for p in self.args)}])"
+        )
+
+
+class BackendPartialSequence:
+    def __init__(self, *instructions: Any):
+        self.partial_instr: tuple[InstructPartialResult, ...] = instructions
+
+    @staticmethod
+    @lru_cache
+    def get_fn_args(fn: partial) -> Any:
+        match fn.func.__name__:
+            case "rotation":
+                return ["angle", "direction"]
+            case "pulse":
+                return ["duration", "amplitude", "detuning", "phase"]
+            case "free_evolution":
+                return ["duration"]
+            case _:
+                return []
+
+    def evaluate(
+        self, embedding: EmbeddingModule, values: Optional[dict] = None
+    ) -> PulserSequence:
+        seq: Optional[PulserSequence] = None
+        assigned_values: dict = embedding(values)
+        for fn, params in self.partial_instr:
+            resolved_params: tuple[Any, ...] = ()
+            params = cast(tuple, params)
+            fn = cast(partial, fn)
+            for param in params:
+                resolved_params += (assigned_values[param.variable],)
+            seq = fn(**dict(zip(self.get_fn_args(fn), resolved_params)))
+
+        if seq:
+            return seq
+        raise ValueError("pulser sequence must not be None.")

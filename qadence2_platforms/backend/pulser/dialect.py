@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from functools import cached_property
-
 from pulser.devices._device_datacls import BaseDevice
 from pulser.register.base_register import BaseRegister
 

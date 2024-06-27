@@ -8,7 +8,6 @@ from qadence2_platforms import Model
 from qadence2_platforms.backend.embedding import EmbeddingModuleApi, ParameterBufferApi
 from qadence2_platforms.qadence_ir import Assign, Call, Load
 
-
 np_fun_map = {
     "mul": "multiply",
     "add": "sum",
@@ -38,11 +37,7 @@ def np_call(call: Call) -> Callable[[dict, dict], np.ndarray]:
 
 
 class ParameterBuffer(ParameterBufferApi[np.dtype, np.ndarray]):
-    def __init__(
-        self,
-        trainable_vars: list[str],
-        non_trainable_vars: list[str]
-    ):
+    def __init__(self, trainable_vars: list[str], non_trainable_vars: list[str]):
         self.vparams: dict[str, np.ndarray] = {
             p: np.random.rand(1) for p in trainable_vars
         }
@@ -72,7 +67,10 @@ class EmbeddingModule(EmbeddingModuleApi[np.ndarray, NameMappingType]):
         self.param_buffer: ParameterBuffer = ParameterBuffer.from_model(self.model)
         self.mapped_vars: NameMappingType = self.name_mapping()
 
-    def __call__(self, inputs: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+    def __call__(
+        self, inputs: Optional[dict[str, np.ndarray]] = None
+    ) -> dict[str, np.ndarray]:
+        inputs = inputs or dict()
         assigned_params: dict[str, np.ndarray] = dict()
         assert (
             inputs.keys() == self.param_buffer.fparams.keys()

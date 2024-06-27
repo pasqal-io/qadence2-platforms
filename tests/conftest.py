@@ -1,5 +1,6 @@
 # use this file for configuring test fixtures and
 # functions common to every test
+from __future__ import annotations
 
 from pytest import fixture
 
@@ -23,7 +24,7 @@ def model() -> Model:
             qubit_positions=[(-2, 1), (0, 1), (1, 3)],
             grid_type="triangular",
             grid_scale=1.0,
-            options={"initial_state": "010"}
+            options={"initial_state": "010"},
         ),
         inputs={
             "x": Alloc(size=1, trainable=False),

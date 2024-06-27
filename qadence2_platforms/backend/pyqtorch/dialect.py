@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from functools import cached_property
-
 from qadence2_platforms.backend.dialect import DialectApi
 
 from .bytecode import Bytecode

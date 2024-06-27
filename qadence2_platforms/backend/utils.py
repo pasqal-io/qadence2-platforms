@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Optional
+from typing import Any
 
 from qadence2_platforms.types import device2backend_map
 
@@ -31,7 +31,7 @@ def get_native_seq_instance(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}"
     if device:
         module_name += f".{device2backend_map[device]}"
-    return getattr(import_module(name=module_name, package="sequence"), "Sequence")
+    return getattr(import_module(name=module_name), "Sequence")
 
 
 def get_backend_register_fn(backend: str) -> Any:

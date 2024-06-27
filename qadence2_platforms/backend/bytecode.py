@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, Iterator, Optional
+from typing import Any, Callable, Generic, Iterator, Optional
 
 from qadence2_platforms.types import (
     BytecodeInstructType,
@@ -34,6 +34,10 @@ class BytecodeApi(
         self.sequence: InstructionsObjectType = sequence
         self.variables: EmbeddingType = variables
         self.instructions: BytecodeInstructType = instructions
+
+    @abstractmethod
+    def __call__(self, *args: Any, **kwargs: Any) -> Callable:
+        raise NotImplementedError()
 
     @abstractmethod
     def __next__(self) -> Callable:

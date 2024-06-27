@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from types import ModuleType
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 from pulser.register.base_register import BaseRegister
@@ -10,7 +10,7 @@ from pulser_simulation import QutipEmulator
 
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 
-from .backend import SequenceType
+from .backend import BackendPartialSequence
 from .embedding import EmbeddingModule
 
 
@@ -18,7 +18,7 @@ class RuntimeInterface(
     RuntimeInterfaceApi[
         BaseRegister,
         EmbeddingModule,
-        SequenceType,
+        BackendPartialSequence,
         ModuleType,
         np.ndarray,
         Counter,
@@ -30,13 +30,13 @@ class RuntimeInterface(
         self,
         register: BaseRegister,
         embedding: EmbeddingModule,
-        native_seq: SequenceType,
+        native_seq: BackendPartialSequence,
         native_backend: ModuleType,
         **_: Any,
     ):
         self.register: BaseRegister = register
         self.embedding: EmbeddingModule = embedding
-        self.sequence: SequenceType = native_seq
+        self.sequence: BackendPartialSequence = native_seq
         self.engine: ModuleType = native_backend
 
     def __call__(self, **_: Any) -> np.ndarray:
@@ -45,11 +45,15 @@ class RuntimeInterface(
     def forward(self, **_: Any) -> np.ndarray:
         raise NotImplementedError()
 
-    def run(self, num_shots: int = 1000, on: str = "emulator") -> Counter:
+    def run(
+        self, num_shots: int = 1000, on: str = "emulator", values: Optional[dict] = None
+    ) -> Counter:
+        values = values or dict()
         match on:
             case "emulator":
                 simulation = QutipEmulator.from_sequence(
-                    self.sequence, with_modulation=True
+                    sequence=self.sequence.evaluate(self.embedding, values),
+                    with_modulation=True,
                 )
                 result = simulation.run()
                 return result.sample_final_state(N_samples=num_shots)
@@ -58,8 +62,10 @@ class RuntimeInterface(
                     "only emulator mode available on Pulser engine."
                 )
 
-    def sample(self, num_shots: int) -> Counter:
-        return self.run(num_shots)
+    def sample(
+        self, num_shots: int, on: str = "emulator", values: Optional[dict] = None
+    ) -> Counter:
+        return self.run(num_shots, on, values)
 
     def expectation(self, *args: Any, **kwargs: Any) -> np.ndarray:
         raise NotImplementedError()
