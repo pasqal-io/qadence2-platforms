@@ -4,16 +4,16 @@ from collections import Counter
 from types import ModuleType
 from typing import Any, Optional
 
-import torch
 import pyqtorch as pyq
+import torch
 
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 
-from .register import RegisterInterface
 from .embedding import EmbeddingModule
-
+from .register import RegisterInterface
 
 # TODO: resolve the `observable` attribute
+
 
 class RuntimeInterface(
     torch.nn.Module,
@@ -25,8 +25,8 @@ class RuntimeInterface(
         torch.Tensor,
         list[Counter],
         torch.Tensor,
-        torch.Tensor
-    ]
+        torch.Tensor,
+    ],
 ):
     def __init__(
         self,
@@ -43,7 +43,9 @@ class RuntimeInterface(
         self.engine: ModuleType = native_backend
         self.observable: Any = observable
 
-    def forward(self, state: torch.Tensor, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(
+        self, state: torch.Tensor, inputs: dict[str, torch.Tensor]
+    ) -> torch.Tensor:
         if state is None:
             state = self.init_state
         return self.engine.run(self.sequence, state, self.embedding(inputs))
@@ -51,15 +53,12 @@ class RuntimeInterface(
     def run(
         self,
         state: Optional[torch.Tensor] = None,
-        inputs: Optional[dict[str, torch.Tensor]] = None
+        inputs: Optional[dict[str, torch.Tensor]] = None,
     ) -> torch.Tensor:
         return self.forward(state, inputs or dict())
 
     def sample(
-        self,
-        state: torch.Tensor,
-        inputs: dict[str, torch.Tensor],
-        n_shots: int = 1000
+        self, state: torch.Tensor, inputs: dict[str, torch.Tensor], n_shots: int = 1000
     ) -> list[Counter]:
         return self.engine.sample(self.sequence, state, self.embedding(inputs), n_shots)
 
@@ -69,4 +68,3 @@ class RuntimeInterface(
         return self.engine.expectation(
             self.sequence, state, self.embedding(inputs), self.observable
         )
-

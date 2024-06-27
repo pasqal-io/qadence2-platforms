@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Generic
 from abc import ABC, abstractmethod
+from typing import Any, Generic
 
 from qadence2_platforms.types import (
+    EmbeddingType,
     ExpectationResultType,
     InterfaceCallResultType,
-    RunResultType,
-    SampleResultType,
-    RegisterType,
-    EmbeddingType,
     NativeBackendType,
     NativeSequenceType,
+    RegisterType,
+    RunResultType,
+    SampleResultType,
 )
 
 
@@ -22,12 +22,11 @@ class RuntimeInterfaceApi(
         EmbeddingType,
         NativeSequenceType,
         NativeBackendType,
-
         RunResultType,
         SampleResultType,
         ExpectationResultType,
         InterfaceCallResultType,
-    ]
+    ],
 ):
     """
     Interface generic class to be used to build runtime classes for backends.
@@ -49,13 +48,13 @@ class RuntimeInterfaceApi(
         raise NotImplementedError()
 
     @abstractmethod
-    def run(self, **kwargs: Any) -> RunResultType:
+    def run(self, *args: Any, **kwargs: Any) -> RunResultType:
         raise NotImplementedError()
 
     @abstractmethod
-    def sample(self, **kwargs: Any) -> SampleResultType:
+    def sample(self, *args: Any, **kwargs: Any) -> SampleResultType:
         raise NotImplementedError()
 
     @abstractmethod
-    def expectation(self, **kwargs: Any) -> ExpectationResultType:
+    def expectation(self, *args: Any, **kwargs: Any) -> ExpectationResultType:
         raise NotImplementedError()

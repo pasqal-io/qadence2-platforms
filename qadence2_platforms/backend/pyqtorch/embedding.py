@@ -5,11 +5,11 @@ from typing import Any, Callable, Optional
 
 import torch
 
-from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
 from qadence2_platforms.backend.embedding import (
     EmbeddingModuleApi,
     ParameterBufferApi,
 )
+from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
 
 logger = getLogger(__name__)
 
@@ -50,7 +50,7 @@ class ParameterBuffer(
         self.vparams: dict[str, torch.Tensor] = {
             p: torch.rand(1, requires_grad=True) for p in trainable_vars
         }
-        self.fparams: dict[str, Optional[torch.Tensor] ] = {
+        self.fparams: dict[str, Optional[torch.Tensor]] = {
             p: None for p in non_trainable_vars
         }
         self._dtype: torch.dtype = torch.float64
@@ -66,14 +66,12 @@ class ParameterBuffer(
     #     return self._dtype
 
     def to(self, args: Any, kwargs: Any) -> None:
-        self.vparams: dict[str, torch.Tensor] = {
-            p: t.to(*args, **kwargs) for p, t in self.vparams.items()
-        }
+        self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
         try:
             k = next(iter(self.vparams))
             t = self.vparams[k]
-            self._device: torch.device = t.device
-            self._dtype: torch.dtype = t.dtype
+            self._device = t.device
+            self._dtype = t.dtype
         except Exception:
             pass
 
@@ -97,16 +95,16 @@ class EmbeddingModule(
     EmbeddingModuleApi[torch.Tensor, NameMappingType],
 ):
     """A class holding:
-        - A parameterbuffer (containing concretized vparams + list of featureparams,
-        - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
-            which can be results of function/expression evaluations.
-        """
+    - A parameterbuffer (containing concretized vparams + list of featureparams,
+    - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
+        which can be results of function/expression evaluations.
+    """
 
     def __init__(self, model: Model):
         super().__init__()
         self.model: Model = model
         self.param_buffer: ParameterBuffer = ParameterBuffer.from_model(self.model)
-        self.var_to_torchcall: dict[str, Callable] = self.name_mapping()
+        self.mapped_vars: dict[str, Callable] = self.name_mapping()
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """Expects a dict of user-passed name:value pairs for featureparameters
@@ -117,7 +115,7 @@ class EmbeddingModule(
             assert inputs.keys() == self.param_buffer.fparams.keys()
         except Exception as e:
             logger.error("Please pass a dict containing name:value for each fparam.")
-        for var, torchcall in self.var_to_torchcall.items():
+        for var, torchcall in self.mapped_vars.items():
             assigned_params[var] = torchcall(
                 self.param_buffer.vparams,
                 {

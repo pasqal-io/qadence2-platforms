@@ -1,31 +1,28 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from importlib import import_module
 from types import ModuleType
 from typing import Callable, Generic, Optional
-from importlib import import_module
 
 from qadence2_platforms.backend.bytecode import BytecodeApi
+from qadence2_platforms.backend.embedding import EmbeddingModuleApi
+from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 from qadence2_platforms.backend.utils import (
+    get_backend_module,
     get_backend_register_fn,
     get_device_module,
     get_native_seq_instance,
-    get_backend_module,
 )
 from qadence2_platforms.qadence_ir import Model
 from qadence2_platforms.types import (
     DeviceType,
-    RegisterType,
     InstructionsObjectType,
+    RegisterType,
 )
-from qadence2_platforms.backend.interface import RuntimeInterfaceApi
-from qadence2_platforms.backend.embedding import EmbeddingModuleApi
 
 
-class DialectApi(
-    ABC,
-    Generic[RegisterType, DeviceType, InstructionsObjectType]
-):
+class DialectApi(ABC, Generic[RegisterType, DeviceType, InstructionsObjectType]):
     """
     <Add the `Dialect` description here>
 
@@ -61,7 +58,7 @@ class DialectApi(
             backend=self.backend_name, device=self.device_name
         )
         self.native_sequence: InstructionsObjectType = native_seq_inst(
-            register=self.register, device=self.device, directives=self.model.directives
+            model=self.model, register=self.register, device=self.device
         )
 
     @property
@@ -87,7 +84,7 @@ class DialectApi(
         the desired backend and device, if available, and use the backend's implementation
         to provide the correct interface for the expression to be converted into native
         instructions and thus be runnable into the backends specifications.
- 
+
         :return: a `RuntimeInterface` instance.
         """
         raise NotImplementedError()

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import replace
-from typing import Any, Union
+from typing import Generic, Any, Union, Callable
 
 import numpy as np
 from pulser.channels import DMM as PulserDMM
@@ -30,8 +30,8 @@ from pulser.register.special_layouts import (
     TriangularLatticeLayout,
 )
 
-from qadence2_platforms.backend.utils import BackendInstructResult
-from qadence2_platforms.qadence_ir import Alloc, Assign, Model
+from qadence2_platforms.qadence_ir import Model
+from qadence2_platforms.types import UserInputType, BytecodeInstructType
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
@@ -85,3 +85,19 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     register = layout.define_register(*traps, qubit_ids=range(len(traps)))
 
     return register
+
+
+class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
+    def __init__(self, *args: Any, fn: Union[Callable, None] = None):
+        if fn is None:
+            raise ValueError("Must declare `fn` argument.")
+        self._fn = fn
+        self._args = args
+
+    @property
+    def fn(self) -> Callable:
+        return self._fn
+
+    @property
+    def args(self) -> tuple[Any, ...]:
+        return self._args

@@ -8,8 +8,8 @@ from pulser.devices._device_datacls import BaseDevice
 from pulser.register.base_register import BaseRegister
 from pulser.sequence import Sequence
 
-from qadence2_platforms.backend.api import BackendSequenceAPI, QuInstructAPI
-from qadence2_platforms.backend.utils import BackendInstructResult
+from qadence2_platforms.backend.api import BackendSequenceAPI
+from ..backend import BackendInstructResult
 from qadence2_platforms.qadence_ir import Support
 
 from .functions import free_evolution, h_pulse, rotation
@@ -45,50 +45,37 @@ class BackendSequence(BackendSequenceAPI[BaseRegister, BaseDevice, Sequence, dic
         return seq
 
 
-class BackendInstruct(QuInstructAPI[Sequence, Support, tuple, BackendInstructResult]):
-    @classmethod
-    def not_fn(
-        cls,
-        seq: Sequence,
-        support: Support,
-        *args: Any,
-        **options: Any,
-    ) -> BackendInstructResult:
-        return BackendInstructResult(
-            fn=partial(
-                rotation, sequence=seq, support=support, angle=np.pi, direction="x"
-            ),
-            *args,
-        )
+def not_fn(
+    seq: Sequence,
+    support: Support,
+    *args: Any,
+    **_: Any,
+) -> BackendInstructResult:
+    return BackendInstructResult(
+        fn=partial(
+            rotation, sequence=seq, support=support, angle=np.pi, direction="x"
+        ),
+        *args,
+    )
 
-    @classmethod
-    def z_fn(
-        cls, seq: Sequence, support: Support, *args: Any, **options: Any
-    ) -> BackendInstructResult:
-        raise NotImplementedError()
 
-    @classmethod
-    def h_fn(
-        cls, seq: Sequence, support: Support, *args: Any, **options: Any
-    ) -> BackendInstructResult:
-        return BackendInstructResult(
-            fn=partial(h_pulse, sequence=seq, support=support), *args
-        )
+def h_fn(seq: Sequence, support: Support, *args: Any, **_: Any) -> BackendInstructResult:
+    return BackendInstructResult(
+        fn=partial(h_pulse, sequence=seq, support=support), *args
+    )
 
-    @classmethod
-    def rx_fn(
-        cls, seq: Sequence, support: Support, *args: Any, **options: Any
-    ) -> BackendInstructResult:
-        return BackendInstructResult(
-            fn=partial(rotation, sequence=seq, support=support, direction="x"), *args
-        )
 
-    @classmethod
-    def qubit_dyn_fn(
-        cls, seq: Sequence, support: Support, *args: Any, **options: Any
-    ) -> BackendInstructResult:
-        # for the sake of testing purposes, qubit dynamics will be only
-        # a simple free evolution pulse
-        return BackendInstructResult(
-            fn=partial(free_evolution, sequence=seq, support=support), *args
-        )
+def rx_fn(seq: Sequence, support: Support, *args: Any, **_: Any) -> BackendInstructResult:
+    return BackendInstructResult(
+        fn=partial(rotation, sequence=seq, support=support, direction="x"), *args
+    )
+
+
+def qubit_dyn_fn(
+    seq: Sequence, support: Support, *args: Any, **_: Any
+) -> BackendInstructResult:
+    # for the sake of testing purposes, qubit dynamics will be only
+    # a simple free evolution pulse
+    return BackendInstructResult(
+        fn=partial(free_evolution, sequence=seq, support=support), *args
+    )

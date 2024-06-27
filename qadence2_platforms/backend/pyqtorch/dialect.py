@@ -4,8 +4,8 @@ from functools import cached_property
 
 from qadence2_platforms.backend.dialect import DialectApi
 
-from .embedding import EmbeddingModule
 from .bytecode import Bytecode
+from .embedding import EmbeddingModule
 from .interface import RuntimeInterface
 
 
@@ -25,5 +25,5 @@ class Dialect(DialectApi):
             embedding=self.embedding,
             native_seq=self.native_sequence,
             native_backend=self.native_backend,
-            observable=None
+            observable=None,
         )

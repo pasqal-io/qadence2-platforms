@@ -10,13 +10,10 @@ import torch
 
 from qadence2_platforms.qadence_ir import Model
 from qadence2_platforms.types import (
-    ArgsType,
-    BackendInstructResultType,
     DeviceType,
     DirectivesType,
-    RegisterType,
     InstructionsObjectType,
-    SupportType,
+    RegisterType,
 )
 
 logger = getLogger(__name__)
@@ -84,10 +81,3 @@ def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
         return Api(register_interface, embedding, native_circ, native_backend)
     except Exception as e:
         logger.error(f"Unable to import backend {backend_name} due to {e}.")
-
-
-class BackendSequenceAPI(
-    ABC, Generic[RegisterType, DeviceType, DirectivesType, InstructionsObjectType]
-):
-    @abstractmethod
-    def get_sequence(self) -> InstructionsObjectType: ...

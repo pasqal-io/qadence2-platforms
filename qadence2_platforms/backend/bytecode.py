@@ -1,21 +1,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, Iterator, Optional, Union
+from typing import Callable, Generic, Iterator, Optional
 
-from qadence2_platforms.qadence_ir import Alloc, Assign, Call
 from qadence2_platforms.types import (
     BytecodeInstructType,
     DeviceType,
-    InstructionsObjectType,
     EmbeddingType,
+    InstructionsObjectType,
 )
 
 
 class BytecodeApi(
-    Iterator,
-    Generic[BytecodeInstructType, EmbeddingType, InstructionsObjectType],
-    ABC
+    Iterator, Generic[BytecodeInstructType, EmbeddingType, InstructionsObjectType], ABC
 ):
     """
     An iterator class to be used by the runtime function. It contains which backend
