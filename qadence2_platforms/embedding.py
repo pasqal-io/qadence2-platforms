@@ -17,7 +17,7 @@ ARRAYLIKE_FN_MAP = {
 
 def ConcretizedCallable(
     call_name: str,
-    abstract_args: list[str | float],
+    abstract_args: list[str | float | int],
     instruction_mapping: dict[str, Callable] = dict(),
     engine_name: str = "torch",
 ) -> Callable[[dict, dict], ArrayLike]:
@@ -74,7 +74,7 @@ def ConcretizedCallable(
     def evaluate(params: dict = dict(), inputs: dict = dict()) -> ArrayLike:
         arraylike_args = []
         for symbol_or_numeric in abstract_args:
-            if isinstance(symbol_or_numeric, float):
+            if isinstance(symbol_or_numeric, (float, int)):
                 arraylike_args.append(arraylike_fn(symbol_or_numeric))
             elif isinstance(symbol_or_numeric, str):
                 arraylike_args.append({**params, **inputs}[symbol_or_numeric])
