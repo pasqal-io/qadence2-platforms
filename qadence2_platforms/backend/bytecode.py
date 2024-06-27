@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Callable, Generic, Iterator, Optional, Union
 
 from qadence2_platforms.qadence_ir import Alloc, Assign, Call
 from qadence2_platforms.types import (
     BytecodeInstructType,
     DeviceType,
-    SequenceObjectType,
+    InstructionsObjectType,
+    EmbeddingType,
 )
 
 
-class Bytecode(Iterator, Generic[BytecodeInstructType, SequenceObjectType]):
+class BytecodeApi(
+    Iterator,
+    Generic[BytecodeInstructType, EmbeddingType, InstructionsObjectType],
+    ABC
+):
     """
     An iterator class to be used by the runtime function. It contains which backend
     to invoke, sequence instance and an iterable of instructions' partial functions
@@ -21,16 +27,17 @@ class Bytecode(Iterator, Generic[BytecodeInstructType, SequenceObjectType]):
     def __init__(
         self,
         backend: str,
-        sequence: SequenceObjectType,
-        instructions: tuple[BytecodeInstructType, ...],
-        variables: dict[str, Union[Call, Alloc, Assign]],
+        sequence: InstructionsObjectType,
+        instructions: BytecodeInstructType,
+        variables: EmbeddingType,
         device: DeviceType | None = None,
     ):
         self.backend: str = backend
         self.device: Optional[DeviceType] = device
-        self.sequence: SequenceObjectType = sequence
-        self.variables: dict[str, Union[Call, Alloc, Assign]] = variables
-        self.instructions: tuple[BytecodeInstructType, ...] = instructions
+        self.sequence: InstructionsObjectType = sequence
+        self.variables: EmbeddingType = variables
+        self.instructions: BytecodeInstructType = instructions
 
+    @abstractmethod
     def __next__(self) -> Callable:
         raise NotImplementedError()

@@ -4,12 +4,21 @@ from typing import TypeVar
 
 Scalar = float
 
+# parameter generic types
+DType = TypeVar("DType")
+ParameterType = TypeVar("ParameterType")
+ParameterResultType = TypeVar("ParameterResultType")
+
+# embedding module generic types
+EmbeddingType = TypeVar("EmbeddingType")
+EmbeddingMappingResultType = TypeVar("EmbeddingMappingResultType")
+
 # model generic types
 RegisterType = TypeVar("RegisterType")
 DeviceType = TypeVar("DeviceType")
 DirectivesType = TypeVar("DirectivesType")
 QuInstructType = TypeVar("QuInstructType")
-SequenceObjectType = TypeVar("SequenceObjectType")
+InstructionsObjectType = TypeVar("InstructionsObjectType")
 
 # instructions generic types
 SupportType = TypeVar("SupportType")

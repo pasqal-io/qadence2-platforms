@@ -85,6 +85,7 @@ def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
     except Exception as e:
         logger.error(f"Unable to import backend {backend_name} due to {e}.")
 
+
 class BackendSequenceAPI(
     ABC, Generic[RegisterType, DeviceType, DirectivesType, SequenceObjectType]
 ):

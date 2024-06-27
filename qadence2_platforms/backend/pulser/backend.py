@@ -85,13 +85,3 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     register = layout.define_register(*traps, qubit_ids=range(len(traps)))
 
     return register
-
-
-def resolve_parameters(
-    instructions: tuple[BackendInstructResult, ...],
-    variables: dict[str, Union[Alloc, Assign]],
-) -> Any:
-    for instr in instructions:
-        for arg in instr.args:
-            pass
-
