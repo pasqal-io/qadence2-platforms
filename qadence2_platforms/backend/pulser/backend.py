@@ -33,6 +33,10 @@ from pulser.register.special_layouts import (
 from qadence2_platforms.qadence_ir import Model
 from qadence2_platforms.types import BytecodeInstructType, UserInputType
 
+
+SequenceType = list[Callable[..., Any]]
+
+
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
     clock_period=4,
@@ -101,6 +105,3 @@ class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
     @property
     def args(self) -> tuple[Any, ...]:
         return self._args
-
-
-SequenceType = list[Callable[..., Any]]

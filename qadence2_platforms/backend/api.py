@@ -68,8 +68,8 @@ def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
     try:
         interface = import_module(f"qadence2_platforms.backend.{backend_name}")
         native_backend = import_module(backend_name)
-        register_interface = interface.RegisterInterface(model)
-        embedding = interface.Embedding(model)
+        register_interface = interface.RegisterInterface(model.register)
+        embedding = interface.EmbeddingModule(model)
         native_circ = interface.Compiler().compile(model)
         return Api(register_interface, embedding, native_circ, native_backend)
     except Exception as e:

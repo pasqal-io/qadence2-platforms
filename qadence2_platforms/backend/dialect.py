@@ -12,17 +12,18 @@ from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.backend.utils import (
     get_backend_module,
     get_backend_register_fn,
-    get_device_module,
-    get_native_seq_instance,
+    get_device_instance,
+    get_native_seq_instance, get_embedding_instance,
 )
 from qadence2_platforms.qadence_ir import Model
 from qadence2_platforms.types import (
     DeviceType,
     RegisterType,
+    EmbeddingType
 )
 
 
-class DialectApi(ABC, Generic[RegisterType, DeviceType]):
+class DialectApi(ABC, Generic[RegisterType, DeviceType, EmbeddingType]):
     """
     <Add the `Dialect` description here>
 
@@ -42,7 +43,7 @@ class DialectApi(ABC, Generic[RegisterType, DeviceType]):
         self.device_name: str = device or ""
         self.backend_name: str = backend
 
-        self.device: DeviceType = get_device_module(
+        self.device: DeviceType = get_device_instance(
             backend=self.backend_name, device=self.device_name
         )
 
@@ -54,17 +55,15 @@ class DialectApi(ABC, Generic[RegisterType, DeviceType]):
         )
         self.native_backend: ModuleType = import_module(self.backend_name)
 
+        embedding_instance: Callable = get_embedding_instance(self.backend_name)
+        self.embedding: EmbeddingType = embedding_instance(self.model)
+
         native_seq_instance: Callable = get_native_seq_instance(
             backend=self.backend_name, device=self.device_name
         )
         self.native_sequence: SequenceApi = native_seq_instance(
             model=self.model, register=self.register, device=self.device
         )
-
-    @property
-    @abstractmethod
-    def embedding(self) -> EmbeddingModuleApi:
-        raise NotImplementedError()
 
     @abstractmethod
     def compile_bytecode(self) -> BytecodeApi:

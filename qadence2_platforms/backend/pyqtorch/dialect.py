@@ -10,12 +10,7 @@ from .interface import RuntimeInterface
 from .register import RegisterInterface
 
 
-class Dialect(DialectApi[RegisterInterface, None]):
-    @cached_property
-    @property
-    def embedding(self) -> EmbeddingModule:
-        return EmbeddingModule(self.model)
-
+class Dialect(DialectApi[RegisterInterface, None, EmbeddingModule]):
     def compile_bytecode(self) -> Bytecode:
         raise NotImplementedError()
 

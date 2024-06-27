@@ -55,3 +55,18 @@ class DeviceName:
     FRESNEL_EOM = "FresnelEOM"
     ANALOG_DEVICE = "AnalogDevice"
     NONE = ""
+
+
+class DeviceBackend:
+    FRESNEL = "fresnel"
+    FRESNEL_EOM = "fresnel_eom"
+    ANALOG_DEVICE = "analog_device"
+    NONE = ""
+
+
+device2backend_map = {
+    DeviceName.FRESNEL: DeviceBackend.FRESNEL,
+    DeviceName.FRESNEL_EOM: DeviceBackend.FRESNEL_EOM,
+    DeviceName.ANALOG_DEVICE: DeviceBackend.ANALOG_DEVICE,
+    DeviceName.NONE: DeviceBackend.NONE,
+}

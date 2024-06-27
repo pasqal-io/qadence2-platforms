@@ -12,13 +12,14 @@ from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
 from ..backend import SequenceType
-from .instructions import h_fn, not_fn, qubit_dyn_fn
+from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
 
 
 class Sequence(SequenceApi[SequenceType, BaseRegister, BaseDevice]):
     instruction_map: dict[str, Callable] = {
         "not": not_fn,
         "h": h_fn,
+        "rx": rx_fn,
         "qubit_dyn": qubit_dyn_fn,
     }
 
