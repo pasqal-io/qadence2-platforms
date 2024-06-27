@@ -26,6 +26,28 @@ def ConcretizedCallable(
     into a concretized Callable in a particular engine.
     which can be evaluated using
     a vparams and inputs dict.
+
+    Arguments:
+        call_name: The name of the function
+        abstract_args: A list of strings (in the case of parameters) and numeric constants
+                        denoting the arguments for `call_name`
+        instruction_mapping: A dict mapping from an abstract call_name to its name in an engine.
+        engine_name: The engine to use to create the callable.
+
+    Example:
+    ```
+    In [11]: call = ConcretizedCallable('sin', ['x'], engine_name='numpy')
+    In [12]: call({'x': 0.5})
+    Out[12]: 0.479425538604203
+
+    In [13]: call = ConcretizedCallable('sin', ['x'], engine_name='torch')
+    In [14]: call({'x': torch.rand(1)})
+    Out[14]: tensor([0.5531])
+
+    In [15]: call = ConcretizedCallable('sin', ['x'], engine_name='jax')
+    In [16]: call({'x': 0.5})
+    Out[16]: Array(0.47942555, dtype=float32, weak_type=True)
+    ```
     """
     engine_call = None
     engine = None
