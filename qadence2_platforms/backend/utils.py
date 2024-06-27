@@ -12,7 +12,7 @@ def get_backend_module(backend: str) -> ModuleType:
 
 def get_device_module(backend: str, device: str) -> Any:
     module_name = f"qadence2_platforms.backend.{backend}.backend"
-    return getattr(import_module(name=module_name), device)
+    return getattr(import_module(name=module_name), device, None)
 
 
 def get_native_seq_instance(backend: str, device: str) -> Any:
@@ -20,7 +20,7 @@ def get_native_seq_instance(backend: str, device: str) -> Any:
     if device:
         module_name += f".{device}"
     return getattr(
-        import_module(name=module_name, package="instructions"), "BackendSequence"
+        import_module(name=module_name, package="sequence"), "Sequence"
     )
 
 

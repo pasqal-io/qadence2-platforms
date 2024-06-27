@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from functools import cached_property
 
+import pyqtorch as pyq
+
 from qadence2_platforms.backend.dialect import DialectApi
 
 from .bytecode import Bytecode
 from .embedding import EmbeddingModule
 from .interface import RuntimeInterface
+from .register import RegisterInterface
 
 
-class Dialect(DialectApi):
+class Dialect(DialectApi[RegisterInterface, None]):
     @cached_property
     @property
     def embedding(self) -> EmbeddingModule:
@@ -19,11 +22,11 @@ class Dialect(DialectApi):
         raise NotImplementedError()
 
     def compile(self) -> RuntimeInterface:
-
+        native_seq_compiled = self.native_sequence.build_sequence()
         return RuntimeInterface(
             register=self.register,
             embedding=self.embedding,
-            native_seq=self.native_sequence,
+            native_seq=native_seq_compiled,
             native_backend=self.native_backend,
             observable=None,
         )

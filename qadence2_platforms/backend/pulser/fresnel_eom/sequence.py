@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, Any
+from typing import Callable
 
 import numpy as np
 from pulser.register.base_register import BaseRegister
@@ -12,9 +12,7 @@ from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
 from .instructions import not_fn, h_fn, qubit_dyn_fn
-
-
-SequenceType = list[Callable[..., Any]]
+from ..backend import SequenceType
 
 
 class Sequence(SequenceApi[SequenceType]):

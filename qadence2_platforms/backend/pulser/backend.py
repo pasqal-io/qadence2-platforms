@@ -101,3 +101,6 @@ class BackendInstructResult(Generic[UserInputType, BytecodeInstructType]):
     @property
     def args(self) -> tuple[Any, ...]:
         return self._args
+
+
+SequenceType = list[Callable[..., Any]]

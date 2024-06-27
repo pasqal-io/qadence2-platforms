@@ -8,6 +8,7 @@ from typing import Callable, Generic, Optional
 from qadence2_platforms.backend.bytecode import BytecodeApi
 from qadence2_platforms.backend.embedding import EmbeddingModuleApi
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
+from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.backend.utils import (
     get_backend_module,
     get_backend_register_fn,
@@ -17,12 +18,11 @@ from qadence2_platforms.backend.utils import (
 from qadence2_platforms.qadence_ir import Model
 from qadence2_platforms.types import (
     DeviceType,
-    InstructionsObjectType,
     RegisterType,
 )
 
 
-class DialectApi(ABC, Generic[RegisterType, DeviceType, InstructionsObjectType]):
+class DialectApi(ABC, Generic[RegisterType, DeviceType]):
     """
     <Add the `Dialect` description here>
 
@@ -54,10 +54,10 @@ class DialectApi(ABC, Generic[RegisterType, DeviceType, InstructionsObjectType])
         )
         self.native_backend: ModuleType = import_module(self.backend_name)
 
-        native_seq_inst: Callable = get_native_seq_instance(
+        native_seq_instance: Callable = get_native_seq_instance(
             backend=self.backend_name, device=self.device_name
         )
-        self.native_sequence: InstructionsObjectType = native_seq_inst(
+        self.native_sequence: SequenceApi = native_seq_instance(
             model=self.model, register=self.register, device=self.device
         )
 
