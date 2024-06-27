@@ -26,6 +26,10 @@ class ParameterBufferApi(ABC, Generic[DType, ParameterType]):
     def dtype(self) -> DType:
         return self._dtype
 
+    @abstractmethod
+    def from_model(self, model: Model) -> ParameterBufferApi:
+        raise NotImplementedError()
+
 
 class EmbeddingModuleApi(ABC, Generic[EmbeddingType, EmbeddingMappingResultType]):
     """

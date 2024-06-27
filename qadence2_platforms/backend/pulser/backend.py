@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import warnings
 from dataclasses import replace
-from typing import Generic, Any, Union, Callable
+from typing import Any, Callable, Generic, Union
 
 import numpy as np
 from pulser.channels import DMM as PulserDMM
@@ -31,7 +31,7 @@ from pulser.register.special_layouts import (
 )
 
 from qadence2_platforms.qadence_ir import Model
-from qadence2_platforms.types import UserInputType, BytecodeInstructType
+from qadence2_platforms.types import BytecodeInstructType, UserInputType
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device

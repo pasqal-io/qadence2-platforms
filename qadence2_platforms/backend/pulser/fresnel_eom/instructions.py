@@ -4,13 +4,11 @@ from functools import partial
 from typing import Any
 
 import numpy as np
-from pulser.devices._device_datacls import BaseDevice
-from pulser.register.base_register import BaseRegister
 from pulser.sequence import Sequence
 
-from ..backend import BackendInstructResult
 from qadence2_platforms.qadence_ir import Support
 
+from ..backend import BackendInstructResult
 from .functions import free_evolution, h_pulse, rotation
 
 
@@ -21,20 +19,22 @@ def not_fn(
     **_: Any,
 ) -> BackendInstructResult:
     return BackendInstructResult(
-        fn=partial(
-            rotation, sequence=seq, support=support, angle=np.pi, direction="x"
-        ),
+        fn=partial(rotation, sequence=seq, support=support, angle=np.pi, direction="x"),
         *args,
     )
 
 
-def h_fn(seq: Sequence, support: Support, *args: Any, **_: Any) -> BackendInstructResult:
+def h_fn(
+    seq: Sequence, support: Support, *args: Any, **_: Any
+) -> BackendInstructResult:
     return BackendInstructResult(
         fn=partial(h_pulse, sequence=seq, support=support), *args
     )
 
 
-def rx_fn(seq: Sequence, support: Support, *args: Any, **_: Any) -> BackendInstructResult:
+def rx_fn(
+    seq: Sequence, support: Support, *args: Any, **_: Any
+) -> BackendInstructResult:
     return BackendInstructResult(
         fn=partial(rotation, sequence=seq, support=support, direction="x"), *args
     )

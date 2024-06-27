@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from functools import cached_property
 
-from pulser.register.base_register import BaseRegister
 from pulser.devices._device_datacls import BaseDevice
+from pulser.register.base_register import BaseRegister
 
 from qadence2_platforms.backend.dialect import DialectApi
 
@@ -22,4 +22,10 @@ class Dialect(DialectApi[BaseRegister, BaseDevice]):
         raise NotImplementedError()
 
     def compile(self) -> RuntimeInterface:
-        raise NotImplementedError()
+        native_seq_compiled = self.native_sequence.build_sequence()
+        return RuntimeInterface(
+            register=self.register,
+            embedding=self.embedding,
+            native_seq=native_seq_compiled,
+            native_backend=self.native_backend,
+        )

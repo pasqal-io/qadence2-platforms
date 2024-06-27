@@ -3,23 +3,23 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
+from pulser.devices._device_datacls import BaseDevice
 from pulser.register.base_register import BaseRegister
 from pulser.sequence import Sequence as PulserSequence
-from pulser.devices._device_datacls import BaseDevice
 
 from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
-from .instructions import not_fn, h_fn, qubit_dyn_fn
 from ..backend import SequenceType
+from .instructions import h_fn, not_fn, qubit_dyn_fn
 
 
-class Sequence(SequenceApi[SequenceType]):
+class Sequence(SequenceApi[SequenceType, BaseRegister, BaseDevice]):
     instruction_map: dict[str, Callable] = {
         "not": not_fn,
         "h": h_fn,
-        "qubit_dyn": qubit_dyn_fn
+        "qubit_dyn": qubit_dyn_fn,
     }
 
     def __init__(self, model: Model, device: BaseDevice, register: BaseRegister):
@@ -57,8 +57,7 @@ class Sequence(SequenceApi[SequenceType]):
         for instr in self.model.instructions:
             if isinstance(instr, QuInstruct):
                 native_op = self.instruction_map[instr.name](
-                    seq=seq,
-                    support=instr.support
+                    seq=seq, support=instr.support
                 )
                 pulses_list.append(native_op)
         return pulses_list

@@ -1,20 +1,13 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from collections import Counter
 from importlib import import_module
 from logging import getLogger
-from typing import Any, Generic
+from typing import Any
 
 import torch
 
 from qadence2_platforms.qadence_ir import Model
-from qadence2_platforms.types import (
-    DeviceType,
-    DirectivesType,
-    InstructionsObjectType,
-    RegisterType,
-)
 
 logger = getLogger(__name__)
 

@@ -10,9 +10,8 @@ from pulser_simulation import QutipEmulator
 
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 
-from .embedding import EmbeddingModule
 from .backend import SequenceType
-from ...types import ExpectationResultType
+from .embedding import EmbeddingModule
 
 
 class RuntimeInterface(
@@ -24,7 +23,7 @@ class RuntimeInterface(
         np.ndarray,
         Counter,
         np.ndarray,
-        np.ndarray
+        np.ndarray,
     ]
 ):
     def __init__(
@@ -33,7 +32,7 @@ class RuntimeInterface(
         embedding: EmbeddingModule,
         native_seq: SequenceType,
         native_backend: ModuleType,
-        **_: Any
+        **_: Any,
     ):
         self.register: BaseRegister = register
         self.embedding: EmbeddingModule = embedding
@@ -55,7 +54,9 @@ class RuntimeInterface(
                 result = simulation.run()
                 return result.sample_final_state(N_samples=num_shots)
             case _:
-                raise NotImplementedError("only emulator mode available on Pulser engine.")
+                raise NotImplementedError(
+                    "only emulator mode available on Pulser engine."
+                )
 
     def sample(self, num_shots: int) -> Counter:
         return self.run(num_shots)

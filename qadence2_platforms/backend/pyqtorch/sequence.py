@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from typing import Callable, Any
+from typing import Any, Callable
 
 import pyqtorch as pyq
 
 from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
-from qadence2_platforms.qadence_ir import QuInstruct, Load
+from qadence2_platforms.qadence_ir import Load, QuInstruct
 
 
-class Sequence(SequenceApi[pyq.QuantumCircuit]):
+class Sequence(SequenceApi[pyq.QuantumCircuit, None, None]):
     instruction_map: dict[str, Callable] = {
         "not": pyq.CNOT,
         "add": pyq.Add,
