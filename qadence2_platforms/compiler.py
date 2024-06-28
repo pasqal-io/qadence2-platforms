@@ -16,8 +16,8 @@ def compile(
     device: Optional[str] = None,
     output_bytecode: bool = False,
 ) -> Union[RuntimeInterfaceApi, BytecodeApi]:
-    dialaect_instance: ModuleType = get_dialect_instance(backend_name)
-    dialect: DialectApi = dialaect_instance.Dialect(backend_name, model, device)
+    dialect: ModuleType = get_dialect_instance(backend_name)
+    dialect: DialectApi = dialect.Dialect(backend_name, model, device)
     if output_bytecode:
         return dialect.compile_bytecode()
     return dialect.compile()
