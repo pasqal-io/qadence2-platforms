@@ -116,7 +116,7 @@ class AllocQubits:
     def __init__(
         self,
         num_qubits: int,
-        qubit_positions: list[tuple[int, int]] | list[int] | None = None,
+        qubit_positions: list[tuple[int, int]] | list[int],
         grid_type: Literal["linear", "square", "triangular"] | None = None,
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
