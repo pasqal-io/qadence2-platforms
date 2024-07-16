@@ -4,7 +4,7 @@ import pyqtorch as pyq
 import torch
 
 from qadence2_platforms.backend.api import compile
-from qadence2_platforms.qadence_ir import (
+from qadence_ir.ir import (
     Alloc,
     AllocQubits,
     Assign,
@@ -18,7 +18,7 @@ from qadence2_platforms.qadence_ir import (
 
 def test_pyq_compilation() -> None:
     model = Model(
-        register=AllocQubits(num_qubits=2, options={"initial_state": "10"}),
+        register=AllocQubits(2, []),
         inputs={
             "x": Alloc(size=1, trainable=False),
         },
@@ -29,7 +29,7 @@ def test_pyq_compilation() -> None:
             QuInstruct("not", Support(target=(1,), control=(0,))),
         ],
         directives={"digital": True},
-        data_settings={"result-type": "state-vector", "data-type": "f32"},
+        settings={"result-type": "state-vector", "data-type": "f32"},
     )
     compiled_model = compile(model, "pyqtorch")
     f_params = {"x": torch.rand(1, requires_grad=True)}

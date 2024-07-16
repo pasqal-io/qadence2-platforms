@@ -5,7 +5,7 @@ from logging import getLogger
 
 import pyqtorch as pyq
 
-from ...qadence_ir import Load, Model, QuInstruct
+from qadence_ir.ir import Load, Model, QuInstruct
 
 logger = getLogger(__name__)
 
