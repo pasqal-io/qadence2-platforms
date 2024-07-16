@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "qadence2_platforms"
+name = "qadence2-platforms"
 description = "Platform-dependent engines and model to execute compiled expressions with common set of methods."
 readme = "README.md"
 version = "0.1.0"
