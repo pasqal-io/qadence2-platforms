@@ -86,10 +86,14 @@ class QuInstruct:
         args: Arguments of the instruction such as angle, duration, amplitude etc.
     """
 
-    def __init__(self, name: str, support: Support, *args: Any):
+    def __init__(self, name: str, support: Support, *args: Any, **attributes: Any):
         self.name = name
         self.support = support
         self.args = args
+        self.attr = attributes
+
+    def get(self, attribute: str, default: Any | None = None) -> Any:
+        return self.attr.get(attribute, default)
 
 
 class AllocQubits:

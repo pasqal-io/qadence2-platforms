@@ -12,14 +12,20 @@ from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
 from qadence2_platforms.qadence_ir import QuInstruct
 
-from ..backend import InstructPartialResult
+from ..backend import InstructLazyResult
 from ..embedding import EmbeddingModule
 from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
 
 
-class BackendPartialSequence:
+class BackendLazySequence:
+    """
+    Lazy sequence class to hold a tuple of instructions lazy results class to be
+    evaluated at runtime, once the parameters are provided by the user or through
+    time-dependent steps.
+    """
+
     def __init__(self, *instructions: Any):
-        self.partial_instr: tuple[InstructPartialResult, ...] = instructions
+        self.lazy_instr: tuple[InstructLazyResult, ...] = instructions
 
     @staticmethod
     @lru_cache
@@ -39,7 +45,7 @@ class BackendPartialSequence:
     ) -> PulserSequence:
         seq: Optional[PulserSequence] = None
         assigned_values: dict = embedding(values)
-        for fn, params in self.partial_instr:
+        for fn, params in self.lazy_instr:
             resolved_params: tuple[Any, ...] = ()
             params = cast(tuple, params)
             fn = cast(partial, fn)
@@ -52,7 +58,7 @@ class BackendPartialSequence:
         raise ValueError("pulser sequence must not be None.")
 
 
-class Sequence(SequenceApi[BackendPartialSequence, BaseRegister, BaseDevice]):
+class Sequence(SequenceApi[BackendLazySequence, BaseRegister, BaseDevice]):
     instruction_map: dict[str, Callable] = {
         "not": not_fn,
         "h": h_fn,
@@ -88,7 +94,7 @@ class Sequence(SequenceApi[BackendPartialSequence, BaseRegister, BaseDevice]):
             seq.config_detuning_map(detuning_map, "dmm_0")
         return seq
 
-    def build_sequence(self) -> BackendPartialSequence:
+    def build_sequence(self) -> BackendLazySequence:
         seq = self._define_sequence()
         pulses_list = []
 
@@ -98,4 +104,4 @@ class Sequence(SequenceApi[BackendPartialSequence, BaseRegister, BaseDevice]):
                     seq=seq, support=instr.support, params=instr.args
                 )
                 pulses_list.append(native_op)
-        return BackendPartialSequence(*pulses_list)
+        return BackendLazySequence(*pulses_list)

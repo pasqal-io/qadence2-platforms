@@ -14,6 +14,9 @@ np_fun_map = {
 }
 
 
+# TODO: move `from_model` and `name_mapping` to a new `ModelParser` class and
+#  make `Embedding` independent of `Model`; also no need to have `ParameterBuffer`
+
 def np_call(call: Call) -> Callable[[dict, dict], np.ndarray]:
     """Convert a `Call` object into a numpyfied function which can be evaluated using
     a vparams and inputs dict.

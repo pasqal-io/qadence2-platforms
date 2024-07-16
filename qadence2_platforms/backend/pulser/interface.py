@@ -11,14 +11,14 @@ from pulser_simulation import QutipEmulator
 from qadence2_platforms.backend.interface import RuntimeInterfaceApi
 
 from .embedding import EmbeddingModule
-from .fresnel_eom.sequence import BackendPartialSequence
+from .fresnel_eom.sequence import BackendLazySequence
 
 
 class RuntimeInterface(
     RuntimeInterfaceApi[
         BaseRegister,
         EmbeddingModule,
-        BackendPartialSequence,
+        BackendLazySequence,
         ModuleType,
         np.ndarray,
         Counter,
@@ -30,13 +30,13 @@ class RuntimeInterface(
         self,
         register: BaseRegister,
         embedding: EmbeddingModule,
-        native_seq: BackendPartialSequence,
+        native_seq: BackendLazySequence,
         native_backend: ModuleType,
         **_: Any,
     ):
         self.register: BaseRegister = register
         self.embedding: EmbeddingModule = embedding
-        self.sequence: BackendPartialSequence = native_seq
+        self.sequence: BackendLazySequence = native_seq
         self.engine: ModuleType = native_backend
 
     def __call__(self, **_: Any) -> np.ndarray:

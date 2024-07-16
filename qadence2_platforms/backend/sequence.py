@@ -10,7 +10,7 @@ from qadence2_platforms.types import DeviceType, NativeSequenceType, RegisterTyp
 class SequenceApi(ABC, Generic[NativeSequenceType, RegisterType, DeviceType]):
     """
     A generic sequence api class to produce the native sequence of instructions
-    for the backend.
+    for the given backend.
     """
 
     model: Model

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from importlib import import_module
 from logging import getLogger
-from typing import Callable
+from typing import Callable, Optional
 
 from numpy.typing import ArrayLike
 
@@ -18,7 +18,7 @@ ARRAYLIKE_FN_MAP = {
 def ConcretizedCallable(
     call_name: str,
     abstract_args: list[str | float | int],
-    instruction_mapping: dict[str, Callable] = dict(),
+    instruction_mapping: Optional[dict[str, Callable]] = None,
     engine_name: str = "torch",
 ) -> Callable[[dict, dict], ArrayLike]:
     """Convert a generic abstract function call and
@@ -51,12 +51,13 @@ def ConcretizedCallable(
     """
     engine_call = None
     engine = None
+    instruction_mapping = instruction_mapping or dict()
     try:
         engine_name, fn_name = ARRAYLIKE_FN_MAP[engine_name]
         engine = import_module(engine_name)
         arraylike_fn = getattr(engine, fn_name)
     except (ModuleNotFoundError, ImportError) as e:
-        logger.error(f"Unable to import {engine_call} due to {e}.")
+        logger.error(f"Unable to import '{call_name}' due to {e}.")
 
     try:
         engine_call = getattr(engine, call_name)
@@ -71,7 +72,9 @@ def ConcretizedCallable(
                         not in instruction_mapping {instruction_mapping} due to {e}."
             )
 
-    def evaluate(params: dict = dict(), inputs: dict = dict()) -> ArrayLike:
+    def evaluate(params: Optional[dict] = None, inputs: Optional[dict] = None) -> ArrayLike:
+        params = params or dict()
+        inputs = inputs or dict()
         arraylike_args = []
         for symbol_or_numeric in abstract_args:
             if isinstance(symbol_or_numeric, (float, int)):

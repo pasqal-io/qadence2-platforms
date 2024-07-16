@@ -87,7 +87,13 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     return register
 
 
-class InstructPartialResult:
+class InstructLazyResult:
+    """
+    Class that holds instruction functions and not-resolved parameters (user input or
+    time dependent parameters) in a lazy way to be evaluated once the parameters are
+    provided.
+    """
+
     def __init__(self, fn: partial, params: Any):
         if fn is None:
             raise ValueError("Must declare `fn` argument.")
