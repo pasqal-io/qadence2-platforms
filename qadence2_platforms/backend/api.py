@@ -7,7 +7,7 @@ from typing import Any
 
 import torch
 
-from qadence2_platforms.qadence_ir import Model
+from qadence2_core.platforms.qadence_ir import Model
 
 logger = getLogger(__name__)
 
@@ -66,7 +66,7 @@ class Api(torch.nn.Module):
 
 def compile(model: Model, backend_name: str) -> Api:  # type: ignore[return]
     try:
-        interface = import_module(f"qadence2_platforms.backend.{backend_name}")
+        interface = import_module(f"qadence2_core.platforms.backend.{backend_name}")
         native_backend = import_module(backend_name)
         register_interface = interface.RegisterInterface(model)
         embedding = interface.Embedding(model)
