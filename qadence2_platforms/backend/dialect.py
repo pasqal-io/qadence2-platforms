@@ -15,7 +15,7 @@ from qadence2_platforms.backend.utils import (
     get_embedding_instance,
     get_native_seq_instance,
 )
-from qadence2_platforms.qadence_ir import Model
+from qadence_ir.ir import Model
 from qadence2_platforms.types import DeviceType, EmbeddingType, RegisterType
 
 

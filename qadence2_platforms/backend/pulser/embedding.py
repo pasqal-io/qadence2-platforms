@@ -6,7 +6,7 @@ import numpy as np
 
 from qadence2_platforms import Model
 from qadence2_platforms.backend.embedding import EmbeddingModuleApi, ParameterBufferApi
-from qadence2_platforms.qadence_ir import Assign, Call, Load
+from qadence_ir.ir import Assign, Call, Load
 
 np_fun_map = {
     "mul": "multiply",

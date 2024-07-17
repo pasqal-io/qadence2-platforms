@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pytest import fixture
 
-from qadence2_platforms.qadence_ir import (
+from qadence_ir.ir import (
     Alloc,
     AllocQubits,
     Assign,

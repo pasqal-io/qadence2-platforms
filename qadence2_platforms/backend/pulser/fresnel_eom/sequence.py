@@ -10,7 +10,7 @@ from pulser.sequence import Sequence as PulserSequence
 
 from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
-from qadence2_platforms.qadence_ir import QuInstruct
+from qadence_ir.ir import QuInstruct
 
 from ..backend import InstructLazyResult
 from ..embedding import EmbeddingModule

@@ -6,7 +6,7 @@ import pyqtorch as pyq
 
 from qadence2_platforms import Model
 from qadence2_platforms.backend.sequence import SequenceApi
-from qadence2_platforms.qadence_ir import Load, QuInstruct
+from qadence_ir.ir import Load, QuInstruct
 
 
 class Sequence(SequenceApi[pyq.QuantumCircuit, None, None]):

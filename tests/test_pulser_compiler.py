@@ -4,7 +4,7 @@ import numpy as np
 
 from qadence2_platforms.backend.pulser.interface import RuntimeInterface
 from qadence2_platforms.compiler import compile
-from qadence2_platforms.qadence_ir import (
+from qadence_ir.ir import (
     Model,
 )
 from qadence2_platforms.types import DeviceName

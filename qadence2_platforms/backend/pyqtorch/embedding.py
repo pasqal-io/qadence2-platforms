@@ -9,7 +9,7 @@ from qadence2_platforms.backend.embedding import (
     EmbeddingModuleApi,
     ParameterBufferApi,
 )
-from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
+from qadence_ir.ir import Assign, Call, Load, Model
 
 logger = getLogger(__name__)
 

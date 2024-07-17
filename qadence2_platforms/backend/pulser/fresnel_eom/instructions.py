@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 from pulser.sequence import Sequence
 
-from qadence2_platforms.qadence_ir import Support
+from qadence_ir.ir import Support
 
 from ..backend import InstructLazyResult
 from .functions import free_evolution, h_pulse, rotation

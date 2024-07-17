@@ -6,7 +6,7 @@ import numpy as np
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
-from qadence2_platforms.qadence_ir import Support
+from qadence_ir.ir import Support
 from qadence2_platforms.types import Scalar
 
 DEFAULT_AMPLITUDE = 4 * np.pi

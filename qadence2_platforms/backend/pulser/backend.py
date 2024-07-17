@@ -31,7 +31,7 @@ from pulser.register.special_layouts import (
     TriangularLatticeLayout,
 )
 
-from qadence2_platforms.qadence_ir import Model
+from qadence_ir.ir import Model
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
