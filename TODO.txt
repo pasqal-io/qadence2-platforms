@@ -1,0 +1,5 @@
+TODO list
+
+- move the new Embedding (Embedding + ParamBuffer in one class) and the ModelParser (containing the Model dependency) to a new repo, where it can be imported from both platforms and the backends
+- resolve the Model instructions (alloc, quinstruct) to contain the logic for vparams, fparams, tparams(?)
+- add docstrings

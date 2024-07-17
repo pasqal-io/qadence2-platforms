@@ -1,36 +1,32 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from logging import getLogger
+from typing import Any, Callable
 
 import pyqtorch as pyq
 
-from qadence_ir.ir import Load, Model, QuInstruct
+from qadence2_platforms import Model
+from qadence2_platforms.backend.sequence import SequenceApi
+from qadence_ir.ir import Load, QuInstruct
 
-logger = getLogger(__name__)
 
-
-@dataclass(frozen=True)
-class Compiler:
-    instruction_mapping = {
+class Sequence(SequenceApi[pyq.QuantumCircuit, None, None]):
+    instruction_map: dict[str, Callable] = {
         "not": pyq.CNOT,
         "add": pyq.Add,
         "mul": pyq.Scale,
         "noncommute": pyq.Sequence,
     }
 
-    def compile(
-        self,
-        model: Model,
-    ) -> pyq.QuantumCircuit:
+    def __init__(self, model: Model, **_: Any):
+        self.model: Model = model
+
+    def build_sequence(self) -> pyq.QuantumCircuit:
         pyq_operations = []
-        for instr in model.instructions:
+        for instr in self.model.instructions:
             if isinstance(instr, QuInstruct):
-                native_op = None
-                try:
-                    native_op = getattr(pyq, instr.name.upper())
-                except Exception as e:
-                    native_op = self.instruction_mapping[instr.name]
+                native_op = getattr(pyq, instr.name.upper(), None)
+                if native_op is None:
+                    native_op = self.instruction_map[instr.name]
                 control = instr.support.control
                 target = instr.support.target
                 native_support = (*control, *target)
@@ -43,4 +39,4 @@ class Compiler:
                     )
                 else:
                     pyq_operations.append(native_op(*native_support))
-        return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)
+        return pyq.QuantumCircuit(self.model.register.num_qubits, pyq_operations)

@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .backend import compile
+from .sequence import Sequence

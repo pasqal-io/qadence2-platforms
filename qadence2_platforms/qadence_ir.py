@@ -9,7 +9,7 @@ class Alloc:
     an array. The type of the parameter is defined by the backend.
 
     Inputs:
-        size: Space occuped by the parameter.
+        size: Space occupied by the parameter.
         trainable: Flag if the parameter can change during a training loop.
     """
 
@@ -46,7 +46,7 @@ class Call:
 class Support:
     """
     Generic representation of the qubit support. For single qubit operations,
-    a muliple index support indicates apply the operation for each index in the
+    a multiple index support indicates apply the operation for each index in the
     support.
 
     Both target and control lists must be ordered!
@@ -86,24 +86,28 @@ class QuInstruct:
         args: Arguments of the instruction such as angle, duration, amplitude etc.
     """
 
-    def __init__(self, name: str, support: Support, *args: Any):
+    def __init__(self, name: str, support: Support, *args: Any, **attributes: Any):
         self.name = name
         self.support = support
         self.args = args
+        self.attr = attributes
+
+    def get(self, attribute: str, default: Any | None = None) -> Any:
+        return self.attr.get(attribute, default)
 
 
 class AllocQubits:
     """
-    Describes the register configuration in a neutral atoms device.
+    Describes the register configuration in a neutral-atoms device.
 
     Inputs:
         num_qubits: Number of atoms to be allocated.
         qubit_positions: A list of discrete coordinates for 2D grid with (0,0)
             position at center of the grid. A list of indices in a linear register.
-            An empty list will indicate the backen is free to define the topology
+            An empty list will indicate the backend is free to define the topology
             for devices that implement logical qubits.
         grid_type: Allows to select the coordinates sets for 2D grids: "square"
-            (orthogonal) or "triagular" (skew). A "linear" will allow the backend
+            (orthogonal) or "triangular" (skew). A "linear" will allow the backend
             to define the shape of the register. When the `grid_type` is `None`
             the backend uses its default structure (particular useful when
             shuttling is available). Default value is `None`.
@@ -116,7 +120,7 @@ class AllocQubits:
     def __init__(
         self,
         num_qubits: int,
-        qubit_positions: list[tuple[int, int]] | list[int] | None = None,
+        qubit_positions: list[tuple[int, int]] | list[int],
         grid_type: Literal["linear", "square", "triangular"] | None = None,
         grid_scale: float = 1.0,
         options: dict[str, Any] | None = None,
@@ -135,11 +139,11 @@ class Model:
     but its agnostic nature may make it suitable for any quantum device.
 
     Inputs:
-        register: Describe the atomic arragement of the neutal atom register.
+        register: Describe the atomic arrangement of the neutral atom register.
         instructions:  A list of abstract instructions with their arguments with
             which a backend can execute a sequence.
         directives: A dictionary containing QPU related options. For instance,
-            it can be used to set the Rydberg level to be used or whether or not
+            it can be used to set the Rydberg level to be used or whether to
             allow digital-analog operations in the sequence.
         data_settings: Backend specific configurations where the user can define
             for instance, the data type like `int64`, or the return type as
