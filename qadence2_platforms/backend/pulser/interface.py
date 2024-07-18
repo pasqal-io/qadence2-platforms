@@ -8,7 +8,7 @@ import numpy as np
 from pulser.register.base_register import BaseRegister
 from pulser_simulation import QutipEmulator
 
-from qadence2_platforms.backend.interface import RuntimeInterfaceApi
+from qadence2.platforms.backend.interface import RuntimeInterfaceApi
 
 from .embedding import EmbeddingModule
 from .fresnel_eom.sequence import BackendLazySequence

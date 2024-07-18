@@ -5,18 +5,18 @@ from importlib import import_module
 from types import ModuleType
 from typing import Callable, Generic, Optional
 
-from qadence2_platforms.backend.bytecode import BytecodeApi
-from qadence2_platforms.backend.interface import RuntimeInterfaceApi
-from qadence2_platforms.backend.sequence import SequenceApi
-from qadence2_platforms.backend.utils import (
+from qadence2.platforms.backend.bytecode import BytecodeApi
+from qadence2.platforms.backend.interface import RuntimeInterfaceApi
+from qadence2.platforms.backend.sequence import SequenceApi
+from qadence2.platforms.backend.utils import (
     get_backend_module,
     get_backend_register_fn,
     get_device_instance,
     get_embedding_instance,
     get_native_seq_instance,
 )
-from qadence_ir.ir import Model
-from qadence2_platforms.types import DeviceType, EmbeddingType, RegisterType
+from qadence2_ir import Model
+from qadence2.platforms.types import DeviceType, EmbeddingType, RegisterType
 
 
 class DialectApi(ABC, Generic[RegisterType, DeviceType, EmbeddingType]):

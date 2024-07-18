@@ -3,11 +3,11 @@ from __future__ import annotations
 from types import ModuleType
 from typing import Optional, Union
 
-from qadence2_platforms import Model
-from qadence2_platforms.backend.bytecode import BytecodeApi
-from qadence2_platforms.backend.dialect import DialectApi
-from qadence2_platforms.backend.interface import RuntimeInterfaceApi
-from qadence2_platforms.backend.utils import get_dialect_instance
+from qadence2_ir import Model
+from qadence2.platforms.backend.bytecode import BytecodeApi
+from qadence2.platforms.backend.dialect import DialectApi
+from qadence2.platforms.backend.interface import RuntimeInterfaceApi
+from qadence2.platforms.backend.utils import get_dialect_instance
 
 
 def compile(

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pulser.devices._device_datacls import BaseDevice
 from pulser.register.base_register import BaseRegister
 
-from qadence2_platforms.backend.dialect import DialectApi
+from qadence2.platforms.backend.dialect import DialectApi
 
 from .bytecode import Bytecode
 from .embedding import EmbeddingModule

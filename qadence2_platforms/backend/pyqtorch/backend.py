@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qadence_ir.ir import Model
+from qadence2_ir import Model
 
 from .register import RegisterInterface
 

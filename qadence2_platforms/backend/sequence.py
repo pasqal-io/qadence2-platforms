@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Optional
 
-from qadence2_platforms import Model
-from qadence2_platforms.types import DeviceType, NativeSequenceType, RegisterType
+from qadence2_ir import Model
+from qadence2.platforms.types import DeviceType, NativeSequenceType, RegisterType
 
 
 class SequenceApi(ABC, Generic[NativeSequenceType, RegisterType, DeviceType]):

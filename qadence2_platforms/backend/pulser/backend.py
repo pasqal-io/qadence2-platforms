@@ -31,7 +31,7 @@ from pulser.register.special_layouts import (
     TriangularLatticeLayout,
 )
 
-from qadence_ir.ir import Model
+from qadence2_ir import Model
 
 _dmm = PulserDMM(
     # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
@@ -58,7 +58,7 @@ def get_backend_register(model: Model, device: PulserBaseDevice) -> BaseRegister
     spacing_unit = device.rydberg_blockade_radius(max_amp)
 
     if model.directives.get("enable_digital_analog"):
-        if model.register.grid_scale:
+        if model.register.grid_scale != 1:
             warnings.warn(
                 "This device uses atomic distance-based strategies to perform"
                 " digital operations. When the `enable_digital_analog` directive is active,"

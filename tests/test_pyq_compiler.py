@@ -3,9 +3,9 @@ from __future__ import annotations
 import pyqtorch as pyq
 import torch
 
-from qadence2_platforms import Model
-from qadence2_platforms.backend.api import compile
-from qadence2_platforms.compiler import compile as new_compile
+from qadence2.platforms import Model
+from qadence2.platforms.backend.api import compile
+from qadence2.platforms.compiler import compile as new_compile
 
 
 def test_pyq_compilation(model: Model) -> None:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qadence_ir.ir import AllocQubits
+from qadence2_ir import AllocQubits
 
 
 class RegisterInterface:

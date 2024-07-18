@@ -4,9 +4,8 @@ from typing import Any, Callable
 
 import pyqtorch as pyq
 
-from qadence2_platforms import Model
-from qadence2_platforms.backend.sequence import SequenceApi
-from qadence_ir.ir import Load, QuInstruct
+from qadence2_ir import Model, Load, QuInstruct
+from qadence2.platforms.backend.sequence import SequenceApi
 
 
 class Sequence(SequenceApi[pyq.QuantumCircuit, None, None]):

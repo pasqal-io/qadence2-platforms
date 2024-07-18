@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, Iterator, Optional
 
-from qadence2_platforms.types import (
+from qadence2.platforms.types import (
     BytecodeInstructType,
     DeviceType,
     EmbeddingType,

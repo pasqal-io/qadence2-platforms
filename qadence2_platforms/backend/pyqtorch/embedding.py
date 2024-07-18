@@ -5,11 +5,11 @@ from typing import Any, Callable, Optional
 
 import torch
 
-from qadence2_platforms.backend.embedding import (
+from qadence2.platforms.backend.embedding import (
     EmbeddingModuleApi,
     ParameterBufferApi,
 )
-from qadence_ir.ir import Assign, Call, Load, Model
+from qadence2_ir import Assign, Call, Load, Model
 
 logger = getLogger(__name__)
 

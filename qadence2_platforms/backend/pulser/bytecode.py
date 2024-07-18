@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from qadence2_platforms.backend.bytecode import BytecodeApi
+from qadence2.platforms.backend.bytecode import BytecodeApi
 
 
 class Bytecode(BytecodeApi):

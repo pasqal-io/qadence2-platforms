@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 from pulser.sequence import Sequence
 
-from qadence_ir.ir import Support
+from qadence2_ir import Support
 
 from ..backend import InstructLazyResult
 from .functions import free_evolution, h_pulse, rotation
@@ -36,7 +36,15 @@ def rx_fn(seq: Sequence, support: Support, params: Any) -> InstructLazyResult:
     )
 
 
-def qubit_dyn_fn(seq: Sequence, support: Support, params: Any) -> InstructLazyResult:
+def dyn_pulse_fn(seq: Sequence, support: Support, params: Any) -> InstructLazyResult:
+    # for the sake of testing purposes, qubit dynamics will be only
+    # a simple free evolution pulse
+    return InstructLazyResult(
+        fn=partial(free_evolution, sequence=seq, support=support), params=params
+    )
+
+
+def dyn_wait_fn(seq: Sequence, support: Support, params: Any) -> InstructLazyResult:
     # for the sake of testing purposes, qubit dynamics will be only
     # a simple free evolution pulse
     return InstructLazyResult(

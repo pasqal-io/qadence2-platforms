@@ -7,7 +7,7 @@ from typing import Any
 
 import torch
 
-from qadence_ir.ir import Model
+from qadence2_ir import Model
 
 logger = getLogger(__name__)
 

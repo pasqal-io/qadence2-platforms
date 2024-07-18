@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qadence2_platforms.backend.dialect import DialectApi
+from qadence2.platforms.backend.dialect import DialectApi
 
 from .bytecode import Bytecode
 from .embedding import EmbeddingModule

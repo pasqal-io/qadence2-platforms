@@ -8,13 +8,13 @@ from pulser.devices._device_datacls import BaseDevice
 from pulser.register.base_register import BaseRegister
 from pulser.sequence import Sequence as PulserSequence
 
-from qadence2_platforms import Model
-from qadence2_platforms.backend.sequence import SequenceApi
-from qadence_ir.ir import QuInstruct
+from qadence2_ir import Model
+from qadence2.platforms.backend.sequence import SequenceApi
+from qadence2_ir import QuInstruct
 
 from ..backend import InstructLazyResult
 from ..embedding import EmbeddingModule
-from .instructions import h_fn, not_fn, qubit_dyn_fn, rx_fn
+from .instructions import h_fn, not_fn, dyn_pulse_fn, rx_fn, dyn_wait_fn
 
 
 class BackendLazySequence:
@@ -63,7 +63,8 @@ class Sequence(SequenceApi[BackendLazySequence, BaseRegister, BaseDevice]):
         "not": not_fn,
         "h": h_fn,
         "rx": rx_fn,
-        "qubit_dyn": qubit_dyn_fn,
+        "dyn_pulse": dyn_pulse_fn,
+        "dyn_wait": dyn_wait_fn
     }
 
     def __init__(self, model: Model, device: BaseDevice, register: BaseRegister):

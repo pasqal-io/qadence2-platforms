@@ -7,7 +7,7 @@ from typing import Any, Optional
 import pyqtorch as pyq
 import torch
 
-from qadence2_platforms.backend.interface import RuntimeInterfaceApi
+from qadence2.platforms.backend.interface import RuntimeInterfaceApi
 
 from .embedding import EmbeddingModule
 from .register import RegisterInterface

@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any, Generic, Optional
 
-from qadence2_platforms import Model
-from qadence2_platforms.types import (
+from qadence2_ir import Model
+from qadence2.platforms.types import (
     DType,
     EmbeddingMappingResultType,
     EmbeddingType,
