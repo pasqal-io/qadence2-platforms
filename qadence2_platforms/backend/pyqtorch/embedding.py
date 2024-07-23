@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 import torch
 
-from qadence2_platforms.qadence_ir import Assign, Call, Load, Model
+from qadence2_ir import Assign, Call, Load, Model
 
 logger = getLogger(__name__)
 
