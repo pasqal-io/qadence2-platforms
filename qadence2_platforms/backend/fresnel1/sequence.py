@@ -76,7 +76,7 @@ def from_instructions(
     instructions: list[Assign | QuInstruct],
 ) -> list[NamedPulse]:
     variables = dict()
-    temp_var = dict()
+    temp_vars = dict()
 
     for var in inputs:
         if inputs[var].size > 1:
@@ -87,18 +87,17 @@ def from_instructions(
     pulses = []
     for instruction in instructions:
         if isinstance(instruction, Assign):
-            assign(instruction, temp_var, variables)
+            assign(instruction, temp_vars, variables)
 
         if isinstance(instruction, QuInstruct):
-            args = []
-            for arg in instruction.args:
-                if isinstance(arg, Load):
-                    if arg.variable in variables:
-                        args.append(variables[arg.variable])
-                    else:
-                        args.append(temp_var[arg.variable])
-                else:
-                    args.append(arg)
+            args = (
+                (
+                    (temp_vars.get(arg.variable) or variables[arg.variable])
+                    if isinstance(arg, Load)
+                    else arg
+                )
+                for arg in instruction.args
+            )
             pulses.append(NamedPulse(instruction.name, *args))
 
     return pulses
@@ -116,7 +115,7 @@ def assign(
     if isinstance(fn, Call):
         args = (
             (
-                (temp_vars.get(arg.variable, None) or variables[arg.variable])
+                (temp_vars.get(arg.variable) or variables[arg.variable])
                 if isinstance(arg, Load)
                 else arg
             )
