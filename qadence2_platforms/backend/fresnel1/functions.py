@@ -4,7 +4,6 @@ from typing import Any, Literal
 import numpy as np
 
 from pulser.sequence.sequence import Sequence
-from pulser.parametrized import Variable
 from pulser.parametrized.variable import VariableItem
 from pulser.waveforms import ConstantWaveform
 
@@ -13,26 +12,12 @@ DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
 
-def get_variable(
-    sequence: Sequence, var: str | float | int
-) -> Variable | VariableItem | float | int:
-    if not isinstance(var, str | float | int):
-        raise TypeError("Only `str`, `float` and `int` are allowed as variables.")
-
-    if isinstance(var, str):
-        if var in sequence.declared_variables:
-            return sequence.declared_variables[var]
-        return sequence.declare_variable(var)
-
-    return var
-
-
 def pulse(
     sequence: Sequence,
-    duration: str | float,
-    amplitude: str | float,
-    detuning: str | float,
-    phase: str | float,
+    duration: VariableItem | float,
+    amplitude: VariableItem | float,
+    detuning: VariableItem | float,
+    phase: VariableItem | float,
     **_: Any,
 ) -> None:
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
@@ -40,23 +25,18 @@ def pulse(
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
-    _duration = get_variable(sequence, duration)
-    _amplitude = get_variable(sequence, amplitude)
-    _detuning = get_variable(sequence, detuning)
-    _phase = get_variable(sequence, phase)
+    duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
+    amplitude *= max_amp  # type: ignore
+    detuning *= max_abs_detuning  # type: ignore
 
-    _duration *= 1000 * 2 * np.pi / max_amp
-    _amplitude *= max_amp
-    _detuning *= max_abs_detuning
-
-    sequence.enable_eom_mode("global", amp_on=_amplitude, detuning_on=_detuning)
-    sequence.add_eom_pulse("global", duration=int(duration), phase=_phase)
+    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
+    sequence.add_eom_pulse("global", duration=duration, phase=phase)  # type: ignore
     sequence.disable_eom_mode("global")
 
 
 def rx(
     sequence: Sequence,
-    angle: str | float,
+    angle: VariableItem | float,
     **_: Any,
 ) -> None:
     rotation(sequence, angle, "x")
@@ -64,7 +44,7 @@ def rx(
 
 def ry(
     sequence: Sequence,
-    angle: str | float,
+    angle: VariableItem | float,
     **_: Any,
 ) -> None:
     rotation(sequence, angle, "y")
@@ -72,14 +52,13 @@ def ry(
 
 def rotation(
     sequence: Sequence,
-    angle: str | float,
+    angle: VariableItem | float,
     direction: Literal["x", "y"] | float,
     **_: Any,
 ) -> None:
-    _angle = get_variable(sequence, angle)
 
     amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
-    duration = 1000 * _angle / amplitude
+    duration = 1000 * angle / amplitude
     detuning = 0
 
     match direction:
@@ -97,14 +76,13 @@ def rotation(
 
 def free_evolution(
     sequence: Sequence,
-    duration: str | float,
-    *_args: Any,
-    **_kwargs: Any,
+    duration: VariableItem | float,
+    *args: Any,
+    **kwargs: Any,
 ) -> None:
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
 
-    _duration = get_variable(sequence, duration)
-    _duration *= 1000 * 2 * np.pi / max_amp
+    duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
 
     sequence.delay(int(duration), "global")  # type: ignore
 
@@ -114,30 +92,30 @@ def apply_local_shifts(sequence: Sequence, **_: Any) -> None:
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
     time_scale = 1000 * 2 * np.pi / max_abs_detuning
-    _local_pulse_core(
+    local_pulse_core(
         sequence, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False
     )
 
 
 def local_pulse(
     sequence: Sequence,
-    duration: str | float | Literal["fill"],
-    detuning: str | float,
+    duration: VariableItem | float | Literal["fill"],
+    detuning: VariableItem | float,
     concurrent: bool = False,
     **_: Any,
 ) -> None:
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     time_scale = 1000 * 2 * np.pi / max_amp
-    _local_pulse_core(sequence, duration, time_scale, detuning, concurrent)
+    local_pulse_core(sequence, duration, time_scale, detuning, concurrent)
 
 
-def _local_pulse_core(
+def local_pulse_core(
     sequence: Sequence,
-    duration: str | float | Literal["fill"],
+    duration: VariableItem | float | Literal["fill"],
     time_scale: float,
-    detuning: str | float,
+    detuning: VariableItem | float,
     concurrent: bool = False,
-    **_kwargs: Any,
+    **kwargs: Any,
 ) -> None:
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
@@ -149,16 +127,14 @@ def _local_pulse_core(
                 "The option `fill` can only be used on the `concurrent` mode"
             )
 
-        _duration = sequence.get_duration("global") - sequence.get_duration("dmm_0")
+        duration = sequence.get_duration("global") - sequence.get_duration("dmm_0")
     else:
-        _duration = get_variable(sequence, duration)
-        _duration *= time_scale  # type: ignore
+        duration *= time_scale  # type: ignore
 
-    _detuning = get_variable(sequence, detuning)
-    _detuning *= -1 * max_abs_detuning
+    detuning *= -1 * max_abs_detuning  # type: ignore
 
     sequence.add_dmm_detuning(
-        ConstantWaveform(_duration, _detuning),
+        ConstantWaveform(duration, detuning),
         "dmm_0",
         "no-delay" if concurrent else "min-delay",
     )

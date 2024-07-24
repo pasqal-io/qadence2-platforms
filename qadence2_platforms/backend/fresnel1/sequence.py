@@ -2,21 +2,23 @@ from __future__ import annotations
 
 
 from dataclasses import replace
-from typing import Any, Iterable
+from functools import reduce
+from typing import Any
 import numpy as np
 
 from pulser.channels import DMM
 from pulser.devices._devices import AnalogDevice
 from pulser.sequence.sequence import Sequence
 from pulser.register.register_layout import RegisterLayout
+from pulser.parametrized.variable import VariableItem
 
-from qadence2_ir.types import Model, Assign, QuInstruct, Call, Load
+from qadence2_ir.types import Alloc, Model, Assign, QuInstruct, Call, Load
 
 from . import functions as add_pulse
 
 
 class NamedPulse:
-    def __init__(self, name: str, args: tuple[str | float, ...]) -> None:
+    def __init__(self, name: str, *args: Any) -> None:
         self.name = name
         self.args = args
 
@@ -38,10 +40,7 @@ Fresnel1 = replace(
 )
 
 
-def to_sequence(model: Model, register: RegisterLayout) -> Sequence:
-    # TODO: fix the map implementation
-    return NotImplemented
-
+def from_model(model: Model, register: RegisterLayout) -> Sequence:
     seq = Sequence(register, Fresnel1)  # type: ignore
     seq.declare_channel("global", "rydberg_global")
 
@@ -63,7 +62,72 @@ def to_sequence(model: Model, register: RegisterLayout) -> Sequence:
 
         seq.config_detuning_map(detuning_map, "dmm_0")
 
+    pulses = from_instructions(seq, model.inputs, model.instructions)
+
     for pulse in pulses:
-        getattr(add_pulse, pulse.name)(seq, **args)  # type: ignore
+        getattr(add_pulse, pulse.name)(seq, *pulse.args)
 
     return seq
+
+
+def from_instructions(
+    sequence: Sequence,
+    inputs: dict[str, Alloc],
+    instructions: list[Assign | QuInstruct],
+) -> list[NamedPulse]:
+    variables = dict()
+    temp_var = dict()
+
+    for var in inputs:
+        variables[var] = sequence.declare_variable(var)
+
+    pulses = []
+    for instruction in instructions:
+        if isinstance(instruction, Assign):
+            assign(instruction, temp_var, variables)
+
+        if isinstance(instruction, QuInstruct):
+            args = (
+                (
+                    variables.get(arg.variable) or temp_var.get(arg.variable)
+                    if isinstance(arg, Load)
+                    else arg
+                )
+                for arg in instruction.args
+            )
+            pulses.append(NamedPulse(instruction.name, *args))
+
+    return pulses
+
+
+def assign(
+    instruction: Assign, temp_vars: dict, variables: dict[str, VariableItem]
+) -> None:
+    var_name = instruction.variable
+
+    if var_name in temp_vars or var_name in variables:
+        return
+
+    fn = instruction.value
+    if isinstance(fn, Call):
+        args = (
+            (
+                variables.get(arg.variable) or temp_vars[arg.variable]
+                if isinstance(arg, Load)
+                else arg
+            )
+            for arg in fn.args
+        )
+        temp_vars[var_name] = _compute(fn.call, *args)
+
+
+def _compute(fn: str, *args: Any) -> Any:
+    match fn:
+        case "add":
+            return reduce(lambda a, b: a + b, args)
+        case "mul":
+            return reduce(lambda a, b: a * b, args)
+        case "pow":
+            return reduce(lambda a, b: a**b, args)
+        case _:
+            return getattr(np, fn)(*args)
