@@ -1,3 +1,4 @@
 from __future__ import annotations
 
-from compiler import modelc
+from .abstracts import AbstractInterface
+from .compiler import modelc

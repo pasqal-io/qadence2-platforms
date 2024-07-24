@@ -7,7 +7,7 @@ import torch
 import pyqtorch
 
 from qadence2_ir import Model
-from qadence2_platforms.interface import AbstractInterface
+from qadence2_platforms.abstracts import AbstractInterface
 
 from .register import RegisterInterface
 from .embedding import Embedding

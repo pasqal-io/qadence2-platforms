@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .api import build
+from .interface import build

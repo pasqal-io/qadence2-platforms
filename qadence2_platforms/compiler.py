@@ -3,7 +3,7 @@ from __future__ import annotations
 from importlib import import_module
 from qadence2_ir import Model
 
-from .interface import AbstractInterface as Interface
+from .abstracts import AbstractInterface as Interface
 
 
 def modelc(model: Model, platform: str) -> Interface:
