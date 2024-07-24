@@ -79,6 +79,9 @@ def from_instructions(
     temp_var = dict()
 
     for var in inputs:
+        if inputs[var].size > 1:
+            raise TypeError("This platform cannot hanle time modulated variables.")
+
         variables[var] = sequence.declare_variable(var)
 
     pulses = []
@@ -87,14 +90,15 @@ def from_instructions(
             assign(instruction, temp_var, variables)
 
         if isinstance(instruction, QuInstruct):
-            args = (
-                (
-                    variables.get(arg.variable) or temp_var.get(arg.variable)
-                    if isinstance(arg, Load)
-                    else arg
-                )
-                for arg in instruction.args
-            )
+            args = []
+            for arg in instruction.args:
+                if isinstance(arg, Load):
+                    if arg.variable in variables:
+                        args.append(variables[arg.variable])
+                    else:
+                        args.append(temp_var[arg.variable])
+                else:
+                    args.append(arg)
             pulses.append(NamedPulse(instruction.name, *args))
 
     return pulses
