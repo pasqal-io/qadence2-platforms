@@ -20,7 +20,6 @@ class Interface(
     AbstractInterface[
         pyqtorch.QuantumCircuit, torch.Tensor, torch.Tensor | list[Counter]
     ],
-    torch.nn.Module,
 ):
     """A class holding register,embedding, circuit, native backend and optional observable."""
 
@@ -41,7 +40,6 @@ class Interface(
         self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
-        self._parameters: dict[str, torch.Tensor] | None = None
 
     @property
     def info(self) -> dict[str, Any]:
@@ -50,9 +48,6 @@ class Interface(
     @property
     def sequence(self) -> pyqtorch.QuantumCircuit:
         return self.circuit
-
-    def set_parameters(self, **params: Any) -> None:
-        self._parameters = params
 
     def add_noise(self, model: Literal["SPAM"]) -> None:
         pass
@@ -73,19 +68,36 @@ class Interface(
         # Expectation
         if observable:
             return pyqtorch.expectation(
-                self.circuit, state, self.embedding(inputs), self.observable
+                circuit=self.circuit,
+                state=state,
+                values=inputs,
+                observable=self.observable,
+                embedding=self.embedding,
             )
 
         # Simulation
         if not shots:
-            return pyqtorch.run(self.circuit, state, self.embedding(inputs))
+            return pyqtorch.run(
+                circuit=self.circuit,
+                state=state,
+                values=inputs,
+                embedding=self.embedding,
+            )
 
         # Sample
-        return pyqtorch.sample(self.circuit, state, self.embedding(inputs), shots)
+        return pyqtorch.sample(
+            circuit=self.circuit,
+            state=state,
+            values=inputs,
+            n_shots=shots,
+            embedding=self.embedding,
+        )
 
 
 def build(model: Model) -> Interface:
-    register_interface = RegisterInterface(model)
+    register_interface = RegisterInterface(
+        model.register.num_qubits, model.register.options.get("init_state")
+    )
     embedding = Embedding(model)
     native_circ = Compiler().compile(model)
     return Interface(register_interface, embedding, native_circ)

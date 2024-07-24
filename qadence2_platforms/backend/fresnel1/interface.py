@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from typing import Any, Callable, Literal
-import qutip as qt
+from qutip import Qobj
 
 from pulser.sequence.sequence import Sequence
 from pulser_simulation.simulation import QutipEmulator
@@ -10,7 +10,7 @@ from pulser_simulation.simulation import QutipEmulator
 from qadence2_platforms import AbstractInterface
 
 
-class Interface(AbstractInterface[Sequence, float, Counter | qt.Qobj]):
+class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
 
     def __init__(
         self,
@@ -37,7 +37,7 @@ class Interface(AbstractInterface[Sequence, float, Counter | qt.Qobj]):
         callback: Callable | None = None,
         on: Literal["emulator", "qpu"] = "emulator",
         **kwargs: Any,
-    ) -> Counter | qt.Qobj:
+    ) -> Counter | Qobj:
         match on:
             case "emulator":
                 built_sequence = self.sequence.build(**(parameters or {}))  # type: ignore

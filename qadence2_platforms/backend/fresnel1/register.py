@@ -25,7 +25,7 @@ def from_model(model: Model) -> RegisterLayout:
             stacklevel=2,
         )
 
-    if model_register.grid_scale:
+    if model_register.grid_scale != 1.0:
         warnings.warn(
             "Currently, Fresnel uses a fixed grid spacing.",
             SyntaxWarning,

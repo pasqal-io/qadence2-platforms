@@ -112,7 +112,7 @@ def assign(
     if isinstance(fn, Call):
         args = (
             (
-                variables.get(arg.variable) or temp_vars[arg.variable]
+                (temp_vars.get(arg.variable, None) or variables[arg.variable])
                 if isinstance(arg, Load)
                 else arg
             )
