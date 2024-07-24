@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from importlib import import_module
-from qadence2_ir import Model
+from qadence2_ir.types import Model
 
 from .abstracts import AbstractInterface as Interface
 
