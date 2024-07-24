@@ -12,7 +12,7 @@ DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
 
-def pulse(
+def dyn_pulse(
     sequence: Sequence,
     duration: VariableItem | float,
     amplitude: VariableItem | float,
@@ -74,7 +74,7 @@ def rotation(
     sequence.disable_eom_mode("global")
 
 
-def free_evolution(
+def dyn_wait(
     sequence: Sequence,
     duration: VariableItem | float,
     *args: Any,
