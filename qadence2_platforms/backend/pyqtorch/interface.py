@@ -94,7 +94,7 @@ class Interface(
         )
 
 
-def build(model: Model) -> Interface:
+def modelc(model: Model) -> Interface:
     register_interface = RegisterInterface(
         model.register.num_qubits, model.register.options.get("init_state")
     )

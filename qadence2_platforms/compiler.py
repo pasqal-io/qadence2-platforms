@@ -8,4 +8,4 @@ from .abstracts import AbstractInterface as Interface
 
 def modelc(model: Model, platform: str) -> Interface:
     plat = import_module(f"qadence2_platforms.backend.{platform}")
-    return plat.build(model)
+    return plat.modelc(model)

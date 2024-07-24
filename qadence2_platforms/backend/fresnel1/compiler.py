@@ -5,7 +5,7 @@ from .interface import Interface
 from . import sequence, register
 
 
-def build(model: Model) -> Interface:
+def modelc(model: Model) -> Interface:
     reg = register.from_model(model)
     seq = sequence.from_model(model, reg)
     return Interface(seq)

@@ -1,3 +1,3 @@
 from __future__ import annotations
 
-from .interface import build
+from .interface import modelc
