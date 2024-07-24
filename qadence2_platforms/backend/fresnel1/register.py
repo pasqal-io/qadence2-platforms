@@ -15,8 +15,8 @@ warnings.formatwarning = lambda msg, *args, **kwargs: f"WARNING: {msg}\n"
 def from_model(model: Model) -> RegisterLayout:
     model_register = model.register
 
-    if not model_register.qubit_positions:
-        raise SyntaxError("Atoms coordinates not defined.")
+    if model_register.num_qubits < 1:
+        raise ValueError("No quibt available in the register.")
 
     if model_register.grid_type and model_register.grid_type != "triangular":
         warnings.warn(
@@ -41,8 +41,14 @@ def from_model(model: Model) -> RegisterLayout:
             stacklevel=2,
         )
 
+    coords = model_register.qubit_positions
+
+    if not coords:
+        shift = model_register.num_qubits // 2
+        coords = [(p - shift, 0) for p in range(model_register.num_qubits)]
+
     transform = np.array([[1.0, 0.0], [0.5, 0.8660254037844386]])
-    coords = model_register.qubit_positions @ transform
+    coords = coords @ transform
 
     layout = AnalogDevice.calibrated_register_layouts[
         "TriangularLatticeLayout(61, 5.0µm)"
