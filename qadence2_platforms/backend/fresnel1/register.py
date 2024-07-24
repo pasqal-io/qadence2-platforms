@@ -20,21 +20,21 @@ def from_model(model: Model) -> RegisterLayout:
 
     if model_register.grid_type and model_register.grid_type != "triangular":
         warnings.warn(
-            "Fresnel only supoorts triangular grids at the moment.",
+            "Fresnel-1 only supoorts triangular grids at the moment.",
             SyntaxWarning,
             stacklevel=2,
         )
 
     if model_register.grid_scale != 1.0:
         warnings.warn(
-            "Currently, Fresnel uses a fixed grid spacing.",
+            "Currently, Fresnel-1 uses a fixed grid.",
             SyntaxWarning,
             stacklevel=2,
         )
 
     if model.directives.get("enable_digital_analog"):
         warnings.warn(
-            "Fresnel uses a fixed grid and does not have digital channels.\n"
+            "Fresnel-1 uses a fixed grid and does not have digital channels.\n"
             + "Digital operations using atomic distance-based strategies\n"
             + "may not behave as expected.",
             SyntaxWarning,
