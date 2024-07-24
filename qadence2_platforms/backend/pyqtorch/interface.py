@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Counter, Literal
 
 import torch
 import pyqtorch
 
-from qadence2_ir import Model
+from qadence2_ir.types import Model
 from qadence2_platforms.abstracts import AbstractInterface
 
 from .register import RegisterInterface
@@ -16,7 +16,12 @@ from .compiler import Compiler
 logger = getLogger(__name__)
 
 
-class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.nn.Module):
+class Interface(
+    AbstractInterface[
+        pyqtorch.QuantumCircuit, torch.Tensor, torch.Tensor | list[Counter]
+    ],
+    torch.nn.Module,
+):
     """A class holding register,embedding, circuit, native backend and optional observable."""
 
     def __init__(
@@ -28,7 +33,7 @@ class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.
     ) -> None:
         super().__init__()
         self.register = register
-        self.init_state = (
+        self.init_state: torch.Tensor = (
             circuit.from_bitstring(register.init_state)
             if register.init_state is not None
             else circuit.init_state()
@@ -36,7 +41,7 @@ class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.
         self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
-        self._parameters: dict[str, float] | None = None
+        self._parameters: dict[str, torch.Tensor] | None = None
 
     @property
     def info(self) -> dict[str, Any]:
@@ -46,7 +51,7 @@ class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.
     def sequence(self) -> pyqtorch.QuantumCircuit:
         return self.circuit
 
-    def set_parameters(self, params: dict[str, float]) -> None:
+    def set_parameters(self, **params: Any) -> None:
         self._parameters = params
 
     def add_noise(self, model: Literal["SPAM"]) -> None:
@@ -54,13 +59,15 @@ class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.
 
     def run(
         self,
+        *,
+        parameters: dict[str, torch.Tensor] | None = None,
         shots: int | None = None,
         callback: Callable | None = None,
         state: torch.Tensor | None = None,
         observable: Any | None = None,
         **kwargs: Any,
-    ) -> torch.Tensor:
-        inputs = self._parameters or dict()
+    ) -> torch.Tensor | list[Counter]:
+        inputs = parameters or dict()
         state = state or self.init_state
 
         # Expectation
@@ -74,9 +81,7 @@ class Interface(AbstractInterface[pyqtorch.QuantumCircuit, torch.Tensor], torch.
             return pyqtorch.run(self.circuit, state, self.embedding(inputs))
 
         # Sample
-        return pyqtorch.sample(
-            self.circuit, state, self.embedding(inputs), shots
-        )
+        return pyqtorch.sample(self.circuit, state, self.embedding(inputs), shots)
 
 
 def build(model: Model) -> Interface:

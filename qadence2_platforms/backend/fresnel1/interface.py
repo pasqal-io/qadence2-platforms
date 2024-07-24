@@ -1,42 +1,52 @@
 from __future__ import annotations
 
-from dataclasses import replace
 from collections import Counter
-from unittest.mock import Base
-import numpy as np
+from typing import Any, Callable, Literal
+import qutip as qt
 
-from pulser.channels import DMM
-from pulser.devices._devices import AnalogDevice
-from pulser.devices._device_datacls import BaseDevice
-from pulser.register.register_layout import RegisterLayout
 from pulser.sequence.sequence import Sequence
 from pulser_simulation.simulation import QutipEmulator
 
 from qadence2_platforms import AbstractInterface
 
-# Fresnel1 = AnalogDevice
-Fresnel1 = replace(
-    AnalogDevice.to_virtual(), 
-    dmm_objects=(
-        DMM(
-            # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
-            clock_period=4,
-            min_duration=16,
-            max_duration=2**26,
-            mod_bandwidth=8,
-            bottom_detuning=-2 * np.pi * 20,  # detuning between 0 and -20 MHz
-            total_bottom_detuning=-2 * np.pi * 2000,  # total detuning
-        ),
-    )
-)
 
+class Interface(AbstractInterface[Sequence, float, Counter | qt.Qobj]):
 
-class Interface(AbstractInterface[Sequence, Counter | np.ndarray]):
+    def __init__(
+        self,
+        sequence: Sequence,
+    ) -> None:
+        self._sequence = sequence
 
-    def __init__(self, register: RegisterLayout) -> None:
-        self._register = register
-    
     @property
-    def register(self) -> RegisterLayout:
-        return self._register
-    
+    def info(self) -> dict[str, Any]:
+        return {"device": self.sequence.device, "register": self.sequence.register}
+
+    @property
+    def sequence(self) -> Sequence:
+        return self._sequence
+
+    def add_noise(self, model: Literal["SPAM"]) -> None:
+        pass
+
+    def run(
+        self,
+        *,
+        parameters: dict[str, float] | None = None,
+        shots: int | None = None,
+        callback: Callable | None = None,
+        on: Literal["emulator", "qpu"] = "emulator",
+        **kwargs: Any,
+    ) -> Counter | qt.Qobj:
+        match on:
+            case "emulator":
+                built_sequence = self.sequence.build(**(parameters or {}))  # type: ignore
+                simulation = QutipEmulator.from_sequence(
+                    built_sequence, with_modulation=True
+                )
+                result = simulation.run()
+                if shots:
+                    return result.sample_final_state(N_samples=shots)
+                return result.get_final_state()
+            case _:
+                raise NotImplementedError

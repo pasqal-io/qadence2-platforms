@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Literal, TypeVar
+from typing import Any, Callable, Generic, TypeVar
 
 SequenceType = TypeVar("SequenceType")
+ParameterType = TypeVar("ParameterType")
 ResultType = TypeVar("ResultType")
 
 
-class AbstractInterface(ABC, Generic[SequenceType, ResultType]):
+class AbstractInterface(ABC, Generic[SequenceType, ParameterType, ResultType]):
 
     @property
     @abstractmethod
@@ -20,13 +21,12 @@ class AbstractInterface(ABC, Generic[SequenceType, ResultType]):
         pass
 
     @abstractmethod
-    def set_parameters(self, params: dict[str, float]) -> None:
-        pass
-
-    @abstractmethod
-    def add_noise(self, model: Literal["SPAM"]) -> None:
-        pass
-
-    @abstractmethod
-    def run(self, shots: int | None = None, callback: Callable | None = None, **kwargs: Any) -> ResultType:
+    def run(
+        self,
+        *,
+        parameters: dict[str, float] | None = None,
+        shots: int | None = None,
+        callback: Callable | None = None,
+        **kwargs: Any,
+    ) -> ResultType:
         pass
