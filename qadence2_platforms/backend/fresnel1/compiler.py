@@ -8,4 +8,7 @@ from . import sequence, register
 def modelc(model: Model) -> Interface:
     reg = register.from_model(model)
     seq = sequence.from_model(model, reg)
-    return Interface(seq, set(model.inputs.keys()))
+    non_trainable_parameters = {
+        k for k, v in model.inputs.items() if not v.is_trainable
+    }
+    return Interface(seq, non_trainable_parameters)
