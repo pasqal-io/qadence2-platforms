@@ -12,7 +12,7 @@ from qadence2_platforms import AbstractInterface
 
 class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
 
-    def __init__(self, sequence: Sequence, non_trainable_parameters: dict[str, int]) -> None:
+    def __init__(self, sequence: Sequence, non_trainable_parameters: set[str]) -> None:
         self._non_trainable_parameters = non_trainable_parameters
         self._params: dict[str, float] = {}
         self._sequence = sequence
@@ -26,7 +26,7 @@ class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
         return self._sequence
 
     def set_parameters(self, params: dict[str, float]) -> None:
-        valid_parms = params.keys() & self._non_trainable_parameters.keys()
+        valid_parms = params.keys() & self._non_trainable_parameters
 
         if valid_parms != params.keys():
             raise ValueError(
