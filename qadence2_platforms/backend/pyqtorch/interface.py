@@ -52,17 +52,20 @@ class Interface(
     def add_noise(self, model: Literal["SPAM"]) -> None:
         pass
 
+    def set_parameters(self, params: dict[str, float]) -> None:
+        pass
+
     def run(
         self,
         *,
-        parameters: dict[str, torch.Tensor] | None = None,
+        values: dict[str, torch.Tensor] | None = None,
         shots: int | None = None,
         callback: Callable | None = None,
         state: torch.Tensor | None = None,
         observable: Any | None = None,
         **kwargs: Any,
     ) -> torch.Tensor | list[Counter]:
-        inputs = parameters or dict()
+        inputs = values or dict()
         state = state or self.init_state
 
         # Expectation

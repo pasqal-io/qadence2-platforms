@@ -16,6 +16,7 @@ class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
         self,
         sequence: Sequence,
     ) -> None:
+        self._params: dict[str, float] = {}
         self._sequence = sequence
 
     @property
@@ -26,21 +27,30 @@ class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
     def sequence(self) -> Sequence:
         return self._sequence
 
-    def add_noise(self, model: Literal["SPAM"]) -> None:
-        pass
+    def set_parameters(self, params: dict[str, float]) -> None:
+        valid_parms = params.keys() & self.sequence.declared_variables.keys()
+
+        if valid_parms != params.keys():
+            raise ValueError(
+                "The sequence does not have the parameters {set(params.keys())}"
+            )
+
+        self._params = params
 
     def run(
         self,
         *,
-        parameters: dict[str, float] | None = None,
+        values: dict[str, float] | None = None,
         shots: int | None = None,
         callback: Callable | None = None,
         on: Literal["emulator", "qpu"] = "emulator",
         **kwargs: Any,
     ) -> Counter | Qobj:
+        vals: dict[str, float] = {**(values or {}), **self._params}
+
         match on:
             case "emulator":
-                built_sequence = self.sequence.build(**(parameters or {}))  # type: ignore
+                built_sequence = self.sequence.build(**vals)  # type: ignore
                 simulation = QutipEmulator.from_sequence(
                     built_sequence, with_modulation=True
                 )

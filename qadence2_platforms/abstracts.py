@@ -21,10 +21,14 @@ class AbstractInterface(ABC, Generic[SequenceType, ParameterType, ResultType]):
         pass
 
     @abstractmethod
+    def set_parameters(self, params: dict[str, ParameterType]) -> None:
+        pass
+
+    @abstractmethod
     def run(
         self,
         *,
-        parameters: dict[str, float] | None = None,
+        values: dict[str, float] | None = None,
         shots: int | None = None,
         callback: Callable | None = None,
         **kwargs: Any,
