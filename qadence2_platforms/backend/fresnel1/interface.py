@@ -12,10 +12,8 @@ from qadence2_platforms import AbstractInterface
 
 class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
 
-    def __init__(
-        self,
-        sequence: Sequence,
-    ) -> None:
+    def __init__(self, sequence: Sequence, non_trainable_parameters: dict[str, int]) -> None:
+        self._non_trainable_parameters = non_trainable_parameters
         self._params: dict[str, float] = {}
         self._sequence = sequence
 
@@ -28,11 +26,11 @@ class Interface(AbstractInterface[Sequence, float, Counter | Qobj]):
         return self._sequence
 
     def set_parameters(self, params: dict[str, float]) -> None:
-        valid_parms = params.keys() & self.sequence.declared_variables.keys()
+        valid_parms = params.keys() & self._non_trainable_parameters.keys()
 
         if valid_parms != params.keys():
             raise ValueError(
-                "The sequence does not have the parameters {set(params.keys())}"
+                f"{set(params.keys())} are not fixed parameters in this sequence."
             )
 
         self._params = params
