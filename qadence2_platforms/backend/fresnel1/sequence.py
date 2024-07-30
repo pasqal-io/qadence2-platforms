@@ -121,7 +121,7 @@ def assign(
             )
             for arg in fn.args
         )
-        temp_vars[var_name] = _compute(fn.call, *args)
+        temp_vars[var_name] = _compute(fn.identifier, *args)
 
 
 def _compute(fn: str, *args: Any) -> Any:
