@@ -14,7 +14,7 @@ def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
     """Convert a `Call` object into a torchified function which can be evaluated using
     a vparams and inputs dict.
     """
-    fn = getattr(torch, call.call)
+    fn = getattr(torch, call.identifier)
 
     def evaluate(params: dict, inputs: dict) -> torch.Tensor:
         args = []
