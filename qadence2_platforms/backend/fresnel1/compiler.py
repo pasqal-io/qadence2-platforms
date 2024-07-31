@@ -5,7 +5,7 @@ from .interface import Interface
 from . import sequence, register
 
 
-def modelc(model: Model) -> Interface:
+def compile_to_backend(model: Model) -> Interface:
     reg = register.from_model(model)
     seq = sequence.from_model(model, reg)
     non_trainable_parameters = {
