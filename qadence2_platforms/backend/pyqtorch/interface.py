@@ -89,7 +89,7 @@ class Interface(
         :return: a tensor or list of values (`sample` only) of the calculated state
         """
         inputs = values or dict()
-        state = state or self.init_state
+        state = state if state is not None else self.init_state
 
         match run_type:
             case "run":

@@ -3,8 +3,8 @@ from __future__ import annotations
 import pyqtorch as pyq
 import torch
 
-from qadence2_platforms.backend.api import compile
-from qadence2_platforms.qadence_ir import (
+from qadence2_platforms.compiler import compile_to_backend
+from qadence2_ir.types import (
     Alloc,
     AllocQubits,
     Assign,
@@ -29,10 +29,10 @@ def test_pyq_compilation() -> None:
             QuInstruct("not", Support(target=(1,), control=(0,))),
         ],
         directives={"digital": True},
-        data_settings={"result-type": "state-vector", "data-type": "f32"},
+        # data_settings={"result-type": "state-vector", "data-type": "f32"},
     )
-    compiled_model = compile(model, "pyqtorch")
+    compiled_model = compile_to_backend("pyqtorch", model)
     f_params = {"x": torch.rand(1, requires_grad=True)}
-    wf = compiled_model(pyq.zero_state(2), f_params)
+    wf = compiled_model.run(state=pyq.zero_state(2), values=f_params)
     dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
     assert not torch.all(torch.isnan(dfdx))
