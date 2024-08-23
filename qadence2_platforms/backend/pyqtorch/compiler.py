@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from logging import getLogger
 
 import pyqtorch as pyq
-
 from qadence2_ir.types import Load, Model, QuInstruct
 
 logger = getLogger(__name__)

@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from typing import Any, Literal
+
 import numpy as np
-
-from pulser.sequence.sequence import Sequence
 from pulser.parametrized.variable import VariableItem
+from pulser.sequence.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
-
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
@@ -61,6 +60,7 @@ def rotation(
     duration = 1000 * angle / amplitude
     detuning = 0
 
+    phase: Any
     match direction:
         case "x":
             phase = 0

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import warnings
-import numpy as np
 
+import numpy as np
 from pulser.devices._devices import AnalogDevice
 from pulser.register.register_layout import RegisterLayout
-
 from qadence2_ir.types import Model
 
 warnings.filterwarnings("ignore", category=UserWarning)

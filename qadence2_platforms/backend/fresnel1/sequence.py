@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-
 from dataclasses import replace
 from functools import reduce
 from typing import Any
-import numpy as np
 
+import numpy as np
 from pulser.channels import DMM
 from pulser.devices._devices import AnalogDevice
-from pulser.sequence.sequence import Sequence
-from pulser.register.register_layout import RegisterLayout
 from pulser.parametrized.variable import VariableItem
-
-from qadence2_ir.types import Alloc, Model, Assign, QuInstruct, Call, Load
+from pulser.register.register_layout import RegisterLayout
+from pulser.sequence.sequence import Sequence
+from qadence2_ir.types import Alloc, Assign, Call, Load, Model, QuInstruct
 
 from . import functions as add_pulse
 
@@ -76,7 +74,7 @@ def from_instructions(
     instructions: list[Assign | QuInstruct],
 ) -> list[NamedPulse]:
     variables = dict()
-    temp_vars = dict()
+    temp_vars: dict[str, Any] = dict()
 
     for var in inputs:
         if inputs[var].size > 1:
@@ -104,7 +102,7 @@ def from_instructions(
 
 
 def assign(
-    instruction: Assign, temp_vars: dict, variables: dict[str, VariableItem]
+    instruction: Assign, temp_vars: dict[str, Any], variables: dict[str, VariableItem]
 ) -> None:
     var_name = instruction.variable
 
