@@ -128,13 +128,13 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
         **Notice**: for now, it is not implemented yet.
 
-        :param run_type:
-        :param values:
-        :param shots:
-        :param observable:
-        :param callback:
-        :param _:
-        :return:
+        :param run_type: str: `run`, `sample`, `expectation` possible values
+        :param values: dictionary of user-input parameters
+        :param shots: number of shots
+        :param observable: list of observables; applied only for `expectation` option
+        :param callback: callback function to be used inside the method (if applicable)
+        :return: the respective result value: `Qobj` for `run`, `Counter` for `sample`,
+            and numeric type (`float`, `complex`, `ArrayLike`) for `expectation`
         """
         raise NotImplementedError("QPU execution not implemented yet.")
 
@@ -143,6 +143,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         *,
         values: Optional[dict[str, float]] = None,
         on: Literal["emulator", "qpu"] = "emulator",
+        shots: Optional[int] = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> RunResult:
@@ -152,7 +153,9 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
                     run_type="run", values=values, callback=callback
                 )
             case "qpu":
-                return self._on_qpu(run_type="run", values=values, callback=callback)
+                return self._on_qpu(
+                    run_type="run", values=values, shots=shots, callback=callback
+                )
             case _:
                 raise NotImplementedError(f"Platform '{on}' not implemented.")
 
@@ -182,6 +185,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         *,
         values: Optional[dict[str, float]] = None,
         on: Literal["emulator", "qpu"] = "emulator",
+        shots: Optional[int] = None,
         observable: Optional[Any] = None,
         callback: Optional[Callable] = None,
         **_: Any,
@@ -198,6 +202,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
                 return self._on_qpu(
                     run_type="expectation",
                     values=values,
+                    shots=shots,
                     observable=observable,
                     callback=callback,
                 )

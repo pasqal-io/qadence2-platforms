@@ -61,6 +61,16 @@ class AbstractInterface(
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> RunResultType:
+        """
+        Gets the results from the expression computation given the parameters (values),
+        callback function (if applicable), and extra arguments.
+
+        :param values: dictionary of user-input parameters
+        :param callback: a callback function if necessary to run some extra processing
+        :param kwargs: any extra argument that are backend specific can be included in the
+            child method.
+        :return: any result type according to what is expected by the backend `run` method
+        """
         pass
 
     @abstractmethod
@@ -72,6 +82,17 @@ class AbstractInterface(
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> SampleResultType:
+        """
+        Samples the computed result given the expression, the parameters (values), number of
+        shots, callback function (if applicable), and extra arguments.
+
+        :param values: dictionary of user-input parameters
+        :param shots: number of shots
+        :param callback: a callback function if necessary to run some extra processing
+        :param kwargs: any extra argument that are backend specific can be included in the
+            child method
+        :return: any result type according to what is expected by the backend `sample` method
+        """
         pass
 
     @abstractmethod
@@ -83,4 +104,15 @@ class AbstractInterface(
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> ExpectationResultType:
+        """
+        Computes the expectation value for observable(s) given the parameters (values),
+        callback function (if applicable), and extra arguments.
+
+        :param values: dictionary of user-input parameters
+        :param observable: list of observables
+        :param callback: a callback function if necessary to run some extra processing
+        :param kwargs: any extra argument that are backend specific can be included in the
+            child method
+        :return: any result type according to what is expected by the backend `expectation` method
+        """
         pass

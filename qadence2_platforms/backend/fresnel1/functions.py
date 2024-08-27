@@ -10,6 +10,18 @@ from pulser.waveforms import ConstantWaveform
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
+# TODO: re-introduce `Support` to account for "local" and "global" on the `channel` arg
+
+
+# pulse function mapping.
+# keys are the `qadence2_ir.Model` standard, values are the function names below
+PULSE_FN_MAP = {
+    "rx": "rx",
+    "ry": "ry",
+    "not": "x",
+    "h": "h",
+}
+
 
 def dyn_pulse(
     sequence: Sequence,
@@ -47,6 +59,28 @@ def ry(
     **_: Any,
 ) -> None:
     rotation(sequence, angle, "y")
+
+
+def x(sequence: Sequence, **_: Any) -> None:
+    rotation(sequence, angle=np.pi, direction="x")
+
+
+def h(
+    sequence: Sequence,
+    duration: VariableItem | float = 1000.0,
+    **_: Any,
+) -> Sequence:
+    support_list = "GLOBAL"
+    amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
+    duration *= 1000 * 2 * np.pi / amplitude
+    duration = int(duration) if duration > 16 else 16
+
+    sequence.enable_eom_mode("global", amp_on=amplitude, correct_phase_drift=True)
+    sequence.add_eom_pulse(
+        "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
+    )
+    sequence.disable_eom_mode(support_list)
+    return sequence
 
 
 def rotation(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from functools import reduce
-from typing import Any
+from typing import Any, Callable, Optional
 
 import numpy as np
 from pulser.channels import DMM
@@ -13,6 +13,7 @@ from pulser.sequence.sequence import Sequence
 from qadence2_ir.types import Alloc, Assign, Call, Load, Model, QuInstruct
 
 from . import functions as add_pulse
+from .functions import PULSE_FN_MAP
 
 
 class NamedPulse:
@@ -63,7 +64,15 @@ def from_model(model: Model, register: RegisterLayout) -> Sequence:
     pulses = from_instructions(seq, model.inputs, model.instructions)
 
     for pulse in pulses:
-        getattr(add_pulse, pulse.name)(seq, *pulse.args)
+        fn: Optional[Callable] = getattr(
+            add_pulse, PULSE_FN_MAP.get(pulse.name) or "", None
+        )
+        if fn is not None:
+            fn(seq, *pulse.args)
+        else:
+            raise ValueError(
+                f"current backend does not have pulse '{pulse.name}' implemented."
+            )
 
     return seq
 
