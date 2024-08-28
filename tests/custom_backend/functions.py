@@ -4,13 +4,12 @@ from typing import Any, Literal
 
 import numpy as np
 from pulser.parametrized.variable import VariableItem
+from pulser.pulse import Pulse
 from pulser.sequence.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
-
-# TODO: re-introduce `Support` to account for "local" and "global" on the `channel` arg
 
 
 # pulse function mapping.
@@ -39,10 +38,8 @@ def dyn_pulse(
     duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
     amplitude *= max_amp  # type: ignore
     detuning *= max_abs_detuning  # type: ignore
-
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=duration, phase=phase)  # type: ignore
-    sequence.disable_eom_mode("global")
+    pulse = Pulse.ConstantPulse(duration, amplitude, detuning, phase)
+    sequence.add(pulse, "global", duration=duration, phase=phase)  # type: ignore
 
 
 def rx(
@@ -75,11 +72,10 @@ def h(
     duration *= 1000 * 2 * np.pi / amplitude
     duration = int(duration) if duration > 16 else 16
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, correct_phase_drift=True)
-    sequence.add_eom_pulse(
-        "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
+    pulse = Pulse.ConstantPulse(duration, amplitude, support_list)
+    sequence.add(
+        pulse, "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
     )
-    sequence.disable_eom_mode(support_list)
 
 
 def rotation(
@@ -102,9 +98,8 @@ def rotation(
         case _:
             phase = direction
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=duration, phase=phase)  # type: ignore
-    sequence.disable_eom_mode("global")
+    pulse = Pulse.ConstantPulse(duration, amplitude, detuning, phase)
+    sequence.add(pulse, "global", duration=duration, phase=phase)  # type: ignore
 
 
 def dyn_wait(

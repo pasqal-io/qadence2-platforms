@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pyqtorch as pyq
+import pytest
 import torch
 from qadence2_ir.types import Model
 
@@ -22,6 +25,17 @@ def test_pyq_compilation(model1: Model) -> None:
 def test_pulser_compilation(model1: Model) -> None:
     model = model1
     compiled_model = compile_to_backend("fresnel1", model)
+    f_params = {"x": np.array([1])}
+    res = compiled_model.run(values=f_params, on="emulator")
+    assert np.allclose((res * res.dag()).tr(), 1.0)
+
+
+@pytest.mark.skip
+def test_custom_compilation(model1: Model) -> None:
+    model = model1
+    folder = Path(__file__).parent
+    path = folder / "custom_backend"
+    compiled_model = compile_to_backend(path, model)
     f_params = {"x": np.array([1])}
     res = compiled_model.run(values=f_params, on="emulator")
     assert np.allclose((res * res.dag()).tr(), 1.0)
