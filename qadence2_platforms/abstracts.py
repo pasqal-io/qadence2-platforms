@@ -38,18 +38,18 @@ class AbstractInterface(
     @abstractmethod
     def sequence(self) -> SequenceType:
         """
-        Outputs the backend-native sequence.
+        Outputs the backends-native sequence.
 
-        :return: The defined backend-native sequence.
+        :return: The defined backends-native sequence.
         """
         pass
 
     @abstractmethod
     def set_parameters(self, params: dict[str, ParameterType]) -> None:
         """
-        Sets valid parameters for the backend to use it during simulation/execution step.
+        Sets valid parameters for the backends to use it during simulation/execution step.
 
-        :param params: the fixed parameters to be used by the backend.
+        :param params: the fixed parameters to be used by the backends.
         """
         pass
 
@@ -67,9 +67,9 @@ class AbstractInterface(
 
         :param values: dictionary of user-input parameters
         :param callback: a callback function if necessary to run some extra processing
-        :param kwargs: any extra argument that are backend specific can be included in the
+        :param kwargs: any extra argument that are backends specific can be included in the
             child method.
-        :return: any result type according to what is expected by the backend `run` method
+        :return: any result type according to what is expected by the backends `run` method
         """
         pass
 
@@ -89,9 +89,9 @@ class AbstractInterface(
         :param values: dictionary of user-input parameters
         :param shots: number of shots
         :param callback: a callback function if necessary to run some extra processing
-        :param kwargs: any extra argument that are backend specific can be included in the
+        :param kwargs: any extra argument that are backends specific can be included in the
             child method
-        :return: any result type according to what is expected by the backend `sample` method
+        :return: any result type according to what is expected by the backends `sample` method
         """
         pass
 
@@ -111,8 +111,8 @@ class AbstractInterface(
         :param values: dictionary of user-input parameters
         :param observable: list of observables
         :param callback: a callback function if necessary to run some extra processing
-        :param kwargs: any extra argument that are backend specific can be included in the
+        :param kwargs: any extra argument that are backends specific can be included in the
             child method
-        :return: any result type according to what is expected by the backend `expectation` method
+        :return: any result type according to what is expected by the backends `expectation` method
         """
         pass

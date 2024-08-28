@@ -5,13 +5,11 @@ from typing import Any, Callable, Counter, Literal, Optional
 
 import pyqtorch
 import torch
-from qadence2_ir.types import Model
 
 from qadence2_platforms.abstracts import (
     AbstractInterface,
 )
 
-from .compiler import Compiler
 from .embedding import Embedding
 from .register import RegisterInterface
 
@@ -28,7 +26,7 @@ class Interface(
         torch.Tensor,
     ],
 ):
-    """A class holding register,embedding, circuit, native backend and optional observable."""
+    """A class holding register,embedding, circuit, native backends and optional observable."""
 
     def __init__(
         self,
@@ -165,12 +163,3 @@ class Interface(
             observable=observable,
             **kwargs,
         )
-
-
-def compile_to_backend(model: Model) -> Interface:
-    register_interface = RegisterInterface(
-        model.register.num_qubits, model.register.options.get("init_state")
-    )
-    embedding = Embedding(model)
-    native_circ = Compiler().compile(model)
-    return Interface(register_interface, embedding, native_circ)

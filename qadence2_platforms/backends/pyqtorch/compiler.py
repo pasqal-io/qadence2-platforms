@@ -6,6 +6,10 @@ from logging import getLogger
 import pyqtorch as pyq
 from qadence2_ir.types import Load, Model, QuInstruct
 
+from qadence2_platforms.backends.pyqtorch.embedding import Embedding
+from qadence2_platforms.backends.pyqtorch.interface import Interface
+from qadence2_platforms.backends.pyqtorch.register import RegisterInterface
+
 logger = getLogger(__name__)
 
 
@@ -43,3 +47,12 @@ class Compiler:
                 else:
                     pyq_operations.append(native_op(*native_support))
         return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)
+
+
+def compile_to_backend(model: Model) -> Interface:
+    register_interface = RegisterInterface(
+        model.register.num_qubits, model.register.options.get("init_state")
+    )
+    embedding = Embedding(model)
+    native_circ = Compiler().compile(model)
+    return Interface(register_interface, embedding, native_circ)

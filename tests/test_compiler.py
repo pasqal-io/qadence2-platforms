@@ -4,11 +4,11 @@ from pathlib import Path
 
 import numpy as np
 import pyqtorch as pyq
-import pytest
 import torch
 from qadence2_ir.types import Model
 
 from qadence2_platforms.compiler import compile_to_backend
+from qadence2_platforms.utils.module_importer import _resolve_module_path
 
 
 def test_pyq_compilation(model1: Model) -> None:
@@ -30,12 +30,11 @@ def test_pulser_compilation(model1: Model) -> None:
     assert np.allclose((res * res.dag()).tr(), 1.0)
 
 
-@pytest.mark.skip
-def test_custom_compilation(model1: Model) -> None:
+def test_custom_backend_compilation(model1: Model) -> None:
+    _resolve_module_path(Path(__file__).parent / "custom_backend")
+
     model = model1
-    folder = Path(__file__).parent
-    path = folder / "custom_backend"
-    compiled_model = compile_to_backend(path, model)
+    compiled_model = compile_to_backend("custom_backend", model)
     f_params = {"x": np.array([1])}
     res = compiled_model.run(values=f_params, on="emulator")
     assert np.allclose((res * res.dag()).tr(), 1.0)

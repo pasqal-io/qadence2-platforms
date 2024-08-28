@@ -39,7 +39,7 @@ def dyn_pulse(
     amplitude *= max_amp  # type: ignore
     detuning *= max_abs_detuning  # type: ignore
     pulse = Pulse.ConstantPulse(duration, amplitude, detuning, phase)
-    sequence.add(pulse, "global", duration=duration, phase=phase)  # type: ignore
+    sequence.add(pulse, "global")  # type: ignore
 
 
 def rx(
@@ -73,9 +73,7 @@ def h(
     duration = int(duration) if duration > 16 else 16
 
     pulse = Pulse.ConstantPulse(duration, amplitude, support_list)
-    sequence.add(
-        pulse, "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
-    )
+    sequence.add(pulse, "global")
 
 
 def rotation(
@@ -99,7 +97,7 @@ def rotation(
             phase = direction
 
     pulse = Pulse.ConstantPulse(duration, amplitude, detuning, phase)
-    sequence.add(pulse, "global", duration=duration, phase=phase)  # type: ignore
+    sequence.add(pulse, "global")  # type: ignore
 
 
 def dyn_wait(
