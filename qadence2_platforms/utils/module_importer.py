@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
-import os
 import sys
+import traceback
 from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
@@ -50,6 +50,7 @@ def module_loader(module_name: str) -> ModuleType:
         try:
             module = import_module(user_backend)
         except ModuleNotFoundError as e:
+            traceback.print_exc()
             error_msg = (
                 f"Module error. Please verify module '{module_name}'. "
                 f"You may need to import it beforehand. "
@@ -62,7 +63,7 @@ def module_loader(module_name: str) -> ModuleType:
     return module
 
 
-def _resolve_module_path(module_source: str | Path) -> bool:
+def resolve_module_path(module_source: str | Path) -> bool:
     """
     Resolve module path for custom backends. It symlinks custom backends,
     if they are not symlinked yet, and ensure that relative imports from
@@ -81,8 +82,6 @@ def _resolve_module_path(module_source: str | Path) -> bool:
 
     platforms_path = Path(platforms_spec.origin).parent
     src = Path(module_source).resolve()
-    if os.path.exists(src):
-        return True
 
     try:
         dst = platforms_path / USER_BACKENDS_FOLDER_NAME
@@ -90,5 +89,6 @@ def _resolve_module_path(module_source: str | Path) -> bool:
     except FileExistsError:
         return True
     except Exception:
+        traceback.print_exc()
         return False
     return True

@@ -8,7 +8,7 @@ import torch
 from qadence2_ir.types import Model
 
 from qadence2_platforms.compiler import compile_to_backend
-from qadence2_platforms.utils.module_importer import _resolve_module_path
+from qadence2_platforms.utils.module_importer import resolve_module_path
 
 
 def test_pyq_compilation(model1: Model) -> None:
@@ -31,7 +31,9 @@ def test_pulser_compilation(model1: Model) -> None:
 
 
 def test_custom_backend_compilation(model1: Model) -> None:
-    _resolve_module_path(Path(__file__).parent / "custom_backend")
+    cbk = Path(__file__).parent / "custom_backend"
+    if not resolve_module_path(cbk):
+        raise ValueError("Custom backend module could not be symlinked.")
 
     model = model1
     compiled_model = compile_to_backend("custom_backend", model)

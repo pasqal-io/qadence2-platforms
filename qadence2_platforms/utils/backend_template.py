@@ -7,7 +7,7 @@ from pathlib import Path
 from shutil import copyfile
 
 from qadence2_platforms import CUSTOM_BACKEND_FOLDER_NAME, TEMPLATES_FOLDER_NAME
-from qadence2_platforms.utils.module_importer import _resolve_module_path
+from qadence2_platforms.utils.module_importer import resolve_module_path
 
 try:
     from tkinter import filedialog as fd
@@ -109,7 +109,7 @@ class BackendTemplate:
                 print(
                     f"Backend template at {self._backend_path} has been {action} with success!"
                 )
-                return _resolve_module_path(
+                return resolve_module_path(
                     Path(selected_dir, CUSTOM_BACKEND_FOLDER_NAME)
                 )
         else:

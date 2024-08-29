@@ -4,7 +4,7 @@ from pathlib import Path
 
 from qadence2_platforms.utils import BackendTemplate
 
-BACKEND_NAME = "custom_backend"
+BACKEND_NAME = "custom_backend_test"
 BACKEND_PATH = Path(__file__).parent
 
 
