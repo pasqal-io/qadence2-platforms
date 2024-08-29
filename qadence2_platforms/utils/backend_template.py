@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import traceback
 from pathlib import Path
 from shutil import copyfile
@@ -11,18 +12,29 @@ from qadence2_platforms.utils.module_importer import _resolve_module_path
 try:
     from tkinter import filedialog as fd
 except ImportError:
-    traceback.print_exc()
     print(
-        "\n\nYou may need to install `tkinter` to use this feature. "
+        "\n\nYou may need to install `tkinter` to use some GUI features. "
         "On Mac:\n"
         " `brew install python-tk@python3.10`\n"
         "  In case you use a different python version, replace `3.10` by it.\n\n"
         "On Linux: `apt-get install python-tk`\n\n"
     )
-    exit()
+
+    def user_input() -> str:
+        return input("Paste the directory: ")
+
+else:
+
+    def user_input() -> str:
+        return fd.askdirectory(
+            initialdir=Path(__file__).parent,
+            title="Select a directory",
+            mustexist=True,
+        )
 
 
 class BackendTemplate:
+
     def __init__(self) -> None:
         self._pwd: Path = Path()
         self._root_backends_name: str = CUSTOM_BACKEND_FOLDER_NAME
@@ -75,15 +87,11 @@ class BackendTemplate:
 
         selected_dir: str | Path
 
-        if gui and use_this_dir is None:
-            selected_dir = fd.askdirectory(
-                initialdir=Path(__file__).parent,
-                title="Select a directory",
-                mustexist=True,
-            )
+        if gui and use_this_dir is None and "tkinter" in sys.modules:
+            selected_dir = user_input()
         else:
             if use_this_dir is None:
-                selected_dir = input("Paste the directory: ")
+                selected_dir = user_input()
             else:
                 selected_dir = use_this_dir
 
