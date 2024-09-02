@@ -89,7 +89,7 @@ serve = "mkdocs serve --dev-addr localhost:8000"
 test = "mkdocs build --clean --strict"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["39", "310", "311"]
+python = ["310", "311"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["qadence2_platforms"]

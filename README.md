@@ -16,13 +16,23 @@ and the handling of the register via a `RegisterInterface`.
 ## Usage
 
 Example
-```python
-from qadence2_platforms import Model
+```python exec="on" source="material-block" session="model"
+from qadence2_ir.types import (
+    Model,
+    Alloc,
+    AllocQubits,
+    Call,
+    Assign,
+    QuInstruct,
+    Support,
+    Load
+)
+
 
 Model(
     register = AllocQubits(
         num_qubits = 3,
-        positions = [(-2,1), (0,1), (1,3)],
+        qubit_positions = [(-2,1), (0,1), (1,3)],
         grid_type = "triangular",
         grid_scale = 1.0,
         options = {"initial_state": "010"}
@@ -43,20 +53,19 @@ Model(
         QuInstruct("not", Support(target=(1,), control=(0,))),
         QuInstruct(
 		        "qubit_dyn",
-		        Support(0, 2),
+		        Support(control=(0,), target=(2,)),
 		        Load("t"),
 		        Load("Omega"),
 		        Load("delta"),
 		    )
     ],
     directives = {"digital-analog": True},
-    data_settings = {"result-type": "state-vector", "data-type": "f32"}
 )
 ```
 
 Compiling a `pyqtorch` circuit and computing gradients using `torch.autograd`
 
-```python
+```python exec="on" source="material-block" session="model"
 model = Model(
     register=AllocQubits(num_qubits=2),
     inputs={
