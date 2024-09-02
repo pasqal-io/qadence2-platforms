@@ -48,7 +48,8 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         **_: Any,
     ) -> Any:
         """
-        Method to be used for `_on_emulator` or `_on_qpu` to execute the respective
+        Method to be used for `_on_emulator` or `_on_qpu` to execute the respective.
+
         `run_type` option.
 
         **Notice**: for now, it only supports `emulator` option and
@@ -84,7 +85,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     ) -> Any:
         """
         Method that runs over Pulser emulator.
-
 
         **Notice**: for now, only `QutipEmulator` is supported.
 

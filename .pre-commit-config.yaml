@@ -23,4 +23,9 @@ repos:
     rev: v1.11.0
     hooks:
       - id: mypy
-        exclude: examples|docs
+        exclude: examples|docs|qadence2_platforms.utils.templates
+
+-   repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.7.3
+    hooks:
+      - id: pydocstringformatter

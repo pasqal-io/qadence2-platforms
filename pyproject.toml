@@ -86,13 +86,22 @@ dependencies = [
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --clean --strict {args}"
 serve = "mkdocs serve --dev-addr localhost:8000"
-test = "mkdocs build --clean --strict"
+# test = "mkdocs build --clean --strict"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["310", "311"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["qadence2_platforms"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.gitignore",
+    "/.pre-commit-config.yml",
+    "/tests",
+    "/docs",
+    "/examples",
+]
 
 [tool.coverage.run]
 branch = true

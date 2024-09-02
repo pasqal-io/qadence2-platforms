@@ -10,7 +10,6 @@
 
 *Note*: it is advised to set up a python environment before installing the package.
 
-
 To install the current version, there is currently one option:
 
 

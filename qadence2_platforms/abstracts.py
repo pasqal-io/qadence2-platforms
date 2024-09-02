@@ -27,7 +27,8 @@ class AbstractInterface(
     @abstractmethod
     def info(self) -> dict[str, Any]:
         """
-        Gives any relevant information about the interface data, such as `device`,
+        Gives any relevant information about the interface data, such as `device`,.
+
         `register`, etc.
 
         :return: dictionary with the relevant information.
@@ -62,7 +63,8 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> RunResultType:
         """
-        Gets the results from the expression computation given the parameters (values),
+        Gets the results from the expression computation given the parameters (values),.
+
         callback function (if applicable), and extra arguments.
 
         :param values: dictionary of user-input parameters
@@ -83,7 +85,8 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> SampleResultType:
         """
-        Samples the computed result given the expression, the parameters (values), number of
+        Samples the computed result given the expression, the parameters (values), number of.
+
         shots, callback function (if applicable), and extra arguments.
 
         :param values: dictionary of user-input parameters
@@ -105,7 +108,8 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> ExpectationResultType:
         """
-        Computes the expectation value for observable(s) given the parameters (values),
+        Computes the expectation value for observable(s) given the parameters (values),.
+
         callback function (if applicable), and extra arguments.
 
         :param values: dictionary of user-input parameters

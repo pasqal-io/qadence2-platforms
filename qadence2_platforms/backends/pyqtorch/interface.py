@@ -71,7 +71,9 @@ class Interface(
         **_: Any,
     ) -> Any:
         """
-        Method to execute run type-specific option. Option can be `run`, `sample`
+        Method to execute run type-specific option.
+
+        Option can be `run`, `sample`
         or `expectation`. Each option can have different arguments, such as:
         `sample` uses `shots`, while `expectation` uses `observable`.
 

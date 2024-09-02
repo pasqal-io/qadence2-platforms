@@ -25,7 +25,9 @@ class ModuleError(Exception):
 
 def module_loader(module_name: str) -> ModuleType:
     """
-    Loads an arbitrary module and returns it. It can be a backend submodule from
+    Loads an arbitrary module and returns it.
+
+    It can be a backend submodule from
     an already imported backend, i.e. "pyqtorch", an existing but not imported
     module, i.e. "fresnel1", or a custom backend module, i.e. "custom_backend1".
 
@@ -65,7 +67,9 @@ def module_loader(module_name: str) -> ModuleType:
 
 def resolve_module_path(module_source: str | Path) -> bool:
     """
-    Resolve module path for custom backends. It symlinks custom backends,
+    Resolve module path for custom backends.
+
+    It symlinks custom backends,
     if they are not symlinked yet, and ensure that relative imports from
     their files do not break.
 
