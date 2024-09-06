@@ -12,7 +12,6 @@ nav:
           - License: getting_started/LICENSE.md
 
 theme:
-  # name: readthedocs
   name: material
   features:
   - content.code.annotate
@@ -84,8 +83,6 @@ watch:
 extra:
  version:
    default: stable
-   # provider: mike
-
 
 # To get nice tabs
 extra_css:

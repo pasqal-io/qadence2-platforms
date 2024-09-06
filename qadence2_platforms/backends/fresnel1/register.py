@@ -15,7 +15,7 @@ def from_model(model: Model) -> RegisterLayout:
     model_register = model.register
 
     if model_register.num_qubits < 1:
-        raise ValueError("No quibt available in the register.")
+        raise ValueError("No qubit available in the register.")
 
     if model_register.grid_type and model_register.grid_type != "triangular":
         warnings.warn(

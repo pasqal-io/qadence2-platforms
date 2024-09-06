@@ -17,7 +17,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def __init__(self, sequence: Sequence, non_trainable_parameters: set[str]) -> None:
         self._non_trainable_parameters = non_trainable_parameters
-        self._params: dict[str, float] = {}
+        self._params: dict[str, float] = dict()
         self._sequence = sequence
 
     @property
@@ -99,7 +99,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         :return: the respective result value: `Qobj` for `run`, `Counter` for `sample`,
             and numeric type (`float`, `complex`, `ArrayLike`) for `expectation`
         """
-        vals: dict[str, float] = {**(values or {}), **self._params}
+        vals: dict[str, float] = {**(values or dict()), **self._params}
         built_sequence: Sequence = self.sequence.build(**vals)  # type: ignore
         simulation: QutipEmulator = QutipEmulator.from_sequence(
             built_sequence, with_modulation=True

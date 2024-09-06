@@ -10,7 +10,8 @@ logger = getLogger(__name__)
 
 
 def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
-    """Convert a `Call` object into a torchified function which can be evaluated using.
+    """
+    Convert a `Call` object into a torchified function which can be evaluated using.
 
     a vparams and inputs dict.
     """
@@ -31,7 +32,8 @@ def torch_call(call: Call) -> Callable[[dict, dict], torch.Tensor]:
 
 
 class ParameterBuffer(torch.nn.Module):
-    """A class holding all root parameters either passed by the user.
+    """
+    A class holding all root parameters either passed by the user.
 
     or trainable variational parameters.
     """
@@ -78,7 +80,8 @@ class ParameterBuffer(torch.nn.Module):
 
 
 class Embedding(torch.nn.Module):
-    """A class holding:
+    """
+    A class holding:
 
     - A parameterbuffer (containing concretized vparams + list of featureparams,
     - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
@@ -93,7 +96,8 @@ class Embedding(torch.nn.Module):
         )
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
-        """Expects a dict of user-passed name:value pairs for featureparameters.
+        """
+        Expects a dict of user-passed name:value pairs for featureparameters.
 
         and assigns all intermediate and leaf variables using the current vparam values
         and the passed values for featureparameters.

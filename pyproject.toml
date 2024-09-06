@@ -86,7 +86,6 @@ dependencies = [
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --clean --strict {args}"
 serve = "mkdocs serve --dev-addr localhost:8000"
-# test = "mkdocs build --clean --strict"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["310", "311"]
