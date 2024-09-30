@@ -1,6 +1,8 @@
 *.DS_Store
 test.png
 *.swp
+qadence2_platforms/backends/user_backends/
+qadence2_platforms/backend/
 
 # Default ignored files
 /.idea/

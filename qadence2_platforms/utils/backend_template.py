@@ -43,6 +43,18 @@ class BackendTemplate:
         self._template_path: Path = self._get_template_path()
         self._template_files_list: list[str] = os.listdir(self._template_path)
 
+    @property
+    def user_backend_path(self) -> Path:
+        return self._backend_path
+
+    @property
+    def platforms_backend_path(self) -> Path:
+        return Path()
+
+    @property
+    def template_files_list(self) -> list[str]:
+        return self._template_files_list
+
     def _new_file_path(self, name: str) -> Path:
         return self._backend_path / name
 
@@ -60,7 +72,7 @@ class BackendTemplate:
         return already_exists
 
     def create_files(self) -> None:
-        for file in self._template_files_list:
+        for file in self.template_files_list:
             self._new_file_path(file).touch()
             copyfile(self._template_path / file, self._backend_path / file)
 
@@ -106,14 +118,16 @@ class BackendTemplate:
                 return False
             else:
                 action = "replaced" if already_exists else "created"
-                print(
-                    f"Backend template at {self._backend_path} has been {action} with success!"
-                )
-                return resolve_module_path(
+                result = resolve_module_path(
                     Path(selected_dir, CUSTOM_BACKEND_FOLDER_NAME)
                 )
+                if result:
+                    print(
+                        f"Backend template at {self._backend_path} has been {action} with success!"
+                    )
+                return result
         else:
             print(
                 "You must select a directory to create the template. Creation suspended."
             )
-        return True
+            return False
