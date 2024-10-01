@@ -120,7 +120,7 @@ model = Model(
     ],
     directives={"digital": True},
 )
-api = compile_to_backend("pyqtorch", model)
+api = compile_to_backend(model, "pyqtorch")
 f_params = {"x": torch.rand(1, requires_grad=True)}
 wf = api.run(state=pyq.zero_state(2), values=f_params)
 dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]

@@ -32,7 +32,7 @@ class Compiler:
                 native_op = None
                 try:
                     native_op = getattr(pyq, instr.name.upper())
-                except Exception as e:
+                except Exception as _:
                     native_op = self.instruction_mapping[instr.name]
                 control = instr.support.control
                 target = instr.support.target

@@ -27,6 +27,11 @@ Go to `qadence2-platforms` folder and install it using [hatch](https://hatch.pyp
 hatch -v shell
 ```
 
+## Example
+
+Check the [Example](getting_started_example.md) tab for usage example of this package.
+
+
 ## Contributing
 
 Before making a contribution, please review our [code of conduct](getting_started/CODE_OF_CONDUCT.md).
@@ -47,7 +52,3 @@ python -m hatch shell
 # run a command within the virtual environment with all the dependencies
 python -m hatch run python my_script.py
 ```
-
-## License
-
-Qadence 2 Platforms is a free and open source software package, released under the [Apache License, Version 2.0](getting_started/LICENSE.md).

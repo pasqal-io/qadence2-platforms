@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Optional, Union, cast
 
 from pulser.sequence.sequence import Sequence
 from pulser_simulation.simresults import SimulationResults
@@ -9,6 +9,7 @@ from pulser_simulation.simulation import QutipEmulator
 from qutip import Qobj
 
 from qadence2_platforms import AbstractInterface
+from qadence2_platforms.abstracts import OnEnum, RunEnum
 
 RunResult = Union[Counter, Qobj]
 
@@ -40,10 +41,10 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def _run(
         self,
-        run_type: Literal["run", "sample", "expectation"],
+        run_type: RunEnum,
         platform: SimulationResults,
-        shots: Optional[int] = None,
-        observable: Optional[Any] = None,
+        shots: int | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> Any:
@@ -65,26 +66,26 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         """
 
         match run_type:
-            case "run":
+            case RunEnum.RUN:
                 return platform.get_final_state()
-            case "sample":
+            case RunEnum.SAMPLE:
                 return platform.sample_final_state(shots)
-            case "expectation":
+            case RunEnum.EXPECTATION:
                 return platform.expect(obs_list=observable)
             case _:
                 raise NotImplementedError(f"Run type '{run_type}' not implemented.")
 
     def _on_emulator(
         self,
-        run_type: Literal["run", "sample", "expectation"],
-        values: Optional[dict[str, float]],
-        shots: Optional[int] = None,
-        observable: Optional[Any] = None,
+        run_type: RunEnum,
+        values: dict[str, float] | None,
+        shots: int | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> Any:
         """
-        Method that runs over Pulser emulator.
+        Runs on Pulser emulator.
 
         **Notice**: for now, only `QutipEmulator` is supported.
 
@@ -100,9 +101,9 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             and numeric type (`float`, `complex`, `ArrayLike`) for `expectation`
         """
         vals: dict[str, float] = {**(values or dict()), **self._params}
-        built_sequence: Sequence = self.sequence.build(**vals)  # type: ignore
+        pulse_sequence: Sequence = self.sequence.build(**vals)  # type: ignore
         simulation: QutipEmulator = QutipEmulator.from_sequence(
-            built_sequence, with_modulation=True
+            pulse_sequence, with_modulation=True
         )
         result: SimulationResults = simulation.run()
 
@@ -116,15 +117,15 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def _on_qpu(
         self,
-        run_type: Literal["run", "sample", "expectation"],
-        values: Optional[dict[str, float]],
-        shots: Optional[int] = None,
-        observable: Optional[Any] = None,
+        run_type: RunEnum,
+        values: dict[str, float] | None,
+        shots: int | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> Any:
         """
-        Method that runs over QPU.
+        Runs on available QPU.
 
         **Notice**: for now, it is not implemented yet.
 
@@ -141,20 +142,20 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     def run(
         self,
         *,
-        values: Optional[dict[str, float]] = None,
-        on: Literal["emulator", "qpu"] = "emulator",
-        shots: Optional[int] = None,
+        values: dict[str, float] | None = None,
+        on: OnEnum = OnEnum.EMULATOR,
+        shots: int | None = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> RunResult:
         match on:
-            case "emulator":
+            case OnEnum.EMULATOR:
                 return self._on_emulator(
-                    run_type="run", values=values, callback=callback
+                    run_type=RunEnum.RUN, values=values, shots=shots, callback=callback
                 )
-            case "qpu":
+            case OnEnum.QPU:
                 return self._on_qpu(
-                    run_type="run", values=values, shots=shots, callback=callback
+                    run_type=RunEnum.RUN, values=values, shots=shots, callback=callback
                 )
             case _:
                 raise NotImplementedError(f"Platform '{on}' not implemented.")
@@ -162,20 +163,32 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     def sample(
         self,
         *,
-        values: Optional[dict[str, float]] = None,
-        shots: Optional[int] = None,
-        on: Literal["emulator", "qpu"] = "emulator",
+        values: dict[str, float] | None = None,
+        shots: int | None = None,
+        on: OnEnum = OnEnum.EMULATOR,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> Counter:
         match on:
-            case "emulator":
-                return self._on_emulator(
-                    run_type="sample", values=values, shots=shots, callback=callback
+            case OnEnum.EMULATOR:
+                return cast(
+                    Counter,
+                    self._on_emulator(
+                        run_type=RunEnum.SAMPLE,
+                        values=values,
+                        shots=shots,
+                        callback=callback,
+                    ),
                 )
-            case "qpu":
-                return self._on_qpu(
-                    run_type="sample", values=values, shots=shots, callback=callback
+            case OnEnum.QPU:
+                return cast(
+                    Counter,
+                    self._on_qpu(
+                        run_type=RunEnum.SAMPLE,
+                        values=values,
+                        shots=shots,
+                        callback=callback,
+                    ),
                 )
             case _:
                 raise NotImplementedError(f"Platform '{on}' not implemented.")
@@ -183,24 +196,25 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     def expectation(
         self,
         *,
-        values: Optional[dict[str, float]] = None,
-        on: Literal["emulator", "qpu"] = "emulator",
-        shots: Optional[int] = None,
-        observable: Optional[Any] = None,
+        values: dict[str, float] | None = None,
+        on: OnEnum = OnEnum.EMULATOR,
+        shots: int | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **_: Any,
     ) -> Qobj:
         match on:
-            case "emulator":
+            case OnEnum.EMULATOR:
                 return self._on_emulator(
-                    run_type="expectation",
+                    run_type=RunEnum.EXPECTATION,
                     values=values,
+                    shots=shots,
                     observable=observable,
                     callback=callback,
                 )
-            case "qpu":
+            case OnEnum.QPU:
                 return self._on_qpu(
-                    run_type="expectation",
+                    run_type=RunEnum.EXPECTATION,
                     values=values,
                     shots=shots,
                     observable=observable,

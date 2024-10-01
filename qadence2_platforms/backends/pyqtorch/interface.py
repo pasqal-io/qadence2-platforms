@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable, Counter, Literal, Optional
+from typing import Any, Callable, Counter, Literal, Optional, cast
 
 import pyqtorch
 import torch
 
 from qadence2_platforms.abstracts import (
     AbstractInterface,
+    RunEnum,
 )
 
 from .embedding import Embedding
@@ -26,7 +27,7 @@ class Interface(
         torch.Tensor,
     ],
 ):
-    """A class holding register,embedding, circuit, native backends and optional observable."""
+    """A class holding register, embedding, circuit, native backends and optional observable."""
 
     def __init__(
         self,
@@ -62,8 +63,8 @@ class Interface(
 
     def _run(
         self,
-        run_type: Literal["run", "sample", "expectation"],
-        values: Optional[dict[str, torch.Tensor]] = None,
+        run_type: RunEnum,
+        values: dict[str, torch.Tensor] | None = None,
         callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
         shots: int | None = None,
@@ -92,14 +93,14 @@ class Interface(
         state = state if state is not None else self.init_state
 
         match run_type:
-            case "run":
+            case RunEnum.RUN:
                 return pyqtorch.run(
                     circuit=self.circuit,
                     state=state,
                     values=inputs,
                     embedding=self.embedding,
                 )
-            case "sample":
+            case RunEnum.SAMPLE:
                 return pyqtorch.sample(
                     circuit=self.circuit,
                     state=state,
@@ -107,7 +108,7 @@ class Interface(
                     n_shots=shots,
                     embedding=self.embedding,
                 )
-            case "expectation":
+            case RunEnum.EXPECTATION:
                 if observable is not None:
                     return pyqtorch.expectation(
                         circuit=self.circuit,
@@ -123,42 +124,47 @@ class Interface(
     def run(
         self,
         *,
-        values: Optional[dict[str, torch.Tensor]] = None,
+        values: dict[str, torch.Tensor] | None = None,
         callback: Optional[Callable] = None,
-        state: Optional[torch.Tensor] = None,
+        state: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> torch.Tensor:
-        return self._run("run", values=values, callback=callback, state=state, **kwargs)
+        return self._run(
+            RunEnum.RUN, values=values, callback=callback, state=state, **kwargs
+        )
 
     def sample(
         self,
         *,
-        values: Optional[dict[str, torch.Tensor]] = None,
-        shots: Optional[int] = None,
+        values: dict[str, torch.Tensor] | None = None,
+        shots: int | None = None,
         callback: Optional[Callable] = None,
-        state: Optional[torch.Tensor] = None,
+        state: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> list[Counter]:
-        return self._run(
-            "sample",
-            values=values,
-            callback=callback,
-            shots=shots,
-            state=state,
-            **kwargs,
+        return cast(
+            list,
+            self._run(
+                RunEnum.SAMPLE,
+                values=values,
+                callback=callback,
+                shots=shots,
+                state=state,
+                **kwargs,
+            ),
         )
 
     def expectation(
         self,
         *,
-        values: Optional[dict[str, torch.Tensor]] = None,
+        values: dict[str, torch.Tensor] | None = None,
         callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
         observable: Any | None = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(
-            "expectation",
+            RunEnum.EXPECTATION,
             values=values,
             callback=callback,
             state=state,

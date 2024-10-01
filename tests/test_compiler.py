@@ -13,7 +13,7 @@ from qadence2_platforms.utils.module_importer import resolve_module_path
 
 def test_pyq_compilation(model1: Model) -> None:
     model = model1
-    compiled_model = compile_to_backend("pyqtorch", model)
+    compiled_model = compile_to_backend(model, "pyqtorch")
     f_params = {"x": torch.rand(1, requires_grad=True)}
     wf = compiled_model.run(state=pyq.zero_state(2), values=f_params)
     dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
@@ -24,9 +24,9 @@ def test_pyq_compilation(model1: Model) -> None:
 #  other backends are available/implemented
 def test_pulser_compilation(model1: Model) -> None:
     model = model1
-    compiled_model = compile_to_backend("fresnel1", model)
+    compiled_model = compile_to_backend(model, "fresnel1")
     f_params = {"x": np.array([1])}
-    res = compiled_model.run(values=f_params, on="emulator")
+    res = compiled_model.run(values=f_params)
     assert np.allclose((res * res.dag()).tr(), 1.0)
 
 
@@ -36,7 +36,7 @@ def test_custom_backend_compilation(model1: Model) -> None:
         raise ValueError("Custom backend module could not be symlinked.")
 
     model = model1
-    compiled_model = compile_to_backend("custom_backend", model)
+    compiled_model = compile_to_backend(model, "custom_backend")
     f_params = {"x": np.array([1])}
-    res = compiled_model.run(values=f_params, on="emulator")
+    res = compiled_model.run(values=f_params)
     assert np.allclose((res * res.dag()).tr(), 1.0)

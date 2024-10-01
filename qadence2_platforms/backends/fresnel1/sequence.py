@@ -87,7 +87,7 @@ def from_instructions(
 
     for var in inputs:
         if inputs[var].size > 1:
-            raise TypeError("This platform cannot hanle time modulated variables.")
+            raise TypeError("This platform cannot handle time modulated variables.")
 
         variables[var] = sequence.declare_variable(var)
 
@@ -122,7 +122,7 @@ def assign(
     if isinstance(fn, Call):
         args = (
             (
-                (temp_vars.get(arg.variable) or variables[arg.variable])
+                (temp_vars.get(arg.variable) or variables.get(arg.variable))
                 if isinstance(arg, Load)
                 else arg
             )

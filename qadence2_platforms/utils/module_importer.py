@@ -48,10 +48,10 @@ def module_loader(module_name: str) -> ModuleType:
     module: ModuleType
     try:
         module = import_module(base_backend)
-    except ModuleNotFoundError as e:
+    except ModuleNotFoundError as _:
         try:
             module = import_module(user_backend)
-        except ModuleNotFoundError as e:
+        except ModuleNotFoundError as _:
             traceback.print_exc()
             error_msg = (
                 f"Module error. Please verify module '{module_name}'. "
@@ -60,8 +60,7 @@ def module_loader(module_name: str) -> ModuleType:
                 f"use `pathlib.Path` class instead of pure `str`."
             )
             logger.error(ModuleError(error_msg))
-            print(ModuleError(error_msg))
-            exit()
+            raise ModuleError(error_msg)
     return module
 
 

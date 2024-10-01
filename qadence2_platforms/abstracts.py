@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from enum import Enum, auto
 from typing import Any, Callable, Generic, Optional, TypeVar
 
 ArrayType = TypeVar("ArrayType")
@@ -9,6 +10,29 @@ ParameterType = TypeVar("ParameterType")
 RunResultType = TypeVar("RunResultType")
 SampleResultType = TypeVar("SampleResultType")
 ExpectationResultType = TypeVar("ExpectationResultType")
+
+
+class RunEnum(Enum):
+    """
+    Enum class to be used whenever an Interface class method need to specify.
+
+    how to execute the expression: through `run`, `sample`, or `expectation`.
+    """
+
+    RUN = auto()
+    SAMPLE = auto()
+    EXPECTATION = auto()
+
+
+class OnEnum(Enum):
+    """
+    Enum class to be used whenever an Interface class method (such as `run`) needs to.
+
+    specify where to run the code: on emulator or qpu.
+    """
+
+    EMULATOR = auto()
+    QPU = auto()
 
 
 class AbstractInterface(
@@ -22,6 +46,15 @@ class AbstractInterface(
         ExpectationResultType,
     ],
 ):
+    """
+    An abstract base class that defines interface essential methods.
+
+    It should be
+    inherited by any class that needs to implement a backend, for instance `pyqtorch`
+    and `fresnel1` (`pulser` using `qutip` emulator). It is not only used by the package
+    itself, but users who want to implement or test new backends should also make use
+    of it.
+    """
 
     @property
     @abstractmethod
@@ -58,7 +91,7 @@ class AbstractInterface(
     def run(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
+        values: dict[str, ArrayType] | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> RunResultType:
@@ -79,8 +112,8 @@ class AbstractInterface(
     def sample(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
-        shots: Optional[int] = None,
+        values: dict[str, ArrayType] | None = None,
+        shots: int | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> SampleResultType:
@@ -102,8 +135,8 @@ class AbstractInterface(
     def expectation(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
-        observable: Optional[Any] = None,
+        values: dict[str, ArrayType] | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> ExpectationResultType:

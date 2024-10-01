@@ -77,7 +77,7 @@ class Interface(
     def run(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
+        values: dict[str, ArrayType] | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> RunResultType:
@@ -92,8 +92,8 @@ class Interface(
     def sample(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
-        shots: Optional[int] = None,
+        values: dict[str, ArrayType] | None = None,
+        shots: int | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> SampleResultType:
@@ -108,8 +108,8 @@ class Interface(
     def expectation(
         self,
         *,
-        values: Optional[dict[str, ArrayType]] = None,
-        observable: Optional[Any] = None,
+        values: dict[str, ArrayType] | None = None,
+        observable: Any | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> ExpectationResultType:

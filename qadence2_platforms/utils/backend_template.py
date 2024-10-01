@@ -34,6 +34,27 @@ else:
 
 
 class BackendTemplate:
+    """
+    Class to create new custom backend folder with file templates.
+
+    It will
+    follow the same structure as the built-in backends, namely fresnel1 and
+    pyqtorch, having a folder with the custom backend name with the essential
+    files inside already built with the functions, classes and their methods.
+
+    Ex:
+
+    selected_root_dir/
+    └── custom_backends/
+        ├── custom_backend1/
+        │   ├── __init__.py
+        │   ├── compiler.py
+        │   └── interface.py
+
+    It is intended to help the user when creating their custom backend with
+    pre-filled files so the core structure of the backend instances are still
+    present, while giving freedom for them to implement whatever else needed.
+    """
 
     def __init__(self) -> None:
         self._pwd: Path = Path()
@@ -62,6 +83,14 @@ class BackendTemplate:
         return Path(__file__).parent / TEMPLATES_FOLDER_NAME
 
     def create_folder(self, backend_name: str, current_path: str | Path) -> bool:
+        """
+        Creates the main folder for the custom backend in a selected path.
+
+        :param backend_name: (str) backend name
+        :param current_path: (str | Path) current path to place the custom backend
+        :return: (bool) returns true if the folder was already existing
+        """
+
         self._backend_name = backend_name
         self._pwd = Path(current_path)
         self._backend_path = Path(
@@ -82,17 +111,29 @@ class BackendTemplate:
         gui: bool = True,
         use_this_dir: str | Path | None = None,
     ) -> bool:
+        """
+        Creates the template, with the main custom backend folder and its content files.
+
+        :param backend_name: (str) backend name
+        :param gui: (bool) whether to use a GUI option to choose where to create the template;
+             tkinter must be installed.
+             On Mac: `brew install python-tk@python3.10`. In case you use a different python
+             version, replace `3.10` by it. On Linux: `apt-get install python-tk`.
+        :param use_this_dir: (str | Path | None) directory to create the custom backend
+        :return: (bool) returns true if the template was successfully created
+        """
+
         print(
             "\nCreating a backend template.\n\n"
             "You need to select a directory where all the custom backends will be located.\n"
             " The organization will be as follows:\n\n"
             "   selected_root_dir/\n"
-            "   └── custom_backends\n"
-            "       ├── custom_backend1\n"
+            "   └── custom_backends/\n"
+            "       ├── custom_backend1/\n"
             "       │   ├── __init__.py\n"
             "       │   ├── compiler.py\n"
             "       │   └── interface.py\n"
-            "       ├── custom_backend2\n"
+            "       ├── custom_backend2/\n"
             "       ...\n"
             ""
         )
