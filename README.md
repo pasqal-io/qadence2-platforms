@@ -1,11 +1,16 @@
 # Qadence 2 Platforms
 
-**Notice**: Qadence 2 Platforms is currently a *work in progress* and is under active development. Please be aware that the software is in an early stage, and frequent updates, including breaking changes, are to be expected. This means that:
-* Features and functionalities may change without prior notice.
-* The codebase is still evolving, and parts of the software may not function as intended.
-* Documentation and user guides may be incomplete or subject to significant changes.
 
-Platform dependent APIs and engines (backends) to be used on Qadence 2.
+!!! node
+    Qadence 2 Platforms is currently a *work in progress* and is under active development.
+
+    Please be aware that the software is in an early stage, and frequent updates, including breaking changes, are to be expected. This means that:
+    * Features and functionalities may change without prior notice.
+    * The codebase is still evolving, and parts of the software may not function as intended.
+    * Documentation and user guides may be incomplete or subject to significant changes.
+
+
+Qadence 2 Platforms is a collection of functionalities that transforms [Qadence IR](https://github.com/pasqal-io/qadence2-ir/) into backend-specific data and constructors, to be executed by backend methods. It is not intended to be used directly by [Qadence 2](https://github.com/pasqal-io/qadence2-core/) users, but rather those who need to implement or extend backends, quantum instruction primitives, compiler or backend directives, etc.
 
 
 ## Installation
@@ -23,25 +28,33 @@ Clone this repository by typing on the terminal
 git clone https://github.com/pasqal-io/qadence2-platforms.git
 ```
 
-Go to `qadence2-platforms` folder and install it using [hatch](https://hatch.pypa.io/latest/)
+Go to `qadence2-platforms` folder and install it using [hatch](https://hatch.pypa.io/latest/):
+
+```bash
+python -m pip install hatch
+```
+
+and run `hatch` to create or reuse the project environment:
 
 ```bash
 hatch -v shell
 ```
 
-## Platforms
+## Description
+
+### Platforms
 
 This package **should not** be used directly by the user. It is used to convert [Qadence IR](https://github.com/pasqal-io/qadence2-ir) into backend-compatible data, and to execute it with extra options (provided by the compilation process, either on [Qadence 2 expressions](https://github.com/pasqal-io/qadence2-expressions) or [Qadence 2 core](https://github.com/pasqal-io/qadence2-core)).
 
-### Qadence Intermediate Representation
+### Qadence Intermediate Representation (IR)
 
 Qadence 2 expressions is being compiled into an IR comprised of both quantum and classical operations.
 
-### API
+### Platforms API
 
 The `backend` module exposes a single `compile_to_backend` function which accepts a `Model` and a string denoting the `backend`.
 
-### Backend
+### Platforms Backend
 
 Each submodule under `backend` is expected (1) to translate the `IR` data into backend-compatible data, (2) to provide instruction conversions from `IR` to backend, (3) to handle the storage and embedding of parameters, and (4) to implement execution process for `run`, `sample` and `expectation`.
 
@@ -137,17 +150,3 @@ Before making a contribution, please review our [code of conduct](docs/getting_s
 
 - **Submitting Issues:** To submit bug reports or feature requests, please use our [issue tracker](https://github.com/pasqal-io/qadence2-platforms/issues).
 - **Developing in qadence 2 platforms:** To learn more about how to develop within `qadence 2 platforms`, please refer to [contributing guidelines](docs/getting_started/CONTRIBUTING.md).
-
-### Setting up qadence 2 platforms in development mode
-
-We recommend to use the [`hatch`](https://hatch.pypa.io/latest/) environment manager to install `qadence 2 platforms` from source:
-
-```bash
-python -m pip install hatch
-
-# get into a shell with all the dependencies
-python -m hatch shell
-
-# run a command within the virtual environment with all the dependencies
-python -m hatch run python my_script.py
-```
