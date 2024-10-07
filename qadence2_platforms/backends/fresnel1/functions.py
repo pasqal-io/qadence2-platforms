@@ -1,16 +1,26 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from enum import Enum, auto
+from typing import Any
 
 import numpy as np
 from pulser.parametrized.variable import VariableItem
-from pulser.sequence.sequence import Sequence
+from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
 
 # TODO: re-introduce `Support` to account for "local" and "global" on the `channel` arg
+
+
+class Direction(Enum):
+    X = auto()
+    Y = auto()
+
+
+class Duration(Enum):
+    FILL = auto()
 
 
 # pulse function mapping.
@@ -31,6 +41,15 @@ def dyn_pulse(
     phase: VariableItem | float,
     **_: Any,
 ) -> None:
+    """
+    Dynamic pulse to simulate a specific time-dependent hamiltonian for neutral-atom devices.
+
+    :param sequence: a `pulser.sequence.Sequence` instance
+    :param duration: duration of the pulse in nanoseconds
+    :param amplitude: amplitude of the pulse in rad/µs
+    :param detuning: detuning of the pulse in rad/s
+    :param phase: phase in rad
+    """
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
@@ -50,7 +69,7 @@ def rx(
     angle: VariableItem | float,
     **_: Any,
 ) -> None:
-    rotation(sequence, angle, "x")
+    rotation(sequence, angle, Direction.X)
 
 
 def ry(
@@ -58,11 +77,11 @@ def ry(
     angle: VariableItem | float,
     **_: Any,
 ) -> None:
-    rotation(sequence, angle, "y")
+    rotation(sequence, angle, Direction.Y)
 
 
 def x(sequence: Sequence, **_: Any) -> None:
-    rotation(sequence, angle=np.pi, direction="x")
+    rotation(sequence, angle=np.pi, direction=Direction.X)
 
 
 def h(
@@ -85,7 +104,7 @@ def h(
 def rotation(
     sequence: Sequence,
     angle: VariableItem | float,
-    direction: Literal["x", "y"] | float,
+    direction: Direction | float,
     **_: Any,
 ) -> None:
 
@@ -95,9 +114,9 @@ def rotation(
 
     phase: Any
     match direction:
-        case "x":
+        case Direction.X:
             phase = 0
-        case "y":
+        case Direction.Y:
             phase = np.pi / 2
         case _:
             phase = direction
@@ -132,7 +151,7 @@ def apply_local_shifts(sequence: Sequence, **_: Any) -> None:
 
 def local_pulse(
     sequence: Sequence,
-    duration: VariableItem | float | Literal["fill"],
+    duration: VariableItem | float | Duration,
     detuning: VariableItem | float,
     concurrent: bool = False,
     **_: Any,
@@ -144,7 +163,7 @@ def local_pulse(
 
 def local_pulse_core(
     sequence: Sequence,
-    duration: VariableItem | float | Literal["fill"],
+    duration: VariableItem | float | Duration,
     time_scale: float,
     detuning: VariableItem | float,
     concurrent: bool = False,
@@ -154,7 +173,7 @@ def local_pulse_core(
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
-    if duration == "fill":
+    if duration == Duration.FILL:
         if not concurrent:
             raise SyntaxError(
                 "The option `fill` can only be used on the `concurrent` mode"

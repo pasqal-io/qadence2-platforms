@@ -48,10 +48,10 @@ def module_loader(module_name: str) -> ModuleType:
     module: ModuleType
     try:
         module = import_module(base_backend)
-    except ModuleNotFoundError as _:
+    except ModuleNotFoundError:
         try:
             module = import_module(user_backend)
-        except ModuleNotFoundError as _:
+        except ModuleNotFoundError:
             traceback.print_exc()
             error_msg = (
                 f"Module error. Please verify module '{module_name}'. "

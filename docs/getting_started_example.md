@@ -50,7 +50,7 @@ dfdx = torch.autograd.grad(wavefunction, feature_params["x"], torch.ones_like(wa
 print(dfdx)
 ```
 
-Above is a working example on how to use `Qadecen 2 platforms` package. We first need a `Model` data to work with (from [`Qadence 2 IR`](https://github.com/pasqal-io/qadence2-ir)), which is a qadence 2 expression compiled into an IR. Once the model is defined, a backend must be chosen. A `compile_to_backend` should be invoked to translate the model data into backend-specific data, and also to expose backend's methods and functionalities to execute the model data code. The execution can be done in emulators or QPU, with sampling or expectation values, for instance.
+Above is a working example on how to use `Qadence 2 platforms` package. We first need a `Model` data to work with (from [`Qadence 2 IR`](https://github.com/pasqal-io/qadence2-ir)), which is a qadence 2 expression compiled into an IR. Once the model is defined, a backend must be chosen. A `compile_to_backend` should be invoked to translate the model data into backend-specific data, and also to expose backend's methods and functionalities to execute the model data code. The execution can be done in emulators or QPU, with sampling or expectation values, for instance.
 
 In the case below, `torch` data is used, which is differentiable, so `autograd` can be done in the user input tensor. `PyQTorch` is defined as backend and thus the `Model` will be converted into `torch` tensor data, for a wavefunction calculation through the backend `Interface` method called `run`.
 

@@ -86,6 +86,7 @@ def from_instructions(
     temp_vars: dict[str, Any] = dict()
 
     for var in inputs:
+        # inputs[var].size holds the points to interpolate time-dependent functions
         if inputs[var].size > 1:
             raise TypeError("This platform cannot handle time modulated variables.")
 
