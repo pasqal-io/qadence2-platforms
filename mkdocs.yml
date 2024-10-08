@@ -4,7 +4,12 @@ repo_name: "qadence2_platforms"
 
 nav:
   - Overview: index.md
-  - Sample page: sample_page.md
+  - Example: getting_started_example.md
+  - Getting started:
+      - Development & Info:
+          - Contributing: getting_started/CONTRIBUTING.md
+          - Code of conduct: getting_started/CODE_OF_CONDUCT.md
+          - License: getting_started/LICENSE.md
 
 theme:
   name: material
@@ -35,6 +40,7 @@ theme:
 
 markdown_extensions:
 - admonition  # for notes
+- footnotes
 - pymdownx.arithmatex: # for mathjax
     generic: true
 - pymdownx.highlight:
@@ -42,6 +48,13 @@ markdown_extensions:
 - pymdownx.inlinehilite
 - pymdownx.snippets
 - pymdownx.superfences
+- pymdownx.details
+- pymdownx.superfences:
+    custom_fences:
+    - name: python
+      class: python
+      validator: "!!python/name:markdown_exec.validator"
+      format: "!!python/name:markdown_exec.formatter"
 
 plugins:
 - search
@@ -60,20 +73,23 @@ plugins:
           heading_level: 3
           merge_init_into_class: true
           docstring_section_style: spacy
+- mike:
+    deploy_prefix: ''
+    version_selector: true
 
 watch:
   - qadence2_platforms
 
 extra:
  version:
-   provider: mike
+   default: stable
 
 # To get nice tabs
 extra_css:
-- css/mkdocstrings.css
+- extras/css/mkdocstrings.css
 
 # For mathjax
 extra_javascript:
-  - javascripts/mathjax.js
+  - extras/javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

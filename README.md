@@ -1,28 +1,83 @@
 # Qadence 2 Platforms
-Platform dependent APIs and engines (backends) to be used on Qadence 2.
+
+
+!!! node
+    Qadence 2 Platforms is currently a *work in progress* and is under active development.
+
+    Please be aware that the software is in an early stage, and frequent updates, including breaking changes, are to be expected. This means that:
+    * Features and functionalities may change without prior notice.
+    * The codebase is still evolving, and parts of the software may not function as intended.
+    * Documentation and user guides may be incomplete or subject to significant changes.
+
+
+Qadence 2 Platforms is a collection of functionalities that transforms [Qadence IR](https://github.com/pasqal-io/qadence2-ir/) into backend-specific data and constructors, to be executed by backend methods. It is not intended to be used directly by [Qadence 2](https://github.com/pasqal-io/qadence2-core/) users, but rather those who need to implement or extend backends, quantum instruction primitives, compiler or backend directives, etc.
 
 
 ## Installation
-Installation guidelines
 
-## Qadence Intermediate Representation
-Qadence2 expressions is being compiled into an IR comprised of both quantum and classical operations.
-## API
-The `backend` module exposes a single `compile` function which accepts a `Model` and a string denoting the `backend`.
-## Backend
-Each submodule under `backend`  is expected to handle the storage and embedding of parameters in a `Embedding` class, the compilation of `model.instructions` into native instructions in the particular backend via a `Compiler`
-and the handling of the register via a `RegisterInterface`.
+*Note*: it is advised to set up a python environment before installing the package.
 
-## Usage
+To install the current version, there is currently one option:
+
+
+### Installation from Source
+
+Clone this repository by typing on the terminal
+
+```bash
+git clone https://github.com/pasqal-io/qadence2-platforms.git
+```
+
+Go to `qadence2-platforms` folder and install it using [hatch](https://hatch.pypa.io/latest/):
+
+```bash
+python -m pip install hatch
+```
+
+and run `hatch` to create or reuse the project environment:
+
+```bash
+hatch -v shell
+```
+
+## Description
+
+### Platforms
+
+This package **should not** be used directly by the user. It is used to convert [Qadence IR](https://github.com/pasqal-io/qadence2-ir) into backend-compatible data, and to execute it with extra options (provided by the compilation process, either on [Qadence 2 expressions](https://github.com/pasqal-io/qadence2-expressions) or [Qadence 2 core](https://github.com/pasqal-io/qadence2-core)).
+
+### Qadence Intermediate Representation (IR)
+
+Qadence 2 expressions is being compiled into an IR comprised of both quantum and classical operations.
+
+### Platforms API
+
+The `backend` module exposes a single `compile_to_backend` function which accepts a `Model` and a string denoting the `backend`.
+
+### Platforms Backend
+
+Each submodule under `backend` is expected (1) to translate the `IR` data into backend-compatible data, (2) to provide instruction conversions from `IR` to backend, (3) to handle the storage and embedding of parameters, and (4) to implement execution process for `run`, `sample` and `expectation`.
+
+### Usage
 
 Example
-```python
-from qadence2_platforms import Model
+```python exec="on" source="material-block" session="model"
+from qadence2_ir.types import (
+    Model,
+    Alloc,
+    AllocQubits,
+    Call,
+    Assign,
+    QuInstruct,
+    Support,
+    Load
+)
+
 
 Model(
     register = AllocQubits(
         num_qubits = 3,
-        positions = [(-2,1), (0,1), (1,3)],
+        qubit_positions = [(-2,1), (0,1), (1,3)],
         grid_type = "triangular",
         grid_scale = 1.0,
         options = {"initial_state": "010"}
@@ -43,20 +98,28 @@ Model(
         QuInstruct("not", Support(target=(1,), control=(0,))),
         QuInstruct(
 		        "qubit_dyn",
-		        Support(0, 2),
+		        Support(control=(0,), target=(2,)),
 		        Load("t"),
 		        Load("Omega"),
 		        Load("delta"),
 		    )
     ],
     directives = {"digital-analog": True},
-    data_settings = {"result-type": "state-vector", "data-type": "f32"}
 )
 ```
 
 Compiling a `pyqtorch` circuit and computing gradients using `torch.autograd`
 
-```python
+```python exec="on" source="material-block" session="model"
+import torch
+import pyqtorch as pyq
+from qadence2_ir.types import (
+    Model, Alloc, AllocQubits, Load, Call, Support, QuInstruct, Assign
+)
+
+from qadence2_platforms.compiler import compile_to_backend
+
+
 model = Model(
     register=AllocQubits(num_qubits=2),
     inputs={
@@ -69,16 +132,21 @@ model = Model(
         QuInstruct("not", Support(target=(1,), control=(0,))),
     ],
     directives={"digital": True},
-    data_settings={"result-type": "state-vector", "data-type": "f64"},
 )
-api = compile(model, "pyqtorch")
+api = compile_to_backend(model, "pyqtorch")
 f_params = {"x": torch.rand(1, requires_grad=True)}
-wf = api.run(pyq.zero_state(2), f_params)
+wf = api.run(state=pyq.zero_state(2), values=f_params)
 dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
 ```
 
 ## Documentation
-Documentation guidelines
+
+**Notice**: Documentation in progress.
+
 
 ## Contribute
-Contribution guidelines
+
+Before making a contribution, please review our [code of conduct](docs/getting_started/CODE_OF_CONDUCT.md).
+
+- **Submitting Issues:** To submit bug reports or feature requests, please use our [issue tracker](https://github.com/pasqal-io/qadence2-platforms/issues).
+- **Developing in qadence 2 platforms:** To learn more about how to develop within `qadence 2 platforms`, please refer to [contributing guidelines](docs/getting_started/CONTRIBUTING.md).
