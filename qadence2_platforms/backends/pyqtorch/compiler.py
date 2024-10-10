@@ -41,9 +41,7 @@ class Compiler:
                     assert len(instr.args) == 1, "More than one arg not supported"
                     (maybe_load,) = instr.args
                     assert isinstance(maybe_load, Load), "only support load"
-                    pyq_operations.append(
-                        native_op(native_support, maybe_load.variable)
-                    )
+                    pyq_operations.append(native_op(native_support, maybe_load.variable))
                 else:
                     pyq_operations.append(native_op(*native_support))
         return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)

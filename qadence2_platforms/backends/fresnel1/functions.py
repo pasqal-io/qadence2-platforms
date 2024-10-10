@@ -144,9 +144,7 @@ def apply_local_shifts(sequence: Sequence, **_: Any) -> None:
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
     time_scale = 1000 * 2 * np.pi / max_abs_detuning
-    local_pulse_core(
-        sequence, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False
-    )
+    local_pulse_core(sequence, duration=1.0, time_scale=time_scale, detuning=1.0, concurrent=False)
 
 
 def local_pulse(
@@ -175,9 +173,7 @@ def local_pulse_core(
 
     if duration == Duration.FILL:
         if not concurrent:
-            raise SyntaxError(
-                "The option `fill` can only be used on the `concurrent` mode"
-            )
+            raise SyntaxError("The option `fill` can only be used on the `concurrent` mode")
 
         duration = sequence.get_duration("global") - sequence.get_duration("dmm_0")
     else:

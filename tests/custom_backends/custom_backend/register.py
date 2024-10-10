@@ -49,9 +49,7 @@ def from_model(model: Model) -> RegisterLayout:
     transform = np.array([[1.0, 0.0], [0.5, 0.8660254037844386]])
     coords = coords @ transform
 
-    layout = AnalogDevice.calibrated_register_layouts[
-        "TriangularLatticeLayout(61, 5.0µm)"
-    ]
+    layout = AnalogDevice.calibrated_register_layouts["TriangularLatticeLayout(61, 5.0µm)"]
     coords *= 5
     traps = layout.get_traps_from_coordinates(*coords)
     register = layout.define_register(*traps, qubit_ids=range(len(traps)))

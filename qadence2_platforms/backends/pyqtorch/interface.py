@@ -129,9 +129,7 @@ class Interface(
         state: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> torch.Tensor:
-        return self._run(
-            RunEnum.RUN, values=values, callback=callback, state=state, **kwargs
-        )
+        return self._run(RunEnum.RUN, values=values, callback=callback, state=state, **kwargs)
 
     def sample(
         self,

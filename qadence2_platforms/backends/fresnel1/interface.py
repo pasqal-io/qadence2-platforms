@@ -33,9 +33,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         valid_params = params.keys() & self._non_trainable_parameters
 
         if valid_params != params.keys():
-            raise ValueError(
-                f"{set(params.keys())} are not fixed parameters in this sequence."
-            )
+            raise ValueError(f"{set(params.keys())} are not fixed parameters in this sequence.")
 
         self._params = params
 

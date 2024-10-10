@@ -91,9 +91,7 @@ class Embedding(torch.nn.Module):
     def __init__(self, model: Model) -> None:
         super().__init__()
         self.param_buffer = ParameterBuffer.from_model(model)
-        self.var_to_torchcall: dict[str, Callable] = (
-            self.create_var_to_torchcall_mapping(model)
-        )
+        self.var_to_torchcall: dict[str, Callable] = self.create_var_to_torchcall_mapping(model)
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         """

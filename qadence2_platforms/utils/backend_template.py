@@ -93,9 +93,7 @@ class BackendTemplate:
 
         self._backend_name = backend_name
         self._pwd = Path(current_path)
-        self._backend_path = Path(
-            self._pwd, self._root_backends_name, self._backend_name
-        )
+        self._backend_path = Path(self._pwd, self._root_backends_name, self._backend_name)
         already_exists = os.path.exists(self._backend_path)
         self._backend_path.mkdir(parents=True, exist_ok=True)
         return already_exists
@@ -150,25 +148,19 @@ class BackendTemplate:
 
         if selected_dir:
             try:
-                already_exists = self.create_folder(
-                    backend_name, current_path=selected_dir
-                )
+                already_exists = self.create_folder(backend_name, current_path=selected_dir)
                 self.create_files()
             except Exception:
                 traceback.print_exc()
                 return False
             else:
                 action = "replaced" if already_exists else "created"
-                result = resolve_module_path(
-                    Path(selected_dir, CUSTOM_BACKEND_FOLDER_NAME)
-                )
+                result = resolve_module_path(Path(selected_dir, CUSTOM_BACKEND_FOLDER_NAME))
                 if result:
                     print(
                         f"Backend template at {self._backend_path} has been {action} with success!"
                     )
                 return result
         else:
-            print(
-                "You must select a directory to create the template. Creation suspended."
-            )
+            print("You must select a directory to create the template. Creation suspended.")
             return False
