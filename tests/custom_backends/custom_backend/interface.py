@@ -33,9 +33,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         valid_params = params.keys() & self._non_trainable_parameters
 
         if valid_params != params.keys():
-            raise ValueError(
-                f"{set(params.keys())} are not fixed parameters in this sequence."
-            )
+            raise ValueError(f"{set(params.keys())} are not fixed parameters in this sequence.")
 
         self._params = params
 
@@ -150,9 +148,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     ) -> RunResult:
         match on:
             case OnEnum.EMULATOR:
-                return self._on_emulator(
-                    run_type=RunEnum.RUN, values=values, callback=callback
-                )
+                return self._on_emulator(run_type=RunEnum.RUN, values=values, callback=callback)
             case "qpu":
                 return self._on_qpu(
                     run_type=RunEnum.RUN, values=values, shots=shots, callback=callback

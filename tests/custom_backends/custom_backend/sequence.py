@@ -64,15 +64,11 @@ def from_model(model: Model, register: RegisterLayout) -> Sequence:
     pulses = from_instructions(seq, model.inputs, model.instructions)
 
     for pulse in pulses:
-        fn: Optional[Callable] = getattr(
-            add_pulse, PULSE_FN_MAP.get(pulse.name) or "", None
-        )
+        fn: Optional[Callable] = getattr(add_pulse, PULSE_FN_MAP.get(pulse.name) or "", None)
         if fn is not None:
             fn(seq, *pulse.args)
         else:
-            raise ValueError(
-                f"current backend does not have pulse '{pulse.name}' implemented."
-            )
+            raise ValueError(f"current backend does not have pulse '{pulse.name}' implemented.")
 
     return seq
 

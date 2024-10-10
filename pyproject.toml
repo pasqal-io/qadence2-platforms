@@ -97,9 +97,6 @@ test = "mkdocs build --clean --strict"
 [[tool.hatch.envs.test.matrix]]
 python = ["310", "311"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["qadence2_platforms"]
-
 [tool.hatch.build.targets.sdist]
 exclude = [
     "/.gitignore",
@@ -135,9 +132,6 @@ lint.select = ["E", "F", "I", "Q"]
 lint.extend-ignore = ["F841"]
 line-length = 100
 lint.exclude = ["*.ipynb"]
-
-[tool.ruff.lint.isort]
-required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.isort]
 required-imports = ["from __future__ import annotations"]
