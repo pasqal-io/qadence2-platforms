@@ -109,12 +109,12 @@ class Interface(
                     embedding=self.embedding,
                 )
             case RunEnum.EXPECTATION:
-                if observable is not None:
+                if observable is not None or self.observable is not None:
                     return pyqtorch.expectation(
                         circuit=self.circuit,
                         state=state,
                         values=inputs,
-                        observable=self.observable,
+                        observable=observable or self.observable,
                         embedding=self.embedding,
                     )
                 raise ValueError("Observable must not be None for expectation run.")
