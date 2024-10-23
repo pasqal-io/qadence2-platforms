@@ -64,7 +64,9 @@ def from_model(model: Model, register: RegisterLayout) -> Sequence:
     pulses = from_instructions(seq, model.inputs, model.instructions)
 
     for pulse in pulses:
-        fn: Optional[Callable] = getattr(add_pulse, PULSE_FN_MAP.get(pulse.name) or "", None)
+        fn: Optional[Callable] = getattr(
+            add_pulse, PULSE_FN_MAP.get(pulse.name) or pulse.name, None
+        )
         if fn is not None:
             fn(seq, *pulse.args)
         else:
