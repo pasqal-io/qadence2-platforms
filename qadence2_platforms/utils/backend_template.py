@@ -11,15 +11,8 @@ from qadence2_platforms.utils.module_importer import resolve_module_path
 
 try:
     from tkinter import filedialog as fd
-except ImportError:
-    print(
-        "\n\nYou may need to install `tkinter` to use some GUI features. "
-        "On Mac:\n"
-        " `brew install python-tk@python3.10`\n"
-        "  In case you use a different python version, replace `3.10` by it.\n\n"
-        "On Linux: `apt-get install python-tk`\n\n"
-    )
 
+except ImportError:
     def user_input() -> str:
         return input("Paste the directory: ")
 
