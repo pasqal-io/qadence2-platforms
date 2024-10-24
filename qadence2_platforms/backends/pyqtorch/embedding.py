@@ -83,7 +83,7 @@ class Embedding(torch.nn.Module):
     """
     A class holding:
 
-    - A parameterbuffer (containing concretized vparams + list of featureparams,
+    - A parameterbuffer containing concretized vparams + list of featureparams,
     - A dictionary of intermediate and leaf variable names mapped to a TorchCall object
         which can be results of function/expression evaluations.
     """
@@ -115,7 +115,7 @@ class Embedding(torch.nn.Module):
                     **assigned_params,
                 },  # we add the "intermediate" variables too
             )
-
+        assigned_params = {**assigned_params, **inputs}
         return assigned_params
 
     @staticmethod
