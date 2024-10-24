@@ -3,7 +3,7 @@ from __future__ import annotations
 from logging import getLogger
 from typing import Any, Callable, Counter, Literal, Optional, cast
 
-import pyqtorch
+import pyqtorch as pyq
 import torch
 
 from qadence2_platforms.abstracts import (
@@ -12,7 +12,9 @@ from qadence2_platforms.abstracts import (
 )
 
 from .embedding import Embedding
+from .functions import load_observables
 from .register import RegisterInterface
+from .utils import InputType
 
 logger = getLogger(__name__)
 
@@ -20,7 +22,7 @@ logger = getLogger(__name__)
 class Interface(
     AbstractInterface[
         torch.Tensor,
-        pyqtorch.QuantumCircuit,
+        pyq.QuantumCircuit,
         torch.Tensor,
         torch.Tensor,
         list[Counter],
@@ -33,8 +35,8 @@ class Interface(
         self,
         register: RegisterInterface,
         embedding: Embedding,
-        circuit: pyqtorch.QuantumCircuit,
-        observable: Any = None,
+        circuit: pyq.QuantumCircuit,
+        observable: list[InputType] | InputType | None = None,
     ) -> None:
         super().__init__()
         self.register = register
@@ -52,7 +54,7 @@ class Interface(
         return {"num_qubits": self.register.n_qubits}
 
     @property
-    def sequence(self) -> pyqtorch.QuantumCircuit:
+    def sequence(self) -> pyq.QuantumCircuit:
         return self.circuit
 
     def add_noise(self, model: Literal["SPAM"]) -> None:
@@ -68,7 +70,7 @@ class Interface(
         callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
         shots: int | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         **_: Any,
     ) -> Any:
         """
@@ -94,14 +96,14 @@ class Interface(
 
         match run_type:
             case RunEnum.RUN:
-                return pyqtorch.run(
+                return pyq.run(
                     circuit=self.circuit,
                     state=state,
                     values=inputs,
                     embedding=self.embedding,
                 )
             case RunEnum.SAMPLE:
-                return pyqtorch.sample(
+                return pyq.sample(
                     circuit=self.circuit,
                     state=state,
                     values=inputs,
@@ -109,12 +111,12 @@ class Interface(
                     embedding=self.embedding,
                 )
             case RunEnum.EXPECTATION:
-                if observable is not None:
-                    return pyqtorch.expectation(
+                if observable is not None or self.observable is not None:
+                    return pyq.expectation(
                         circuit=self.circuit,
                         state=state,
                         values=inputs,
-                        observable=self.observable,
+                        observable=load_observables(observable or self.observable),  # type: ignore [arg-type]
                         embedding=self.embedding,
                     )
                 raise ValueError("Observable must not be None for expectation run.")
@@ -158,7 +160,7 @@ class Interface(
         values: dict[str, torch.Tensor] | None = None,
         callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(
