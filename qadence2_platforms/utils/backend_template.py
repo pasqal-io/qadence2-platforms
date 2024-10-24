@@ -13,6 +13,7 @@ try:
     from tkinter import filedialog as fd
 
 except ImportError:
+
     def user_input() -> str:
         return input("Paste the directory: ")
 
