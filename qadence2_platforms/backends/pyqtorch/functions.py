@@ -10,10 +10,10 @@ from qadence2_platforms.backends.pyqtorch.utils import InputType, Support
 
 
 def _get_op(op: InputType) -> Primitive:
-    if op.is_symbol is True:
+    if op.is_symbol:
         return getattr(pyq, op.head.upper(), None)
 
-    if op.is_quantum_operator is True:
+    if op.is_quantum_operator:
         op_args_item: InputType = op.args[0].args
         return getattr(pyq, op_args_item[0].upper(), None)
 
