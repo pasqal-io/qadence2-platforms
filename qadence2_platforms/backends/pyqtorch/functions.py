@@ -9,7 +9,7 @@ from pyqtorch.primitives import Primitive
 from qadence2_platforms.backends.pyqtorch.utils import InputType, Support
 
 
-def _get_op(op: InputType) -> Primitive:
+def _get_op(op: InputType) -> Primitive | None:
     if op.is_symbol is True:
         return getattr(pyq, op.head.upper(), None)
 
