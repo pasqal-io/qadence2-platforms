@@ -58,7 +58,7 @@ class Compiler:
 
 def _get_trainable_params(inputs: dict[str, Alloc]) -> dict[str, torch.Tensor]:
     return {
-        param: torch.rand(value.size, requires_grad=True).to(dtype=torch.float64)
+        param: torch.rand(value.size, requires_grad=True)
         for param, value in inputs.items()
         if value.is_trainable
     }

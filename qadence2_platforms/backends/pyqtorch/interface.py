@@ -189,3 +189,6 @@ class Interface(
             diff_mode=diff_mode,
             **kwargs,
         )
+
+    def __call__(self, *args: Any, **kwargs: Any) -> torch.Tensor:
+        return self.run(*args, **kwargs)
