@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from logging import getLogger
 
 import pyqtorch as pyq
-from qadence2_ir.types import Load, Model, QuInstruct
+import torch
+from qadence2_ir.types import Load, Model, QuInstruct, Alloc
 
 from qadence2_platforms.backends.pyqtorch.embedding import Embedding
 from qadence2_platforms.backends.pyqtorch.interface import Interface
@@ -47,10 +48,18 @@ class Compiler:
         return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations)
 
 
+def _get_trainable_params(inputs: dict[str, Alloc]) -> dict[str, torch.Tensor]:
+    return {
+        param: torch.rand(value.size, requires_grad=True)
+        for param, value in inputs.items()
+            if value.is_trainable
+    }
+
 def compile_to_backend(model: Model) -> Interface:
     register_interface = RegisterInterface(
         model.register.num_qubits, model.register.options.get("init_state")
     )
     embedding = Embedding(model)
     native_circ = Compiler().compile(model)
-    return Interface(register_interface, embedding, native_circ)
+    vparams = _get_trainable_params(model.inputs)
+    return Interface(register_interface, embedding, native_circ, vparams=vparams)

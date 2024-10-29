@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable, Counter, Literal, Optional, cast
+from typing import Any, Callable, Counter, Literal, Optional, cast, Iterator, Iterable
 
 import pyqtorch as pyq
 import torch
+from torch.nn import ParameterDict
 
 from qadence2_platforms.abstracts import (
     AbstractInterface,
@@ -36,6 +37,7 @@ class Interface(
         register: RegisterInterface,
         embedding: Embedding,
         circuit: pyq.QuantumCircuit,
+        vparams: dict[str, torch.Tensor]= None,
         observable: list[InputType] | InputType | None = None,
     ) -> None:
         super().__init__()
@@ -48,6 +50,7 @@ class Interface(
         self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
+        self.vparams = ParameterDict(vparams)
 
     @property
     def info(self) -> dict[str, Any]:
@@ -62,6 +65,9 @@ class Interface(
 
     def set_parameters(self, params: dict[str, float]) -> None:
         pass
+
+    def parameters(self) -> Iterable:
+        return self.vparams.values()
 
     def _run(
         self,
