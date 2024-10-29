@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable, Counter, Literal, Optional, cast, Iterator, Iterable
+from typing import Any, Callable, Counter, Iterable, Literal, Optional, cast
 
 import pyqtorch as pyq
 import torch
+from pyqtorch.utils import DiffMode
 from torch.nn import ParameterDict
 
 from qadence2_platforms.abstracts import (
@@ -37,7 +38,7 @@ class Interface(
         register: RegisterInterface,
         embedding: Embedding,
         circuit: pyq.QuantumCircuit,
-        vparams: dict[str, torch.Tensor]= None,
+        vparams: dict[str, torch.Tensor] = None,
         observable: list[InputType] | InputType | None = None,
     ) -> None:
         super().__init__()
@@ -46,11 +47,12 @@ class Interface(
             circuit.from_bitstring(register.init_state)
             if register.init_state is not None
             else circuit.init_state()
-        )
+        ).to(dtype=torch.complex128)
         self.embedding = embedding
         self.circuit = circuit
         self.observable = observable
         self.vparams = ParameterDict(vparams)
+        self._dtype = torch.float64
 
     @property
     def info(self) -> dict[str, Any]:
@@ -66,8 +68,8 @@ class Interface(
     def set_parameters(self, params: dict[str, float]) -> None:
         pass
 
-    def parameters(self) -> Iterable:
-        return self.vparams.values()
+    def parameters(self) -> Iterable[Any]:
+        return self.vparams.values()  # type: ignore [no-any-return]
 
     def _run(
         self,
@@ -77,6 +79,7 @@ class Interface(
         state: torch.Tensor | None = None,
         shots: int | None = None,
         observable: list[InputType] | InputType | None = None,
+        diff_mode: DiffMode = None,
         **_: Any,
     ) -> Any:
         """
@@ -97,8 +100,14 @@ class Interface(
         :param observable: a list of observables, if applicable (`expectation` only)
         :return: a tensor or list of values (`sample` only) of the calculated state
         """
-        inputs = values or dict()
-        state = state if state is not None else self.init_state
+
+        def set_dtype(data: dict[str, torch.Tensor] | None) -> dict[str, torch.Tensor] | None:
+            if data is None:
+                return None
+            return {k: v.to(dtype=self._dtype) for k, v in data.items()}
+
+        inputs: dict[str, torch.Tensor] = set_dtype(values) or dict()
+        state = state.to(dtype=torch.complex128) if state is not None else self.init_state
 
         match run_type:
             case RunEnum.RUN:
@@ -121,9 +130,10 @@ class Interface(
                     return pyq.expectation(
                         circuit=self.circuit,
                         state=state,
-                        values=inputs,
+                        values={**self.vparams, **inputs},
                         observable=load_observables(observable or self.observable),  # type: ignore [arg-type]
                         embedding=self.embedding,
+                        diff_mode=diff_mode,
                     )
                 raise ValueError("Observable must not be None for expectation run.")
             case _:
@@ -167,6 +177,7 @@ class Interface(
         callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
         observable: list[InputType] | InputType | None = None,
+        diff_mode: DiffMode = DiffMode.AD,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(
@@ -175,5 +186,6 @@ class Interface(
             callback=callback,
             state=state,
             observable=observable,
+            diff_mode=diff_mode,
             **kwargs,
         )

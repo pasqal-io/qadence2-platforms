@@ -57,7 +57,7 @@ class ParameterBuffer(torch.nn.Module):
     def dtype(self) -> torch.dtype:
         return self._dtype
 
-    def to(self, args: Any, kwargs: Any) -> None:
+    def to(self, *args: Any, **kwargs: Any) -> ParameterBuffer:
         self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
         try:
             k = next(iter(self.vparams))
@@ -66,6 +66,7 @@ class ParameterBuffer(torch.nn.Module):
             self._dtype = t.dtype
         except Exception:
             pass
+        return self
 
     @classmethod
     def from_model(cls, model: Model) -> ParameterBuffer:
@@ -90,7 +91,7 @@ class Embedding(torch.nn.Module):
 
     def __init__(self, model: Model) -> None:
         super().__init__()
-        self.param_buffer = ParameterBuffer.from_model(model)
+        self.param_buffer = ParameterBuffer.from_model(model).to(dtype=torch.float64)
         self.var_to_torchcall: dict[str, Callable] = self.create_var_to_torchcall_mapping(model)
 
     def __call__(self, inputs: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
