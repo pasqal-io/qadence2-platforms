@@ -16,7 +16,7 @@ from qadence2_platforms.abstracts import (
 from .embedding import Embedding
 from .functions import load_observables
 from .register import RegisterInterface
-from .utils import InputType
+from qadence2_platforms.backends.utils import InputType
 
 logger = getLogger(__name__)
 
@@ -141,21 +141,19 @@ class Interface(
 
     def run(
         self,
-        *,
         values: dict[str, torch.Tensor] | None = None,
-        callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
+        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(RunEnum.RUN, values=values, callback=callback, state=state, **kwargs)
 
     def sample(
         self,
-        *,
         values: dict[str, torch.Tensor] | None = None,
         shots: int | None = None,
-        callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
+        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> list[Counter]:
         return cast(
@@ -172,12 +170,11 @@ class Interface(
 
     def expectation(
         self,
-        *,
         values: dict[str, torch.Tensor] | None = None,
-        callback: Optional[Callable] = None,
-        state: torch.Tensor | None = None,
         observable: list[InputType] | InputType | None = None,
+        state: torch.Tensor | None = None,
         diff_mode: DiffMode = DiffMode.AD,
+        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(

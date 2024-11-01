@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import Any, Callable, Generic, Optional, TypeVar
+from typing import Any, Callable, Generic, Optional, TypeVar, Iterable
 
 ArrayType = TypeVar("ArrayType")
 SequenceType = TypeVar("SequenceType")
@@ -79,6 +79,16 @@ class AbstractInterface(
         pass
 
     @abstractmethod
+    def parameters(self) -> Iterable[Any]:
+        """
+        Get the parameters from the backend as an iterable.
+
+        Returns:
+            Parameters as an iterable.
+        """
+        pass
+
+    @abstractmethod
     def set_parameters(self, params: dict[str, ParameterType]) -> None:
         """
         Sets valid parameters for the backends to use it during simulation/execution step.
@@ -90,7 +100,6 @@ class AbstractInterface(
     @abstractmethod
     def run(
         self,
-        *,
         values: dict[str, ArrayType] | None = None,
         callback: Optional[Callable] = None,
         **kwargs: Any,
@@ -111,7 +120,6 @@ class AbstractInterface(
     @abstractmethod
     def sample(
         self,
-        *,
         values: dict[str, ArrayType] | None = None,
         shots: int | None = None,
         callback: Optional[Callable] = None,
@@ -134,7 +142,6 @@ class AbstractInterface(
     @abstractmethod
     def expectation(
         self,
-        *,
         values: dict[str, ArrayType] | None = None,
         observable: Any | None = None,
         callback: Optional[Callable] = None,

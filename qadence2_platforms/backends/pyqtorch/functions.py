@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import cast, Iterable
 
 import pyqtorch as pyq
 from pyqtorch.hamiltonians import Observable
 from pyqtorch.primitives import Primitive
 
-from qadence2_platforms.backends.pyqtorch.utils import InputType, Support
+from qadence2_platforms.backends.utils import InputType, Support
 
 
 def _get_op(op: InputType) -> Primitive | None:
@@ -17,8 +17,7 @@ def _get_op(op: InputType) -> Primitive | None:
         op_args_item: InputType = op.args[0].args
         return getattr(pyq, op_args_item[0].upper(), None)
 
-    op_args: str = cast(str, op.args[0])
-    return getattr(pyq, op_args.upper(), None)
+    return _get_op(op.args[0])
 
 
 def _get_native_op(op: InputType) -> Primitive:
@@ -30,11 +29,30 @@ def _get_native_op(op: InputType) -> Primitive:
     raise ValueError(f"Observable {op} not found")
 
 
-def load_observables(observable: list[InputType] | InputType) -> Observable:
-    if isinstance(observable, list):
-        pyq_observables: list[Primitive] | list = []
-        for op in observable:
-            pyq_observables.append(_get_native_op(op))
-        return Observable(*pyq_observables)
+def _iterate_over_obs(op: Iterable | InputType) -> list[Primitive]:
+    if isinstance(op, Iterable):
+        return [_get_native_op(arg) for arg in op]
+    return [_get_native_op(arg) for arg in op.args]
 
-    return Observable(_get_native_op(observable))
+
+def _is_arith_expr(expr: InputType) -> bool:
+    return (
+        getattr(expr, "is_addition", None)
+        or getattr(expr, "is_multiplication", None)
+        or getattr(expr, "is_kronecker_product", None)
+        or getattr(expr, "is_power", None)
+    )
+
+
+def load_observables(observable: list[InputType] | InputType) -> Observable:
+    pyq_observables: list[Primitive] | Primitive
+    if isinstance(observable, list) or _is_arith_expr(observable) is True:
+        pyq_observables = _iterate_over_obs(observable)
+        # return Observable(pyq_observables)
+    else:
+        pyq_observables = _get_native_op(observable)
+    #
+    # if _is_arith_expr(observable) is True:
+    #     return Observable(_iterate_over_obs(observable))
+
+    return Observable(pyq_observables)

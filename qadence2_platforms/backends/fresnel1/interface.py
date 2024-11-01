@@ -9,7 +9,7 @@ from pulser_simulation.simulation import QutipEmulator
 from qutip import Qobj
 
 from qadence2_platforms import AbstractInterface
-from qadence2_platforms.abstracts import OnEnum, RunEnum
+from qadence2_platforms.abstracts import OnEnum, RunEnum, ParameterType
 
 RunResult = Union[Counter, Qobj]
 
@@ -28,6 +28,9 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     @property
     def sequence(self) -> Sequence:
         return self._sequence
+
+    def parameters(self) -> dict[str, float]:
+        return self._params
 
     def set_parameters(self, params: dict[str, float]) -> None:
         valid_params = params.keys() & self._non_trainable_parameters
@@ -139,7 +142,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def run(
         self,
-        *,
         values: dict[str, float] | None = None,
         on: OnEnum = OnEnum.EMULATOR,
         shots: int | None = None,
@@ -160,7 +162,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def sample(
         self,
-        *,
         values: dict[str, float] | None = None,
         shots: int | None = None,
         on: OnEnum = OnEnum.EMULATOR,
@@ -193,7 +194,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
     def expectation(
         self,
-        *,
         values: dict[str, float] | None = None,
         on: OnEnum = OnEnum.EMULATOR,
         shots: int | None = None,
