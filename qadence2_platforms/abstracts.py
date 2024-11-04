@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import Any, Callable, Generic, Optional, TypeVar, Iterable
+from typing import Any, Generic, Iterable, TypeVar
 
 ArrayType = TypeVar("ArrayType")
 SequenceType = TypeVar("SequenceType")
@@ -101,7 +101,6 @@ class AbstractInterface(
     def run(
         self,
         values: dict[str, ArrayType] | None = None,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> RunResultType:
         """
@@ -122,7 +121,6 @@ class AbstractInterface(
         self,
         values: dict[str, ArrayType] | None = None,
         shots: int | None = None,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> SampleResultType:
         """
@@ -144,7 +142,6 @@ class AbstractInterface(
         self,
         values: dict[str, ArrayType] | None = None,
         observable: Any | None = None,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> ExpectationResultType:
         """

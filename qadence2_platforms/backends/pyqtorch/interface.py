@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import Any, Callable, Counter, Iterable, Literal, Optional, cast
+from typing import Any, Counter, Iterable, Literal, cast
 
 import pyqtorch as pyq
 import torch
@@ -12,11 +12,11 @@ from qadence2_platforms.abstracts import (
     AbstractInterface,
     RunEnum,
 )
+from qadence2_platforms.backends.utils import InputType
 
 from .embedding import Embedding
 from .functions import load_observables
 from .register import RegisterInterface
-from qadence2_platforms.backends.utils import InputType
 
 logger = getLogger(__name__)
 
@@ -75,7 +75,6 @@ class Interface(
         self,
         run_type: RunEnum,
         values: dict[str, torch.Tensor] | None = None,
-        callback: Optional[Callable] = None,
         state: torch.Tensor | None = None,
         shots: int | None = None,
         observable: list[InputType] | InputType | None = None,
@@ -143,17 +142,15 @@ class Interface(
         self,
         values: dict[str, torch.Tensor] | None = None,
         state: torch.Tensor | None = None,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
-        return self._run(RunEnum.RUN, values=values, callback=callback, state=state, **kwargs)
+        return self._run(RunEnum.RUN, values=values, state=state, **kwargs)
 
     def sample(
         self,
         values: dict[str, torch.Tensor] | None = None,
         shots: int | None = None,
         state: torch.Tensor | None = None,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> list[Counter]:
         return cast(
@@ -161,7 +158,6 @@ class Interface(
             self._run(
                 RunEnum.SAMPLE,
                 values=values,
-                callback=callback,
                 shots=shots,
                 state=state,
                 **kwargs,
@@ -174,13 +170,11 @@ class Interface(
         observable: list[InputType] | InputType | None = None,
         state: torch.Tensor | None = None,
         diff_mode: DiffMode = DiffMode.AD,
-        callback: Optional[Callable] = None,
         **kwargs: Any,
     ) -> torch.Tensor:
         return self._run(
             RunEnum.EXPECTATION,
             values=values,
-            callback=callback,
             state=state,
             observable=observable,
             diff_mode=diff_mode,

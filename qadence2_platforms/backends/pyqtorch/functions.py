@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast, Iterable
+from typing import Iterable, cast
 
 import pyqtorch as pyq
 from pyqtorch.hamiltonians import Observable
@@ -11,13 +11,13 @@ from qadence2_platforms.backends.utils import InputType, Support
 
 def _get_op(op: InputType) -> Primitive | None:
     if op.is_symbol is True:
-        return getattr(pyq, op.head.upper(), None)
+        return getattr(pyq, op.head.upper(), None)  # type: ignore [union-attr]
 
     if op.is_quantum_operator is True:
-        op_args_item: InputType = op.args[0].args
+        op_args_item: InputType = op.args[0].args  # type: ignore [union-attr, assignment]
         return getattr(pyq, op_args_item[0].upper(), None)
 
-    return _get_op(op.args[0])
+    return _get_op(op.args[0])  # type: ignore [arg-type]
 
 
 def _get_native_op(op: InputType) -> Primitive:
@@ -32,10 +32,10 @@ def _get_native_op(op: InputType) -> Primitive:
 def _iterate_over_obs(op: Iterable | InputType) -> list[Primitive]:
     if isinstance(op, Iterable):
         return [_get_native_op(arg) for arg in op]
-    return [_get_native_op(arg) for arg in op.args]
+    return [_get_native_op(arg) for arg in op.args]  # type: ignore [arg-type, union-attr]
 
 
-def _is_arith_expr(expr: InputType) -> bool:
+def _is_arith_expr(expr: InputType) -> bool | None:
     return (
         getattr(expr, "is_addition", None)
         or getattr(expr, "is_multiplication", None)
