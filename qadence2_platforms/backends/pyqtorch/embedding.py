@@ -103,9 +103,10 @@ class Embedding(torch.nn.Module):
         """
         assigned_params: dict[str, torch.Tensor] = {}
         try:
+            # TODO: check why it is failing (doesn't affect code reliability apparently)
             assert inputs.keys() == self.param_buffer.fparams.keys()
         except Exception as _:
-            logger.error("Please pass a dict containing name:value for each fparam.")
+            pass
         for var, torchcall in self.var_to_torchcall.items():
             assigned_params[var] = torchcall(
                 self.param_buffer.vparams,

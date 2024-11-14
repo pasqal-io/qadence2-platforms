@@ -4,9 +4,13 @@ from enum import Enum, auto
 from typing import Any
 
 import numpy as np
+import qutip
 from pulser.parametrized.variable import VariableItem
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
+
+
+from qadence2_platforms.backends.utils import InputType
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
@@ -186,3 +190,33 @@ def local_pulse_core(
         "dmm_0",
         "no-delay" if concurrent else "min-delay",
     )
+
+
+def load_observables(num_qubits: int, observable: list[InputType] | InputType) -> list[qutip.Qobj]:
+    return Observables.build(num_qubits, observable)
+
+
+class Observables:
+    operators_mapping = {
+        "Z": qutip.sigmaz(),
+    }
+
+    @classmethod
+    def _get_native_op(cls, num_qubits: int, op: InputType) -> qutip.Qobj:
+        support = op.subspace
+        if support:
+            ops = []
+            for k in range(num_qubits):
+                if k in (support.target + support.control):
+                    ops.append(cls.operators_mapping[op.args[0].args[0]])
+                else:
+                    ops.append(qutip.qeye(2))
+        else:
+            ops = [cls.operators_mapping[op.args[0].args[0]] for _ in range(num_qubits)]
+        return qutip.tensor(*ops)
+
+    @classmethod
+    def build(cls, num_qubits: int, observables: list[InputType] | InputType) -> list[qutip.Qobj]:
+        if not isinstance(observables, list):
+            return [cls._get_native_op(num_qubits, observables)]
+        raise NotImplementedError("list of observables to be implemented")

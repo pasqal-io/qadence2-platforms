@@ -10,6 +10,7 @@ from qutip import Qobj
 
 from qadence2_platforms import AbstractInterface
 from qadence2_platforms.abstracts import OnEnum, RunEnum
+from qadence2_platforms.backends.fresnel1.functions import load_observables
 
 RunResult = Union[Counter, Qobj]
 
@@ -53,8 +54,8 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
         `run_type` option.
 
-        **Notice**: for now, it only supports `emulator` option and
-        `QutipEmulator` platform.
+        **Notice**: for now, it only supports `emulator` option and `QutipEmulator`
+        platform.
 
         :param run_type: str: `run`, `sample`, `expectation` options
         :param platform: callable to retrieve methods for executing the options above
@@ -71,7 +72,12 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             case RunEnum.SAMPLE:
                 return platform.sample_final_state(shots)
             case RunEnum.EXPECTATION:
-                return platform.expect(obs_list=observable)
+                return platform.expect(
+                    obs_list=load_observables(
+                        num_qubits=len(self.sequence.register.qubit_ids),
+                        observable=observable
+                    )
+                )
             case _:
                 raise NotImplementedError(f"Run type '{run_type}' not implemented.")
 

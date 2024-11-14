@@ -48,11 +48,7 @@ def load_observables(observable: list[InputType] | InputType) -> Observable:
     pyq_observables: list[Primitive] | Primitive
     if isinstance(observable, list) or _is_arith_expr(observable) is True:
         pyq_observables = _iterate_over_obs(observable)
-        # return Observable(pyq_observables)
     else:
         pyq_observables = _get_native_op(observable)
-    #
-    # if _is_arith_expr(observable) is True:
-    #     return Observable(_iterate_over_obs(observable))
 
     return Observable(pyq_observables)

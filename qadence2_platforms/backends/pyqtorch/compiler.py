@@ -56,7 +56,7 @@ class Compiler:
         )
 
 
-def _get_trainable_params(inputs: dict[str, Alloc]) -> dict[str, torch.Tensor]:
+def get_trainable_params(inputs: dict[str, Alloc]) -> dict[str, torch.Tensor]:
     return {
         param: torch.rand(value.size, requires_grad=True)
         for param, value in inputs.items()
@@ -70,5 +70,5 @@ def compile_to_backend(model: Model) -> Interface:
     )
     embedding = Embedding(model)
     native_circ = Compiler().compile(model)
-    vparams = _get_trainable_params(model.inputs)
+    vparams = get_trainable_params(model.inputs)
     return Interface(register_interface, embedding, native_circ, vparams=vparams)

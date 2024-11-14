@@ -53,8 +53,8 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
         `run_type` option.
 
-        **Notice**: for now, it only supports `emulator` option and
-        `QutipEmulator` platform.
+        **Notice**: for now, it only supports `emulator` option and `QutipEmulator`
+        platform.
 
         :param run_type: str: `run`, `sample`, `expectation` options
         :param platform: callable to retrieve methods for executing the options above
