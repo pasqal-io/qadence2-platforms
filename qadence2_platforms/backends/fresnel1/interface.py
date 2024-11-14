@@ -11,6 +11,7 @@ from qutip import Qobj
 from qadence2_platforms import AbstractInterface
 from qadence2_platforms.abstracts import OnEnum, RunEnum
 from qadence2_platforms.backends.fresnel1.functions import load_observables
+from qadence2_platforms.backends.utils import InputType
 
 RunResult = Union[Counter, Qobj]
 
@@ -46,7 +47,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         run_type: RunEnum,
         platform: SimulationResults,
         shots: int | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         **_: Any,
     ) -> Any:
         """
@@ -72,12 +73,13 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             case RunEnum.SAMPLE:
                 return platform.sample_final_state(shots)
             case RunEnum.EXPECTATION:
-                return platform.expect(
-                    obs_list=load_observables(
-                        num_qubits=len(self.sequence.register.qubit_ids),
-                        observable=observable
+                if observable is not None:
+                    return platform.expect(
+                        obs_list=load_observables(
+                            num_qubits=len(self.sequence.register.qubit_ids), observable=observable
+                        )
                     )
-                )
+                raise ValueError("observable cannot be None or empty on 'expectation' method.")
             case _:
                 raise NotImplementedError(f"Run type '{run_type}' not implemented.")
 
@@ -86,7 +88,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         run_type: RunEnum,
         values: dict[str, float] | None,
         shots: int | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         **_: Any,
     ) -> Any:
         """
@@ -124,7 +126,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
         run_type: RunEnum,
         values: dict[str, float] | None,
         shots: int | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         **_: Any,
     ) -> Any:
         """
@@ -197,7 +199,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     def expectation(
         self,
         values: dict[str, float] | None = None,
-        observable: Any | None = None,
+        observable: list[InputType] | InputType | None = None,
         on: OnEnum = OnEnum.EMULATOR,
         shots: int | None = None,
         **_: Any,
