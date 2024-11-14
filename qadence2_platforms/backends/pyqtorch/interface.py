@@ -44,7 +44,7 @@ class Interface(
         super().__init__()
         self.register = register
         self.init_state: torch.Tensor = (
-            circuit.from_bitstring(register.init_state)
+            circuit.state_from_bitstring(register.init_state)
             if register.init_state is not None
             else circuit.init_state()
         ).to(dtype=torch.complex128)
