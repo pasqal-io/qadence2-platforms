@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum, auto
-from typing import Any
+from functools import reduce
+from typing import Any, Iterable, cast
 
 import numpy as np
 import qutip
@@ -9,7 +10,7 @@ from pulser.parametrized.variable import VariableItem
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
 
-from qadence2_platforms.backends.utils import InputType
+from qadence2_platforms.backends.utils import InputType, Support
 
 DEFAULT_AMPLITUDE = 4 * np.pi
 DEFAULT_DETUNING = 10 * np.pi
@@ -197,28 +198,101 @@ def load_observables(num_qubits: int, observable: list[InputType] | InputType) -
 
 class Observables:
     operators_mapping = {
+        "I": qutip.qeye(2),
         "Z": qutip.sigmaz(),
     }
 
     @classmethod
-    def _get_native_op(cls, num_qubits: int, op: InputType) -> qutip.Qobj:
-        support = op.subspace
-        if support:
-            ops = []
-            obs: str
+    def _kron_tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
+        op: qutip.Qobj
+        arg: InputType
+        if expr.subspace:
+            native_ops: list[qutip.Qobj] = []
             for k in range(num_qubits):
-                if k in (support.target + support.control):
-                    obs = op.args[0].args[0]  # type: ignore [union-attr, assignment]
-                    ops.append(cls.operators_mapping[obs])
+                if k in expr.subspace.subspace:
+                    sub_num_qubits: int = cast(Support, expr.args[1]).max_index
+                    arg = cast(InputType, expr.args[0])
+                    op = cls._get_op(sub_num_qubits, arg)
+                    native_ops.append(op)
                 else:
-                    ops.append(qutip.qeye(2))
-        else:
-            obs = op.args[0].args[0]  # type: ignore [union-attr, assignment]
-            ops = [cls.operators_mapping[obs] for _ in range(num_qubits)]
-        return qutip.tensor(*ops)
+                    native_ops.append(cls.operators_mapping["I"])
+            return qutip.tensor(*native_ops)
+
+        arg = cast(InputType, expr.args[0])
+        op = cls._get_op(num_qubits, arg)
+        return qutip.tensor(*([op] * num_qubits))
+
+    @classmethod
+    def _tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
+        subspace: set = cast(Support, expr.subspace).subspace
+        super_space: set = set(range(num_qubits))
+
+        if super_space.issuperset(subspace):
+            native_ops: list[qutip.Qobj] = []
+
+            arg_subspace: set = cast(Support, expr.args[1]).subspace
+            for k in range(num_qubits):
+                if k in arg_subspace:
+                    sub_num_qubits: int = cast(int, expr.args[1])
+                    arg: InputType = cast(InputType, expr.args[0])
+                    op: qutip.Qobj = cls._get_op(sub_num_qubits, arg)
+                    native_ops.append(op)
+                else:
+                    native_ops.append(cls.operators_mapping["I"])
+
+            return qutip.tensor(*native_ops)
+
+        raise ValueError(
+            f"subspace of the object ({subspace}) is bigger than the "
+            f"sequence space ({super_space})"
+        )
+
+    @classmethod
+    def _get_op(cls, num_qubits: int, op: InputType) -> qutip.Qobj | None:
+        if op.is_symbol is True:
+            symbol: str = cast(str, op.args[0])
+            return cls.operators_mapping[symbol]
+
+        op_arg: qutip.Qobj
+        if op.is_quantum_operator is True:
+            sub_num_qubits: int = cast(Support, op.args[1]).max_index + 1
+            if sub_num_qubits < num_qubits:
+                op_arg = cls._kron_tensor_op(num_qubits, op)
+            else:
+                arg: InputType = cast(InputType, op.args[0])
+                op_arg = cls._get_op(num_qubits, arg)
+            return op_arg
+
+        ops: list[qutip.Qobj] = []
+        args: Iterable = cast(Iterable, op.args)
+
+        if op.is_addition is True:
+            for arg in args:
+                ops.append(cls._tensor_op(num_qubits, arg))
+            return reduce(lambda a, b: a + b, ops)
+
+        if op.is_multiplication is True:
+            for arg in args:
+                ops.append(cls._tensor_op(num_qubits, arg))
+            return reduce(lambda a, b: a * b, ops)
+
+        if op.is_kronecker_product is True:
+            return cls._kron_tensor_op(num_qubits, op)
+
+        raise NotImplementedError(
+            f"could not retrieve the expression {op} ({type(op)}) from the observables"
+        )
+
+    @classmethod
+    def _iterate_over_obs(cls, n_qubits: int, op: Iterable | InputType) -> list[qutip.Qobj]:
+        if isinstance(op, Iterable):
+            return [cls._get_op(n_qubits, arg) for arg in op]
+        args: Iterable = cast(Iterable, op.args)
+        return [cls._get_op(n_qubits, cast(InputType, arg)) for arg in args]
 
     @classmethod
     def build(cls, num_qubits: int, observables: list[InputType] | InputType) -> list[qutip.Qobj]:
         if not isinstance(observables, list):
-            return [cls._get_native_op(num_qubits, observables)]
+            res = [cls._get_op(num_qubits, observables)]
+            return res
         raise NotImplementedError("list of observables to be implemented")

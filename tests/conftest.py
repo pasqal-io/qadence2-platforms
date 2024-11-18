@@ -2,6 +2,8 @@
 # functions common to every test
 from __future__ import annotations
 
+from pulser import Sequence
+from pulser.register import RegisterLayout
 from pyqtorch import QuantumCircuit
 from pytest import fixture
 from qadence2_ir.types import (
@@ -70,9 +72,17 @@ def pyq_interface1(model1: Model) -> PyQInterface:
 
 
 @fixture
-def fresnel1_interface1(model1: Model) -> Fresnel1Interface:
-    register = fresnel1_register.from_model(model1)
-    sequence = fresnel1_sequence.from_model(model1, register)
-    fparams = {k for k, v in model1.inputs.items() if not v.is_trainable}
+def fresnel1_register1(model1: Model) -> RegisterLayout:
+    return fresnel1_register.from_model(model1)
 
+
+@fixture
+def fresnel1_sequence1(model1: Model, fresnel1_register1: RegisterLayout) -> Sequence:
+    return fresnel1_sequence.from_model(model1, fresnel1_register1)
+
+
+@fixture
+def fresnel1_interface1(model1: Model, fresnel1_sequence1: Sequence) -> Fresnel1Interface:
+    sequence = fresnel1_sequence1
+    fparams = {k for k, v in model1.inputs.items() if not v.is_trainable}
     return Fresnel1Interface(sequence, fparams)

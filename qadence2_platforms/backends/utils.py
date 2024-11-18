@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 
+@runtime_checkable
 class Support(Protocol):
     def target_all(self) -> Any: ...
 
@@ -12,7 +13,14 @@ class Support(Protocol):
     @property
     def control(self) -> list[int]: ...
 
+    @property
+    def subspace(self) -> set[int]: ...
 
+    @property
+    def max_index(self) -> int: ...
+
+
+@runtime_checkable
 class InputType(Protocol):
     @property
     def head(self) -> InputType | str: ...
