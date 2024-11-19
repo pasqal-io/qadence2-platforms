@@ -10,7 +10,7 @@ from qutip import Qobj
 
 from qadence2_platforms import AbstractInterface
 from qadence2_platforms.abstracts import OnEnum, RunEnum
-from qadence2_platforms.backends.fresnel1.functions import load_observables
+from qadence2_platforms.backends.fresnel1.functions import parse_native_observables
 from qadence2_platforms.backends.utils import InputType
 
 RunResult = Union[Counter, Qobj]
@@ -75,7 +75,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             case RunEnum.EXPECTATION:
                 if observable is not None:
                     return platform.expect(
-                        obs_list=load_observables(
+                        obs_list=parse_native_observables(
                             num_qubits=len(self.sequence.register.qubit_ids), observable=observable
                         )
                     )

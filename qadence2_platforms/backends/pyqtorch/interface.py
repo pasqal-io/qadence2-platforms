@@ -15,7 +15,7 @@ from qadence2_platforms.abstracts import (
 from qadence2_platforms.backends.utils import InputType
 
 from .embedding import Embedding
-from .functions import load_observables
+from .functions import parse_native_observables
 from .register import RegisterInterface
 
 logger = getLogger(__name__)
@@ -130,7 +130,7 @@ class Interface(
                         circuit=self.circuit,
                         state=state,
                         values={**self.vparams, **inputs},
-                        observable=load_observables(observable or self.observable),  # type: ignore [arg-type]
+                        observable=parse_native_observables(observable or self.observable),  # type: ignore [arg-type]
                         embedding=self.embedding,
                         diff_mode=diff_mode,
                     )

@@ -20,6 +20,10 @@ def test_pyq_interface(model1: Model, pyq_interface1: PyQInterface) -> None:
     # assert pyq_interface1.
 
 
+def test_pyq_observables() -> None:
+    pass
+
+
 def test_fresnel1_interface(
     model1: Model,
     fresnel1_interface1: Fresnel1Interface,
@@ -42,3 +46,7 @@ def test_fresnel1_interface(
     obs = Z(0).__kron__(Z(1))
     expect = fresnel1_interface1.expectation(fparams, observable=obs)[0]
     assert np.all(k < 0.0 for k in expect)
+
+
+def test_fresnel1_observables(fresnel1_interface1: Fresnel1Interface) -> None:
+    pass
