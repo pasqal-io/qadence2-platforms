@@ -110,6 +110,17 @@ def test_pyq_observables(
     assert not (hash(parsed_obs) == hash(wrong_pyq_obs))
 
 
+def test_pyq_obs_parsing() -> None:
+    assert hash(PyQObservablesParser._add_op(Z(0) + Z(1))) == hash(pyq.Add([PZ(0), PZ(1)]))
+    assert hash(PyQObservablesParser._mul_op(Z(0) * Z(1))) == hash(pyq.Sequence([PZ(0), PZ(1)]))
+    assert hash(PyQObservablesParser._kron_op(Z(0).__kron__(Z(1)))) == hash(pyq.Sequence([PZ(0), PZ(1)]))
+    assert hash(PyQObservablesParser._get_op(Z(0))) == hash(pyq.Z(0))
+    assert (
+        hash(tuple(PyQObservablesParser._iterate_over_obs([Z(0), Z(1)])))
+        == hash((pyq.Z(0), pyq.Z(1)))
+    )
+
+
 ##################
 # FRESNEL1 TESTS #
 ##################
