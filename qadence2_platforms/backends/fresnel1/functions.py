@@ -293,6 +293,20 @@ class QuTiPObservablesParser:
 
     @classmethod
     def _get_op(cls, num_qubits: int, op: InputType) -> qutip.Qobj | None:
+        """
+        Convert an expression into a native QuTiP object. A simple symbol,
+        a quantum operator, and an operation (addition, multiplication or
+        kron tensor) are valid objects.
+
+        Args:
+            num_qubits (int): the number of qubits to create the qutip object to
+            op (InputType): the input expression. Any qadence2-expressions expression
+                compatible object, with the same methods
+
+        Returns:
+            A QuTiP object with the Hilbert space compatible with `num_qubits`
+        """
+
         if op.is_symbol is True:
             symbol: str = cast(str, op.args[0])
             return cls.operators_mapping[symbol]
@@ -345,7 +359,19 @@ class QuTiPObservablesParser:
 
     @classmethod
     def build(cls, num_qubits: int, observables: list[InputType] | InputType) -> list[qutip.Qobj]:
+        """
+        Parses an input expression or list of expressions into a native QuTiP object.
+
+        Args:
+            num_qubits (int): the number of qubits to create the qutip object to
+            observables (InputType): the input expression. Any qadence2-expressions
+                expression compatible object, with the same methods
+
+        Returns:
+            A QuTiP object with the Hilbert space compatible with `num_qubits`
+
+        Returns:
+        """
         if not isinstance(observables, list):
             return [cls._get_op(num_qubits, observables)]
-
-        raise NotImplementedError("list of observables to be implemented")
+        return cls._iterate_over_obs(num_qubits, observables)

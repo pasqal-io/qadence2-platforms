@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Iterable, cast
 
+from pyqtorch.primitives import Primitive
+from torch.nn import Module
 import pyqtorch as pyq
 from pyqtorch.hamiltonians import Observable
-from pyqtorch.primitives import Primitive
 
 from qadence2_platforms.backends.utils import InputType, Support
 
@@ -15,53 +16,61 @@ def parse_native_observables(observable: list[InputType] | InputType) -> Observa
 
 class PyQObservablesParser:
     @classmethod
-    def _get_op(cls, op: InputType) -> Primitive | None:
+    def _add_op(cls, op: InputType) -> Module:
+        return pyq.Add([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
+
+    @classmethod
+    def _mul_op(cls, op: InputType) -> Module:
+        return pyq.Sequence([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
+
+    @classmethod
+    def _kron_op(cls, op: InputType) -> Module:
+        return cls._mul_op(op)
+
+    @classmethod
+    def _get_op(cls, op: InputType) -> Primitive | Module:
         if op.is_symbol is True:
-            symbol: str = cast(str, op.head)
+            symbol: str = cast(str, op.args[0])
             return getattr(pyq, symbol.upper(), None)
 
-        arg: InputType = cast(InputType, op.args[0])
-
         if op.is_quantum_operator is True:
-            op_args_item: InputType = cast(InputType, arg.args)
-            return getattr(pyq, op_args_item[0].upper(), None)
-
-        return cls._get_op(arg)
-
-    @classmethod
-    def _get_native_op(cls, op: InputType) -> Primitive:
-        native_op = cls._get_op(op)
-
-        if native_op is not None:
+            primitive: Primitive = cast(Primitive, cls._get_op(cast(InputType, op.args[0])))
             support: Support = cast(Support, op.args[1])
-            return native_op(*support.target, support.control)
 
-        raise ValueError(f"Observable {op} not found")
+            if support:
+                target: int = support.target[0]
+                control: list[int] = support.control
 
-    @classmethod
-    def _iterate_over_obs(cls, op: Iterable | InputType) -> list[Primitive]:
-        if isinstance(op, Iterable):
-            return [cls._get_native_op(arg) for arg in op]
+                if control:
+                    native_op = primitive(target=target, control=control)
+                else:
+                    native_op = primitive(target=target)
 
-        return [cls._get_native_op(arg) for arg in op.args]  # type: ignore [arg-type, union-attr]
+                return native_op
 
-    @classmethod
-    def _is_arith_expr(cls, expr: InputType) -> bool | None:
-        return (
-            getattr(expr, "is_addition", None)
-            or getattr(expr, "is_multiplication", None)
-            or getattr(expr, "is_kronecker_product", None)
-            or getattr(expr, "is_power", None)
+        if op.is_addition is True:
+            return cls._add_op(op)
+
+        if op.is_multiplication is True or op.is_kronecker_product is True:
+            return cls._mul_op(op)
+
+        raise NotImplementedError(
+            f"could not retrieve the expression {op} ({type(op)}) from the observables"
         )
 
     @classmethod
+    def _iterate_over_obs(cls, op: list[InputType] | InputType) -> list[Module]:
+        if isinstance(op, Iterable):
+            return [cls._get_op(arg) for arg in op]
+
+        args: Iterable = cast(Iterable, op.args)
+        return [cls._get_op(arg) for arg in args]
+
+    @classmethod
     def build(cls, observable: list[InputType] | InputType) -> Observable:
-        pyq_observables: list[Primitive] | Primitive
-
-        if isinstance(observable, list) or cls._is_arith_expr(observable) is True:
-            pyq_observables = cls._iterate_over_obs(observable)
-
+        res: list[Module] | Module
+        if isinstance(observable, list):
+            res = cls._iterate_over_obs(observable)
         else:
-            pyq_observables = cls._get_native_op(observable)
-
-        return Observable(pyq_observables)
+            res = [cls._get_op(observable)]
+        return Observable(res)

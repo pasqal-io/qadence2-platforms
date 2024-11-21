@@ -1,10 +1,22 @@
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pytest
+import qutip
+import torch
 from pulser import Sequence as PulserSequence, AnalogDevice, Register
 from pulser.register import RegisterLayout
+from qadence2_expressions import Z
 from qadence2_ir.types import Model
+from qutip import tensor as qtensor
+import pyqtorch as pyq
+from pyqtorch import (
+    Observable as PyQObservable,
+    I as PI,
+    Z as PZ,
+)
 
 from qadence2_platforms.backends.fresnel1.functions import (
     local_pulse,
@@ -19,9 +31,17 @@ from qadence2_platforms.backends.fresnel1.functions import (
     ry,
     Direction,
     Duration,
+    QuTiPObservablesParser,
+    parse_native_observables as fresnel1_parse_nat_obs,
 )
 from qadence2_platforms.backends.fresnel1.interface import Interface as Fresnel1Interface
 from qadence2_platforms.backends.fresnel1.sequence import Fresnel1
+from qadence2_platforms.backends.pyqtorch.interface import Interface as PyQInterface
+from qadence2_platforms.backends.pyqtorch.functions import (
+    PyQObservablesParser,
+    parse_native_observables as pyq_parse_nat_obs,
+)
+from qadence2_platforms.backends.utils import InputType
 
 
 # CONSTANTS
@@ -32,6 +52,67 @@ BIG_ATOL = 0.15 * N_SHOTS
 
 TRAP_COORDINATES = [(0.0, 0.0), (0.0, 5.0), (5.0, 0.0), (5.0, 5.0)]
 WEIGHTS = [1.0, 0.5, 0.5, 0]
+
+qi = qutip.qeye(2)
+qz = qutip.sigmaz()
+
+
+##################
+# PYQTORCH TESTS #
+##################
+
+
+@pytest.mark.parametrize(
+    "interface, n_qubits, expr_obs, pyq_obs, wrong_pyq_obs",
+    [
+        (
+            "pyq_interface1",
+            2,
+            Z(0),
+            pyq.Observable([PZ(0)]),
+            pyq.Observable([PZ(1)]),
+        ),
+        (
+            "pyq_interface1",
+            2,
+            Z(0).__kron__(Z(1)),
+            pyq.Observable(pyq.Sequence([PZ(0), PZ(1)])),
+            pyq.Observable(pyq.Sequence([PZ(1), PZ(2)])),
+        ),
+        (
+            "pyq_interface1",
+            2,
+            Z(0).__kron__(Z(1)),
+            pyq.Observable(pyq.Sequence([PZ(1), PZ(0)])),
+            pyq.Observable(pyq.Sequence([PZ(0), PZ(3)])),
+        ),
+        (
+            "pyq_interface1",
+            2,
+            Z(0) + Z(1),
+            pyq.Observable([pyq.Add([PZ(0), PZ(1)])]),
+            pyq.Observable([pyq.Add([PZ(1), PZ(1)])]),
+        ),
+    ],
+)
+def test_pyq_observables(
+    interface: PyQInterface,
+    n_qubits: int,
+    expr_obs: InputType,
+    pyq_obs: PyQObservable,
+    wrong_pyq_obs: PyQObservable,
+    request: Any,
+) -> None:
+    parsed_obs = PyQObservablesParser.build(observable=expr_obs)
+    assert parsed_obs.qubit_support == pyq_obs.qubit_support
+    assert hash(parsed_obs) == hash(pyq_obs)
+    assert hash(parsed_obs) == hash(pyq_parse_nat_obs(expr_obs))
+    assert not (hash(parsed_obs) == hash(wrong_pyq_obs))
+
+
+##################
+# FRESNEL1 TESTS #
+##################
 
 
 def test_dyn_pulse(fresnel1_sequence1: PulserSequence, fresnel1_register1: RegisterLayout) -> None:
@@ -207,3 +288,23 @@ def test_ry(fresnel1_sequence1: PulserSequence) -> None:
     res = interface1.sample(shots=N_SHOTS)
     print(res)
     assert np.allclose(res["1"], N_SHOTS, atol=SMALL_ATOL)
+
+
+@pytest.mark.parametrize(
+    "interface, n_qubits, expr_obs, qutip_obs",
+    [
+        ("fresnel1_interface", 2, Z(0), qtensor(qz, qi)),
+        ("fresnel1_interface", 2, Z(0).__kron__(Z(1)), qtensor(qz, qz)),
+        ("fresnel1_interface", 2, Z(0) + Z(1), qtensor(qz, qi) + qtensor(qi, qz)),
+    ],
+)
+def test_fresnel1_observables(
+    interface: Fresnel1Interface,
+    n_qubits: int,
+    expr_obs: InputType,
+    qutip_obs: qutip.Qobj,
+    request: Any,
+) -> None:
+    parsed_obs = QuTiPObservablesParser.build(num_qubits=n_qubits, observables=expr_obs)
+    assert np.allclose(parsed_obs, qutip_obs)
+    assert np.allclose(parsed_obs, fresnel1_parse_nat_obs(n_qubits, expr_obs))
