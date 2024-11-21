@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from typing import Any
 
 import numpy as np
 import pytest
@@ -13,10 +14,16 @@ from qadence2_expressions.operators import Z
 from qadence2_ir.types import Model
 
 from qadence2_platforms.abstracts import OnEnum
-from qadence2_platforms.backends.fresnel1.functions import QuTiPObservablesParser
+from qadence2_platforms.backends.fresnel1.functions import (
+    QuTiPObservablesParser,
+    parse_native_observables as fresnel1_parse_nat_obs,
+)
 from qadence2_platforms.backends.fresnel1.interface import Interface as Fresnel1Interface
 from qadence2_platforms.backends.fresnel1.sequence import Fresnel1
 from qadence2_platforms.backends.pyqtorch.interface import Interface as PyQInterface
+from qadence2_platforms.backends.pyqtorch.functions import (
+    parse_native_observables as pyqtorch_parse_nat_obs,
+)
 from qadence2_platforms.backends.utils import InputType
 
 N_SHOTS = 2_000
@@ -26,9 +33,9 @@ qz = qutip.sigmaz()
 
 def test_pyq_interface(model1: Model, pyq_interface1: PyQInterface) -> None:
     assert pyq_interface1.info == dict(num_qubits=model1.register.num_qubits)
-    fparams = {"x": torch.tensor(1, requires_grad=True)}
+    fparams = {"x": torch.tensor(1.0, requires_grad=True)}
     sample = pyq_interface1.sample(fparams, shots=N_SHOTS)[0]
-    assert {"10", "01"}.issubset(set(sample.keys()))
+    assert {"00", "11"}.issubset(set(sample.keys()))
 
 
 def test_pyq_observables() -> None:
@@ -65,14 +72,15 @@ def test_fresnel1_interface(
         ("fresnel1_interface", 2, Z(0), tensor(qz, qi)),
         ("fresnel1_interface", 2, Z(0).__kron__(Z(1)), tensor(qz, qz)),
         ("fresnel1_interface", 2, Z(0) + Z(1), tensor(qz, qi) + tensor(qi, qz)),
-    ]
+    ],
 )
 def test_fresnel1_observables(
     interface: Fresnel1Interface,
     n_qubits: int,
     expr_obs: InputType,
     qutip_obs: qutip.Qobj,
-    request,
+    request: Any,
 ) -> None:
     parsed_obs = QuTiPObservablesParser.build(num_qubits=n_qubits, observables=expr_obs)
     assert np.allclose(parsed_obs, qutip_obs)
+    assert np.allclose(parsed_obs, fresnel1_parse_nat_obs(n_qubits, expr_obs))

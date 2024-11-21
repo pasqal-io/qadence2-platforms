@@ -90,7 +90,7 @@ def x(sequence: Sequence, **_: Any) -> None:
 
 def h(
     sequence: Sequence,
-    duration: VariableItem | float = 1.0,
+    duration: VariableItem | float = np.pi,
     support_list: str = "global",
     **_: Any,
 ) -> None:
@@ -99,10 +99,7 @@ def h(
     detuning = np.pi
 
     sequence.enable_eom_mode(
-        "global",
-        amp_on=amplitude,
-        correct_phase_drift=True,
-        detuning_on=detuning
+        "global", amp_on=amplitude, correct_phase_drift=True, detuning_on=detuning
     )
     sequence.add_eom_pulse(
         "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
