@@ -3,21 +3,32 @@ from __future__ import annotations
 from collections import Counter
 
 import numpy as np
+import pytest
 import qutip
+import torch
+from qutip import tensor
 from pulser import Sequence
 from pulser.register import RegisterLayout
 from qadence2_expressions.operators import Z
 from qadence2_ir.types import Model
 
 from qadence2_platforms.abstracts import OnEnum
+from qadence2_platforms.backends.fresnel1.functions import QuTiPObservablesParser
 from qadence2_platforms.backends.fresnel1.interface import Interface as Fresnel1Interface
 from qadence2_platforms.backends.fresnel1.sequence import Fresnel1
 from qadence2_platforms.backends.pyqtorch.interface import Interface as PyQInterface
+from qadence2_platforms.backends.utils import InputType
+
+N_SHOTS = 2_000
+qi = qutip.qeye(2)
+qz = qutip.sigmaz()
 
 
 def test_pyq_interface(model1: Model, pyq_interface1: PyQInterface) -> None:
     assert pyq_interface1.info == dict(num_qubits=model1.register.num_qubits)
-    # assert pyq_interface1.
+    fparams = {"x": torch.tensor(1, requires_grad=True)}
+    sample = pyq_interface1.sample(fparams, shots=N_SHOTS)[0]
+    assert {"10", "01"}.issubset(set(sample.keys()))
 
 
 def test_pyq_observables() -> None:
@@ -33,9 +44,9 @@ def test_fresnel1_interface(
     assert fresnel1_interface1.info == dict(device=Fresnel1, register=fresnel1_sequence1.register)
 
     fparams = {"x": 1.0}
-    sample = fresnel1_interface1.sample(fparams, shots=2_000, on=OnEnum.EMULATOR)
+    sample = fresnel1_interface1.sample(fparams, shots=N_SHOTS, on=OnEnum.EMULATOR)
     assert isinstance(sample, Counter)
-    assert "10" in sample and "01" in sample
+    assert {"10", "01"}.issubset(set(sample.keys()))
 
     run = fresnel1_interface1.run(fparams, on=OnEnum.EMULATOR)
     assert isinstance(run, qutip.Qobj)
@@ -48,5 +59,20 @@ def test_fresnel1_interface(
     assert np.all(k < 0.0 for k in expect)
 
 
-def test_fresnel1_observables(fresnel1_interface1: Fresnel1Interface) -> None:
-    pass
+@pytest.mark.parametrize(
+    "interface, n_qubits, expr_obs, qutip_obs",
+    [
+        ("fresnel1_interface", 2, Z(0), tensor(qz, qi)),
+        ("fresnel1_interface", 2, Z(0).__kron__(Z(1)), tensor(qz, qz)),
+        ("fresnel1_interface", 2, Z(0) + Z(1), tensor(qz, qi) + tensor(qi, qz)),
+    ]
+)
+def test_fresnel1_observables(
+    interface: Fresnel1Interface,
+    n_qubits: int,
+    expr_obs: InputType,
+    qutip_obs: qutip.Qobj,
+    request,
+) -> None:
+    parsed_obs = QuTiPObservablesParser.build(num_qubits=n_qubits, observables=expr_obs)
+    assert np.allclose(parsed_obs, qutip_obs)

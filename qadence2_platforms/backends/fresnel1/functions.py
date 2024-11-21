@@ -90,15 +90,20 @@ def x(sequence: Sequence, **_: Any) -> None:
 
 def h(
     sequence: Sequence,
-    duration: VariableItem | float = 1000.0,
+    duration: VariableItem | float = 1.0,
+    support_list: str = "global",
     **_: Any,
 ) -> None:
-    support_list = "GLOBAL"
     amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     duration *= 1000 * 2 * np.pi / amplitude
-    duration = int(duration) if duration > 16 else 16
+    detuning = np.pi
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, correct_phase_drift=True)
+    sequence.enable_eom_mode(
+        "global",
+        amp_on=amplitude,
+        correct_phase_drift=True,
+        detuning_on=detuning
+    )
     sequence.add_eom_pulse(
         "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
     )
@@ -213,10 +218,10 @@ class QuTiPObservablesParser:
     }
 
     @classmethod
-    def _kron_tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
+    def _compl_tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
         """
-        Use it for kron operations or for single input operator that needs to match a
-        bigger Hilbert space, e.g. `expr = Z(0)` but the number of qubits is 3.
+        Use it for pure kron operations or for single input operator that needs to match
+        a bigger Hilbert space, e.g. `expr = Z(0)` but the number of qubits is 3.
 
         Args:
             num_qubits (int): the number of qubits to create the qutip object to
@@ -252,9 +257,9 @@ class QuTiPObservablesParser:
         return qutip.tensor(*([op] * num_qubits))
 
     @classmethod
-    def _tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
+    def _arith_tensor_op(cls, num_qubits: int, expr: InputType) -> qutip.Qobj:
         """
-        Use it for any arithmetic operation (addition, multiplication) that needs to
+        Use it for the arithmetic operations addition and multiplication that need to
         have an extended Hilbert space compatible with `num_qubits`.
 
         Args:
@@ -301,7 +306,7 @@ class QuTiPObservablesParser:
             sub_num_qubits: int = cast(Support, op.args[1]).max_index + 1
 
             if sub_num_qubits < num_qubits:
-                op_arg = cls._kron_tensor_op(num_qubits, op)
+                op_arg = cls._compl_tensor_op(num_qubits, op)
 
             else:
                 arg: InputType = cast(InputType, op.args[0])
@@ -315,19 +320,19 @@ class QuTiPObservablesParser:
         if op.is_addition is True:
 
             for arg in args:
-                ops.append(cls._tensor_op(num_qubits, arg))
+                ops.append(cls._arith_tensor_op(num_qubits, arg))
 
             return reduce(lambda a, b: a + b, ops)
 
         if op.is_multiplication is True:
 
             for arg in args:
-                ops.append(cls._tensor_op(num_qubits, arg))
+                ops.append(cls._arith_tensor_op(num_qubits, arg))
 
             return reduce(lambda a, b: a * b, ops)
 
         if op.is_kronecker_product is True:
-            return cls._kron_tensor_op(num_qubits, op)
+            return cls._compl_tensor_op(num_qubits, op)
 
         raise NotImplementedError(
             f"could not retrieve the expression {op} ({type(op)}) from the observables"
