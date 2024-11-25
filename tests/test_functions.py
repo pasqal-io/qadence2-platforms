@@ -5,7 +5,6 @@ from typing import Any
 import numpy as np
 import pytest
 import qutip
-import torch
 from pulser import Sequence as PulserSequence, AnalogDevice, Register
 from pulser.register import RegisterLayout
 from qadence2_expressions import Z
@@ -14,7 +13,6 @@ from qutip import tensor as qtensor
 import pyqtorch as pyq
 from pyqtorch import (
     Observable as PyQObservable,
-    I as PI,
     Z as PZ,
 )
 
