@@ -15,6 +15,12 @@ def parse_native_observables(observable: list[InputType] | InputType) -> Observa
 
 
 class PyQObservablesParser:
+    """
+    Convert InputType object observables into native PyQTorch object, especially for
+    running `expectation` method from PyQTorch interface class. InputType can be
+    qadence2-expressions or any other module that implement the same methods.
+    """
+
     @classmethod
     def _add_op(cls, op: InputType) -> Module:
         return pyq.Add([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
@@ -29,6 +35,19 @@ class PyQObservablesParser:
 
     @classmethod
     def _get_op(cls, op: InputType) -> Primitive | Module:
+        """
+        Convert an expression into a native PyQTorch object. A simple symbol,
+        a quantum operator, and an operation (addition, multiplication or
+        kron tensor) are valid objects.
+
+        Args:
+            op (InputType): the input expression. Any qadence2-expressions
+                expression compatible object or object with same methods.
+
+        Returns:
+            A Primitive or torch.nn.Module object.
+        """
+
         if op.is_symbol is True:
             symbol: str = cast(str, op.args[0])
             return getattr(pyq, symbol.upper(), None)
@@ -68,6 +87,18 @@ class PyQObservablesParser:
 
     @classmethod
     def build(cls, observable: list[InputType] | InputType) -> Observable:
+        """
+        Parses an input expression or list of expressions into a native PyQTorch object.
+
+        Args:
+            observable (list[InputType] | InputType): the input expression. Any
+                qadence2-expressions expression compatible object or object with same
+                methods.
+
+        Returns:
+            An PyQTorch Observable object.
+        """
+
         res: list[Module] | Module
         if isinstance(observable, list):
             res = cls._iterate_over_obs(observable)
