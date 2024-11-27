@@ -29,7 +29,7 @@ classifiers = [
 # to maintain consistency
 dependencies = [
   "qadence2-ir~=0.1",
-  "pulser~=0.19",
+  "pulser~=1.1",
   "pyqtorch~=1.4",
 ]
 
