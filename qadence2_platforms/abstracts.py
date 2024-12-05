@@ -14,8 +14,7 @@ ExpectationResultType = TypeVar("ExpectationResultType")
 
 class RunEnum(Enum):
     """
-    Enum class to be used whenever an Interface class method need to specify.
-
+    Enum class to be used whenever an Interface class method need to specify
     how to execute the expression: through `run`, `sample`, or `expectation`.
     """
 
@@ -26,8 +25,7 @@ class RunEnum(Enum):
 
 class OnEnum(Enum):
     """
-    Enum class to be used whenever an Interface class method (such as `run`) needs to.
-
+    Enum class to be used whenever an Interface class method (such as `run`) needs to
     specify where to run the code: on emulator or qpu.
     """
 
@@ -49,19 +47,17 @@ class AbstractInterface(
     """
     An abstract base class that defines interface essential methods.
 
-    It should be
-    inherited by any class that needs to implement a backend, for instance `pyqtorch`
-    and `fresnel1` (`pulser` using `qutip` emulator). It is not only used by the package
-    itself, but users who want to implement or test new backends should also make use
-    of it.
+    It should be inherited by any class that needs to implement a backend, for instance
+    `pyqtorch` and `fresnel1` (`pulser` using `qutip` emulator). It is not only used by
+    the package itself, but users who want to implement or test new backends should
+    also make use of it.
     """
 
     @property
     @abstractmethod
     def info(self) -> dict[str, Any]:
         """
-        Gives any relevant information about the interface data, such as `device`,.
-
+        Gives any relevant information about the interface data, such as `device`,
         `register`, etc.
 
         :return: dictionary with the relevant information.
@@ -104,12 +100,10 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> RunResultType:
         """
-        Gets the results from the expression computation given the parameters (values),.
-
-        callback function (if applicable), and extra arguments.
+        Gets the results from the expression computation given the parameters (values),
+        and extra arguments.
 
         :param values: dictionary of user-input parameters
-        :param callback: a callback function if necessary to run some extra processing
         :param kwargs: any extra argument that are backends specific can be included in the
             child method.
         :return: any result type according to what is expected by the backends `run` method
@@ -124,13 +118,11 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> SampleResultType:
         """
-        Samples the computed result given the expression, the parameters (values), number of.
-
-        shots, callback function (if applicable), and extra arguments.
+        Samples the computed result given the expression, the parameters (values), number of
+        shots, and extra arguments.
 
         :param values: dictionary of user-input parameters
         :param shots: number of shots
-        :param callback: a callback function if necessary to run some extra processing
         :param kwargs: any extra argument that are backends specific can be included in the
             child method
         :return: any result type according to what is expected by the backends `sample` method
@@ -145,13 +137,11 @@ class AbstractInterface(
         **kwargs: Any,
     ) -> ExpectationResultType:
         """
-        Computes the expectation value for observable(s) given the parameters (values),.
-
-        callback function (if applicable), and extra arguments.
+        Computes the expectation value for observable(s) given the parameters (values),
+        and extra arguments.
 
         :param values: dictionary of user-input parameters
         :param observable: list of observables
-        :param callback: a callback function if necessary to run some extra processing
         :param kwargs: any extra argument that are backends specific can be included in the
             child method
         :return: any result type according to what is expected by the backends `expectation` method

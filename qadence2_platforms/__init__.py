@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from torch import float64, set_default_dtype
-
 from .abstracts import AbstractInterface
-
-set_default_dtype(float64)
 
 PACKAGE_NAME = __name__
 BACKEND_FOLDER_NAME = "backends"

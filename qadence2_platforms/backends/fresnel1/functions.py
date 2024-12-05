@@ -6,6 +6,7 @@ from typing import Any, Iterable, cast
 
 import numpy as np
 import qutip
+from pulser import Pulse
 from pulser.parametrized.variable import VariableItem
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform
@@ -204,7 +205,7 @@ class QuTiPObservablesParser:
     """
     Convert InputType object to Qutip native quantum objects for simulation on QuTiP.
 
-    It is intended to be used on expectation method of the Fresnel1 interface class.
+    It is intended to be used on the expectation method of the Fresnel1 interface class.
     InputType can be qadence2-expressions expression or any other module with the same
     methods.
     """
