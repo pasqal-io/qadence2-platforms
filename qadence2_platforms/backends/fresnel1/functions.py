@@ -28,16 +28,6 @@ class Duration(Enum):
     FILL = auto()
 
 
-# pulse function mapping.
-# keys are the `qadence2_ir.Model` standard, values are the function names below
-PULSE_FN_MAP = {
-    "rx": "rx",
-    "ry": "ry",
-    "not": "x",
-    "h": "h",
-}
-
-
 def dyn_pulse(
     sequence: Sequence,
     duration: VariableItem | float,
@@ -193,6 +183,21 @@ def local_pulse_core(
         "dmm_0",
         "no-delay" if concurrent else "min-delay",
     )
+
+
+# pulse function mapping.
+# keys are the `qadence2_ir.Model` standard, values are the function names below
+PULSE_FN_MAP = {
+    "rx": "rx",
+    "ry": "ry",
+    "not": "x",
+    "h": "h",
+}
+
+
+###############
+# OBSERVABLES #
+###############
 
 
 def parse_native_observables(

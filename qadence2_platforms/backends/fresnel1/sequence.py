@@ -13,6 +13,7 @@ from pulser.sequence.sequence import Sequence
 from qadence2_ir.types import Alloc, Assign, Call, Load, Model, QuInstruct
 
 from . import functions as add_pulse
+from .device_settings import Fresnel1Settings
 from .functions import PULSE_FN_MAP
 
 
@@ -22,21 +23,22 @@ class NamedPulse:
         self.args = args
 
 
-# Fresnel1 = AnalogDevice
-Fresnel1 = replace(
-    AnalogDevice.to_virtual(),
-    dmm_objects=(
-        DMM(
-            # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
-            clock_period=4,
-            min_duration=16,
-            max_duration=2**26,
-            mod_bandwidth=8,
-            bottom_detuning=-2 * np.pi * 20,  # detuning between 0 and -20 MHz
-            total_bottom_detuning=-2 * np.pi * 2000,  # total detuning
-        ),
-    ),
-)
+# # Fresnel1 = AnalogDevice
+# Fresnel1 = replace(
+#     AnalogDevice.to_virtual(),
+#     dmm_objects=(
+#         DMM(
+#             # from Pulser tutorials/dmm.html#DMM-Channel-and-Device
+#             clock_period=4,
+#             min_duration=16,
+#             max_duration=2**26,
+#             mod_bandwidth=8,
+#             bottom_detuning=-2 * np.pi * 20,  # detuning between 0 and -20 MHz
+#             total_bottom_detuning=-2 * np.pi * 2000,  # total detuning
+#         ),
+#     ),
+# )
+Fresnel1 = Fresnel1Settings.device
 
 
 def from_model(model: Model, register: RegisterLayout) -> Sequence:

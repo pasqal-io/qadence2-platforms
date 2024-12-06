@@ -10,11 +10,12 @@ from pulser.register import RegisterLayout
 from qadence2_expressions import Z
 from qadence2_ir.types import Model
 from qutip import tensor as qtensor
-import pyqtorch as pyq
+# import pyqtorch as pyq
 from pyqtorch import (
     Observable as PyQObservable,
     Z as PZ,
 )
+
 
 from qadence2_platforms.backends.fresnel1.functions import (
     local_pulse,
@@ -67,29 +68,29 @@ qz = qutip.sigmaz()
             "pyq_interface1",
             2,
             Z(0),
-            pyq.Observable([PZ(0)]),
-            pyq.Observable([PZ(1)]),
+            PyQObservable([PZ(0)]),
+            PyQObservable([PZ(1)]),
         ),
         (
             "pyq_interface1",
             2,
             Z(0).__kron__(Z(1)),
-            pyq.Observable(pyq.Sequence([PZ(0), PZ(1)])),
-            pyq.Observable(pyq.Sequence([PZ(1), PZ(2)])),
+            PyQObservable(pyq.Sequence([PZ(0), PZ(1)])),
+            PyQObservable(pyq.Sequence([PZ(1), PZ(2)])),
         ),
         (
             "pyq_interface1",
             2,
             Z(0).__kron__(Z(1)),
-            pyq.Observable(pyq.Sequence([PZ(1), PZ(0)])),
-            pyq.Observable(pyq.Sequence([PZ(0), PZ(3)])),
+            PyQObservable(pyq.Sequence([PZ(1), PZ(0)])),
+            PyQObservable(pyq.Sequence([PZ(0), PZ(3)])),
         ),
         (
             "pyq_interface1",
             2,
             Z(0) + Z(1),
-            pyq.Observable([pyq.Add([PZ(0), PZ(1)])]),
-            pyq.Observable([pyq.Add([PZ(1), PZ(1)])]),
+            PyQObservable([pyq.Add([PZ(0), PZ(1)])]),
+            PyQObservable([pyq.Add([PZ(1), PZ(1)])]),
         ),
     ],
 )
@@ -114,9 +115,9 @@ def test_pyq_obs_parsing() -> None:
     assert hash(PyQObservablesParser._kron_op(Z(0).__kron__(Z(1)))) == hash(
         pyq.Sequence([PZ(0), PZ(1)])
     )
-    assert hash(PyQObservablesParser._get_op(Z(0))) == hash(pyq.Z(0))
+    assert hash(PyQObservablesParser._get_op(Z(0))) == hash(PZ(0))
     assert hash(tuple(PyQObservablesParser._iterate_over_obs([Z(0), Z(1)]))) == hash(
-        (pyq.Z(0), pyq.Z(1))
+        (PZ(0), PZ(1))
     )
 
 
