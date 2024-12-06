@@ -73,13 +73,13 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             case RunEnum.SAMPLE:
                 return platform.sample_final_state(shots)
             case RunEnum.EXPECTATION:
-                if observable is not None:
-                    return platform.expect(
-                        obs_list=parse_native_observables(
-                            num_qubits=len(self.sequence.register.qubit_ids), observable=observable
-                        )
+                if observable is None:
+                    raise ValueError("observable cannot be None or empty on 'expectation' method.")
+                return platform.expect(
+                    obs_list=parse_native_observables(
+                        num_qubits=len(self.sequence.register.qubit_ids), observable=observable
                     )
-                raise ValueError("observable cannot be None or empty on 'expectation' method.")
+                )
             case _:
                 raise NotImplementedError(f"Run type '{run_type}' not implemented.")
 
