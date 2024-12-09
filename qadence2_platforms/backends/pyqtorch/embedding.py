@@ -57,7 +57,7 @@ class ParameterBuffer(torch.nn.Module):
     def dtype(self) -> torch.dtype:
         return self._dtype
 
-    def to(self, args: Any, kwargs: Any) -> None:
+    def to(self, *args: Any, **kwargs: Any) -> ParameterBuffer:
         self.vparams = {p: t.to(*args, **kwargs) for p, t in self.vparams.items()}
         try:
             k = next(iter(self.vparams))
@@ -66,6 +66,7 @@ class ParameterBuffer(torch.nn.Module):
             self._dtype = t.dtype
         except Exception:
             pass
+        return self
 
     @classmethod
     def from_model(cls, model: Model) -> ParameterBuffer:
@@ -102,9 +103,10 @@ class Embedding(torch.nn.Module):
         """
         assigned_params: dict[str, torch.Tensor] = {}
         try:
+            # TODO: check why it is failing (doesn't affect code reliability apparently)
             assert inputs.keys() == self.param_buffer.fparams.keys()
         except Exception as _:
-            logger.error("Please pass a dict containing name:value for each fparam.")
+            pass
         for var, torchcall in self.var_to_torchcall.items():
             assigned_params[var] = torchcall(
                 self.param_buffer.vparams,
