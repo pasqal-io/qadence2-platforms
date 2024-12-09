@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Union, Literal
+from typing import Union, Callable
 
 import numpy as np
 from numpy.typing import ArrayLike
 from pulser import AnalogDevice
 from pulser.devices import Device
 from pulser.register import RegisterLayout
+from qadence2_ir.types import Model
 
 from qadence2_platforms.backends._base_analog.device_settings import DeviceSettings
+from qadence2_platforms.backends.utils import gridtype_literal
 
 qubits_pos_type = list[tuple[int, int]]
 coords_type = Union[ArrayLike, list[ArrayLike], tuple[ArrayLike]]
@@ -17,7 +19,7 @@ coords_type = Union[ArrayLike, list[ArrayLike], tuple[ArrayLike]]
 class RegisterTransform:
     """Transforms register data according to the `grid_type` in the `qadence2_ir.types.Model`"""
 
-    _grid: Literal["linear", "triangular", "square"]
+    _grid: gridtype_literal
     _grid_scale: float
     _raw_coords: coords_type
     _transformed_coords: coords_type
@@ -25,17 +27,17 @@ class RegisterTransform:
 
     def __init__(
         self,
-        grid_transform: Literal["linear", "triangular", "square"],
+        device_settings: DeviceSettings,
+        grid_transform: gridtype_literal | None,
         grid_scale: float = 1.0,
         coords: qubits_pos_type | None = None,
         num_qubits: int | None = None,
-        device_settings: DeviceSettings | None = None,
     ):
         """
         Args:
-            grid_transform (Literal["linear", "triangular", "square"]: literal str to choose
+            grid_transform (Literal["linear", "triangular", "square"], None): literal str to choose
                 which grid transform to use. Accepted values are "linear", "triangular"
-                or "square"
+                or "square". If None is provided, it will default to "triangular"
             grid_scale (float): scale of the grid. Default is `1.0`
             coords (list[tuple[int, int]]): list of coordinates as qubit positions in an int
                 grid, e.g. `[(0, 0), (1, 0), (0, 1)]`. Default is `None`
@@ -43,7 +45,7 @@ class RegisterTransform:
             device_settings (DeviceSettings | None): Device settings object
         """
 
-        self._grid = grid_transform
+        self._grid = grid_transform if grid_transform is not None else "triangular"
         self._grid_scale = grid_scale
 
         if coords:
@@ -55,11 +57,9 @@ class RegisterTransform:
         else:
             raise ValueError("must provide coords or num_qubits.")
 
-        print(f"{hasattr(self, f'{self._grid}_coords')=}")
         self._transformed_coords = getattr(
             self,
             f"{self._grid}_coords",
-            # self.invalid_grid_value()
         )()
         self._device = device_settings.device
 
@@ -82,7 +82,7 @@ class RegisterTransform:
 
     def invalid_grid_value(self) -> None:
         """Fallback function for invalid `grid_transform` value."""
-        print(f"{self._grid=}")
+
         raise ValueError("grid_transform should be 'linear', 'triangular', or 'square'.")
 
     def linear_coords(self) -> np.ndarray:
@@ -102,7 +102,7 @@ class RegisterTransform:
         Returns:
             np.ndarray of transformed coordinates
         """
-        print(f"triangular coords")
+
         # triangular transformation matrix
         transform = np.array([[1.0, 0.0], [0.5, 0.8660254037844386]])
         return np.array(self._raw_coords) * self._grid_scale @ transform
@@ -118,5 +118,76 @@ class RegisterTransform:
         # for now, no transformation needed since the coords are list of tuple of ints
         return np.array(self._raw_coords) * self._grid_scale
 
-    def get_calibrated_layout(self, layout_name: str) -> RegisterLayout:
+    @classmethod
+    def get_calibrated_layout(cls, layout_name: str) -> RegisterLayout:
+        """
+        Gets the calibrated layout for the given `layout_name` according to `AnalogDevice`
+        specifications.
+
+        Args:
+            layout_name: the name of the layout.
+
+        Returns:
+            The `RegisterLayout` object for the given `layout_name`.
+        """
+
         return AnalogDevice.calibrated_register_layouts.get(layout_name, None)
+
+
+class RegisterResolver:
+    """
+    An object to hold common functionalities for registers and resolving their
+    layouts, transformations and checks.
+    """
+
+    @classmethod
+    def resolve_from_model(
+        cls,
+        model: Model,
+        device_settings: DeviceSettings,
+        grid_scale_fn: Callable,
+        grid_type_fn: Callable,
+        directives_fn: Callable,
+        register_transform_fn: Callable,
+    ) -> RegisterLayout:
+        """
+        Resolves the model's register data into actual platform appropriate and
+        validated data through platform's own functions. It is a generic and
+        modular helper function to be called by `register.from_model` function.
+
+        Args:
+            model (Model): The model to use and resolve its data
+            device_settings (DeviceSettings): The device settings instance
+            grid_scale_fn (Callable): Function used to check the grid scale
+                against the device's
+            grid_type_fn (Callable): Function used to check the grid type
+                against the device's
+            directives_fn (Callable): Function used to check the directives
+                against the device's
+            register_transform_fn (Callable): Function used to transform
+                coordinates into register on appropriate layout
+
+        Returns:
+            A register data with appropriate layout
+        """
+
+        model_register = model.register
+
+        if model_register.num_qubits < 1:
+            raise ValueError("No qubit available in the register.")
+
+        grid_scale_fn(model_register.grid_scale)
+        grid_type_fn(model_register.grid_type)
+        directives_fn(model.directives)
+
+        register_transform = RegisterTransform(
+            grid_transform=model_register.grid_type,
+            grid_scale=model_register.grid_scale,
+            coords=model_register.qubit_positions,
+            num_qubits=model_register.num_qubits,
+            device_settings=device_settings,
+        )
+
+        register = register_transform_fn(register_transform)
+
+        return register

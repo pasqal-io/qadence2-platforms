@@ -1,11 +1,12 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: [ '--maxkb=600' ]
 
 -   repo: https://github.com/ambv/black
     rev: 24.8.0
@@ -22,6 +23,7 @@ repos:
     rev: v1.11.0
     hooks:
       - id: mypy
+        args: [--install-types, --non-interactive]
         exclude: examples|docs|qadence2_platforms.utils.templates
 
 -   repo: https://github.com/DanielNoord/pydocstringformatter

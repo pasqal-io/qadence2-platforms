@@ -29,6 +29,9 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
     def sequence(self) -> Sequence:
         return self._sequence
 
+    def parameters(self) -> dict[str, float]:
+        return self._params
+
     def set_parameters(self, params: dict[str, float]) -> None:
         valid_params = params.keys() & self._non_trainable_parameters
 
@@ -36,9 +39,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             raise ValueError(f"{set(params.keys())} are not fixed parameters in this sequence.")
 
         self._params = params
-
-    def parameters(self) -> Iterable[Any]:
-        return self._params.values()
 
     def _run(
         self,

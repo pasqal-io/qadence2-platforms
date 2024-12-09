@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import ABC
 
 from pulser.devices import Device
 
@@ -53,17 +52,15 @@ class DeviceSettings(ABC):
     def available_directives(self) -> tuple[str, ...] | tuple | None:
         return self._available_directives
 
-    def scale_in_range(self, grid_scale: float):
+    def scale_in_range(self, grid_scale: float) -> bool:
+        """
+        Check whether the grid scale is within device's range.
+
+        Args:
+            grid_scale (float): the grid scale. For a normal grid, the scale is 1.0
+
+        Returns:
+            A boolean to whether the grid scale is within device's range.
+        """
+
         return self._grid_scale_range[0] <= grid_scale <= self._grid_scale_range[1]
-
-    @abstractmethod
-    def check_grid_scale(self, grid_scale: float) -> Any:
-        pass
-
-    @abstractmethod
-    def check_grid_type(self, grid_type: str) -> Any:
-        pass
-
-    @abstractmethod
-    def check_directives(self, directives: Any) -> Any:
-        pass

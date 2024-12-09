@@ -4,7 +4,8 @@ from typing import Iterable, cast
 
 from pyqtorch.primitives import Primitive
 from torch.nn import Module
-import pyqtorch as pyq
+import pyqtorch
+from pyqtorch import Sequence, Add
 from pyqtorch.hamiltonians import Observable
 
 from qadence2_platforms.backends.utils import InputType, Support
@@ -23,11 +24,11 @@ class PyQObservablesParser:
 
     @classmethod
     def _add_op(cls, op: InputType) -> Module:
-        return pyq.Add([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
+        return Add([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
 
     @classmethod
     def _mul_op(cls, op: InputType) -> Module:
-        return pyq.Sequence([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
+        return Sequence([cls._get_op(cast(InputType, k)) for k in cast(Iterable, op.args)])
 
     @classmethod
     def _kron_op(cls, op: InputType) -> Module:
@@ -50,7 +51,7 @@ class PyQObservablesParser:
 
         if op.is_symbol is True:
             symbol: str = cast(str, op.args[0])
-            return getattr(pyq, symbol.upper(), None)
+            return getattr(pyqtorch, symbol.upper(), None)
 
         if op.is_quantum_operator is True:
             primitive: Primitive = cast(Primitive, cls._get_op(cast(InputType, op.args[0])))
