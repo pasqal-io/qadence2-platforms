@@ -16,6 +16,7 @@ from qadence2_platforms.backends._base_analog.functions import (
     DEFAULT_DETUNING,
 )
 
+# TODO: re-introduce `Support` to account for "local" and "global" on the `channel` arg
 
 # pulse function mapping.
 # keys are the `qadence2_ir.Model` standard, values are the function names below

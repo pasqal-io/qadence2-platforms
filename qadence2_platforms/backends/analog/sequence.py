@@ -8,17 +8,19 @@ from pulser.sequence.sequence import Sequence
 from qadence2_ir.types import Model
 
 from qadence2_platforms.backends._base_analog.sequence import from_instructions
-from qadence2_platforms.backends._base_analog.functions import base_parse_native_observables
 
 from . import functions as add_pulse
-from .device_settings import Fresnel1Settings
+from .device_settings import AnalogDeviceSettings
 from .functions import PULSE_FN_MAP
 
 
-# Fresnel-1 device (AnalogDevice with Fresnel-1 specs)
-Fresnel1 = Fresnel1Settings.device
+# AnalogDevice specs
+AnalogDevice = AnalogDeviceSettings.device
 
 
+# TODO: check whether this function should be changed or not; if not, consider
+#  placing it on `backends._base_analog.sequence.py` instead, since it is the
+#  same for fresnel1 backend.
 def from_model(model: Model, register: RegisterLayout) -> Sequence:
     seq = Sequence(register, Fresnel1)  # type: ignore
     seq.declare_channel("global", "rydberg_global")
