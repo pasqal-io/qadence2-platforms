@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, Callable
+from typing import Union, Callable, Any
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -138,10 +138,10 @@ class RegisterResolver:
         cls,
         model: Model,
         device_settings: DeviceSettings,
-        grid_scale_fn: Callable,
-        grid_type_fn: Callable,
-        directives_fn: Callable,
-        register_transform_fn: Callable,
+        grid_scale_fn: Callable[[Model], Any],
+        grid_type_fn: Callable[[Model], Any],
+        directives_fn: Callable[[Model], Any],
+        register_transform_fn: Callable[[Model], Any],
     ) -> RegisterLayout:
         """
         Resolves the model's register data into actual platform appropriate and

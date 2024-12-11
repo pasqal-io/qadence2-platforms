@@ -31,13 +31,13 @@ def from_coords(register_transform: RegisterTransform) -> RegisterLayout:
     return register  # type: ignore
 
 
-def check_grid_scale(grid_scale: float) -> None:
+def check_grid_scale(model: Model) -> None:
     pass
 
 
-def check_grid_type(grid_type: float) -> None:
+def check_grid_type(model: Model) -> None:
     pass
 
 
-def check_directives(directives: dict[str, Any]) -> None:
+def check_directives(model: Model) -> None:
     pass
