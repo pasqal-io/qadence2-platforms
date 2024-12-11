@@ -19,11 +19,11 @@ coords_type = Union[ArrayLike, list[ArrayLike], tuple[ArrayLike]]
 class RegisterTransform:
     """Transforms register data according to the `grid_type` in the `qadence2_ir.types.Model`"""
 
+    _device: Device
     _grid: gridtype_literal
     _grid_scale: float
     _raw_coords: coords_type
-    _transformed_coords: coords_type
-    _device: Device
+    coords: coords_type
 
     def __init__(
         self,
@@ -57,19 +57,12 @@ class RegisterTransform:
         else:
             raise ValueError("must provide coords or num_qubits.")
 
-        self._transformed_coords = getattr(
-            self,
-            f"{self._grid}_coords",
-        )()
+        self.coords = getattr(self, f"{self._grid}_coords")()
         self._device = device_settings.device
 
     @property
     def raw_coords(self) -> coords_type:
         return self._raw_coords
-
-    @property
-    def coords(self) -> coords_type:
-        return self._transformed_coords
 
     @property
     def device(self) -> Device:
@@ -176,9 +169,9 @@ class RegisterResolver:
         if model_register.num_qubits < 1:
             raise ValueError("No qubit available in the register.")
 
-        grid_scale_fn(model_register.grid_scale)
-        grid_type_fn(model_register.grid_type)
-        directives_fn(model.directives)
+        grid_scale_fn(model)
+        grid_type_fn(model)
+        directives_fn(model)
 
         register_transform = RegisterTransform(
             grid_transform=model_register.grid_type,

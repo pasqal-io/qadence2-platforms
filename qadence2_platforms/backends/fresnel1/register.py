@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
 
 from pulser.register.register_layout import RegisterLayout
 from qadence2_ir.types import Model
 
 from .device_settings import Fresnel1Settings
 from .._base_analog.register import RegisterTransform, RegisterResolver
-from ..utils import gridtype_literal
 
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.formatwarning = lambda msg, *args, **kwargs: f"WARNING: {msg}\n"
@@ -46,8 +44,8 @@ def from_layout(register_transform: RegisterTransform) -> RegisterLayout:
     return register  # type: ignore
 
 
-def check_grid_scale(grid_scale: float) -> None:
-    if Fresnel1Settings.scale_in_range(grid_scale):
+def check_grid_scale(model: Model) -> None:
+    if Fresnel1Settings.scale_in_range(model.register.grid_scale):
         warnings.warn(
             "Currently, Fresnel-1 uses a fixed grid.",
             SyntaxWarning,
@@ -55,17 +53,21 @@ def check_grid_scale(grid_scale: float) -> None:
         )
 
 
-def check_grid_type(grid_type: gridtype_literal | None) -> None:
-    if grid_type and grid_type not in Fresnel1Settings.available_grid_types:
+def check_grid_type(model: Model) -> None:
+    if (
+        model.register.grid_type
+        and model.register.grid_type not in Fresnel1Settings.available_grid_types
+    ):
         warnings.warn(
             "Fresnel-1 only supports triangular grids at the moment.",
             SyntaxWarning,
             stacklevel=2,
         )
+        model.register.grid_type = Fresnel1Settings.available_grid_types[0]
 
 
-def check_directives(directives: dict[str, Any]) -> None:
-    if directives.get("enable_digital_analog"):
+def check_directives(model: Model) -> None:
+    if model.directives.get("enable_digital_analog"):
         warnings.warn(
             "Fresnel-1 uses a fixed grid and does not have digital channels.\n"
             + "Digital operations using atomic distance-based strategies\n"

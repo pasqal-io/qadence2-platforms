@@ -24,33 +24,37 @@ class Compiler:
         "noncommute": pyq.Sequence,
     }
 
+    @classmethod
+    def _get_target(cls, target: tuple[int, ...] | tuple, num_qubits: int) -> tuple[int, ...]:
+        return tuple(range(num_qubits)) if len(target) == 0 else target
+
     def compile(
         self,
         model: Model,
     ) -> pyq.QuantumCircuit:
         pyq_operations = []
+
         for instr in model.instructions:
+
             if isinstance(instr, QuInstruct):
-                native_op: QuantumOperation
-                try:
-                    native_op = getattr(pyq, instr.name.upper())
-                except Exception as _:
-                    native_op = self.instruction_mapping[instr.name]
-                finally:
-                    control = instr.support.control
-                    target = instr.support.target
-                    native_support = (*control, *target)
-                    if len(instr.args) > 0:
-                        assert len(instr.args) == 1, "More than one arg not supported"
-                        (maybe_load,) = instr.args
-                        assert isinstance(maybe_load, Load), "only support load"
-                        pyq_operations.append(
-                            native_op(native_support, maybe_load.variable).to(
-                                dtype=torch.complex128
-                            )
-                        )
-                    else:
-                        pyq_operations.append(native_op(*native_support).to(dtype=torch.complex128))
+                native_op: QuantumOperation = getattr(
+                    pyq, instr.name.upper(), self.instruction_mapping.get(instr.name)
+                )
+                control = instr.support.control
+                target = self._get_target(instr.support.target, model.register.num_qubits)
+                native_support = (*control, *target)
+
+                if len(instr.args) > 0:
+                    assert len(instr.args) == 1, "More than one arg not supported"
+                    (maybe_load,) = instr.args
+                    assert isinstance(maybe_load, Load), "only support load"
+                    pyq_operations.append(
+                        native_op(native_support, maybe_load.variable).to(dtype=torch.complex128)
+                    )
+
+                else:
+                    pyq_operations.append(native_op(*native_support).to(dtype=torch.complex128))
+
         return pyq.QuantumCircuit(model.register.num_qubits, pyq_operations).to(
             dtype=torch.complex128
         )

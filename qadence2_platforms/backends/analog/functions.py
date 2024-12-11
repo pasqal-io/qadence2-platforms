@@ -132,9 +132,7 @@ def dyn_wait(
     **kwargs: Any,
 ) -> None:
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
-
     duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
-
     sequence.delay(int(duration), "global")  # type: ignore
 
 
@@ -175,6 +173,7 @@ def local_pulse_core(
             raise SyntaxError("The option `fill` can only be used on the `concurrent` mode")
 
         duration = sequence.get_duration("global") - sequence.get_duration("dmm_0")
+
     else:
         duration *= time_scale  # type: ignore
 
