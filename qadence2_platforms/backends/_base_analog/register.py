@@ -141,7 +141,7 @@ class RegisterResolver:
         grid_scale_fn: Callable[[Model], Any],
         grid_type_fn: Callable[[Model], Any],
         directives_fn: Callable[[Model], Any],
-        register_transform_fn: Callable[[Model], Any],
+        register_transform_fn: Callable[[RegisterTransform], RegisterLayout],
     ) -> RegisterLayout:
         """
         Resolves the model's register data into actual platform appropriate and
