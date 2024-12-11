@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
+from pulser import Pulse
 from pulser.parametrized.variable import VariableItem
 from pulser.sequence import Sequence
-from pulser.waveforms import ConstantWaveform
+from pulser.waveforms import ConstantWaveform, BlackmanWaveform
 
 from qadence2_platforms.backends._base_analog.functions import (
     Direction,
@@ -59,9 +60,11 @@ def dyn_pulse(
     amplitude *= max_amp  # type: ignore
     detuning *= max_abs_detuning  # type: ignore
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=duration, phase=phase)  # type: ignore
-    sequence.disable_eom_mode("global")
+    new_amplitude = ConstantWaveform(duration, amplitude)
+    new_detuning = ConstantWaveform(duration, detuning)
+
+    p = Pulse(new_amplitude, new_detuning, phase)
+    sequence.add(p, channel="global")
 
 
 def rx(
@@ -92,15 +95,11 @@ def h(
 ) -> None:
     amplitude = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     duration *= 1000 * 2 * np.pi / amplitude
-    detuning = np.pi
 
-    sequence.enable_eom_mode(
-        "global", amp_on=amplitude, correct_phase_drift=True, detuning_on=detuning
+    pi2_wf = BlackmanWaveform(1000, np.pi / 2)
+    sequence.add(
+        Pulse.ConstantDetuning(pi2_wf, 0, np.pi / 2, post_phase_shift=np.pi), channel="global"
     )
-    sequence.add_eom_pulse(
-        "global", duration=int(duration), phase=np.pi / 2, post_phase_shift=np.pi
-    )
-    sequence.disable_eom_mode(support_list)
 
 
 def rotation(
@@ -123,9 +122,7 @@ def rotation(
         case _:
             phase = direction
 
-    sequence.enable_eom_mode("global", amp_on=amplitude, detuning_on=detuning)
-    sequence.add_eom_pulse("global", duration=duration, phase=phase)  # type: ignore
-    sequence.disable_eom_mode("global")
+    sequence.add(Pulse.ConstantPulse(duration, amplitude, detuning, phase), "global")
 
 
 def dyn_wait(
