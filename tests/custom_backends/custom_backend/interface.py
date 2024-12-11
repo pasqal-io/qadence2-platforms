@@ -40,9 +40,6 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
         self._params = params
 
-    def parameters(self) -> Iterable[Any]:
-        return self._params.values()
-
     def _run(
         self,
         run_type: RunEnum,
