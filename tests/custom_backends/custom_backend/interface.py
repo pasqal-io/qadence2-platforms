@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Callable, Iterable, Optional, Union, cast
+from typing import Any, Callable, Optional, Union, cast
 
 from pulser.sequence.sequence import Sequence
 from pulser_simulation.simresults import SimulationResults

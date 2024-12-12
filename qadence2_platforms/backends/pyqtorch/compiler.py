@@ -17,6 +17,11 @@ logger = getLogger(__name__)
 
 @dataclass(frozen=True)
 class Compiler:
+    """
+    A dataclass to compile an IR model data into PyQTorch objects (to be run in a
+    PyQTorch-based backend.
+    """
+
     instruction_mapping = {
         "not": pyq.CNOT,
         "add": pyq.Add,
@@ -32,6 +37,19 @@ class Compiler:
         self,
         model: Model,
     ) -> pyq.QuantumCircuit:
+        """
+        Compiling IR model data to PyQTorch object function. It transforms model
+        `QuInstruct`s into PyQTorch operators, resolving the SSA-form arguments
+        into concrete values or valid PyQTorch parameters.
+
+        Args:
+            model (Model): IR model to compile
+
+        Returns:
+            A PyQTorch quantum circuit object with the model `QuInstruct`s compiled into
+            PyQTorch operators
+        """
+
         pyq_operations = []
 
         for instr in model.instructions:
@@ -69,6 +87,18 @@ def get_trainable_params(inputs: dict[str, Alloc]) -> dict[str, torch.Tensor]:
 
 
 def compile_to_backend(model: Model) -> Interface:
+    """
+    Compiles the model data (IR information from expressions) into PyQTorch-compatible data and
+    defines an Interface instance to be available to the user to invoke useful methods, such as
+    `run`, `sample`, `expectation`, `set_parameters`.
+
+    Args:
+        model (Model): the IR model data to be compiled to PyQTorch-based backend
+
+    Returns:
+        The `Interface` instance based on PyQTorch backend
+    """
+
     register_interface = RegisterInterface(
         model.register.num_qubits, model.register.options.get("init_state")
     )

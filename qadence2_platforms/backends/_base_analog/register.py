@@ -25,6 +25,11 @@ class RegisterTransform:
     _raw_coords: coords_type
     coords: coords_type
 
+    # below is a multiplying factor that seems to be needed to correct the values coming
+    # from the `qadence2-expressions`'s `qubit_positions`. It should be used on the
+    # coordinate transformations
+    scale_factor: int = 5
+
     def __init__(
         self,
         device_settings: DeviceSettings,
@@ -57,8 +62,12 @@ class RegisterTransform:
         else:
             raise ValueError("must provide coords or num_qubits.")
 
-        self.coords = getattr(self, f"{self._grid}_coords")()
-        self._device = device_settings.device
+        try:
+            self.coords = getattr(self, f"{self._grid}_coords")()
+        except AttributeError:
+            self.invalid_grid_value()
+        else:
+            self._device = device_settings.device
 
     @property
     def raw_coords(self) -> coords_type:
@@ -73,7 +82,8 @@ class RegisterTransform:
         shift = num_qubits // 2
         return [(p - shift, 0) for p in range(num_qubits)]
 
-    def invalid_grid_value(self) -> None:
+    @classmethod
+    def invalid_grid_value(cls) -> None:
         """Fallback function for invalid `grid_transform` value."""
 
         raise ValueError("grid_transform should be 'linear', 'triangular', or 'square'.")
@@ -98,7 +108,7 @@ class RegisterTransform:
 
         # triangular transformation matrix
         transform = np.array([[1.0, 0.0], [0.5, 0.8660254037844386]])
-        return np.array(self._raw_coords) * self._grid_scale @ transform
+        return np.array(self._raw_coords) * self._grid_scale * self.scale_factor @ transform
 
     def square_coords(self) -> np.ndarray:
         """
@@ -109,7 +119,7 @@ class RegisterTransform:
         """
 
         # for now, no transformation needed since the coords are list of tuple of ints
-        return np.array(self._raw_coords) * self._grid_scale
+        return np.array(self._raw_coords) * self._grid_scale * self.scale_factor
 
     @classmethod
     def get_calibrated_layout(cls, layout_name: str) -> RegisterLayout:

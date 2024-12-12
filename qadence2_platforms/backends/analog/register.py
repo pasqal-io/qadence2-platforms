@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
 
 from pulser.register import RegisterLayout, Register
 from qadence2_ir.types import Model
@@ -14,6 +13,16 @@ warnings.formatwarning = lambda msg, *args, **kwargs: f"WARNING: {msg}\n"
 
 
 def from_model(model: Model) -> RegisterLayout:
+    """
+    Gets information from IR model data to generate a register/register layout.
+
+    Args:
+        model (Model): IR model data
+
+    Returns:
+        `RegisterLayout` data
+    """
+
     register = RegisterResolver.resolve_from_model(
         model=model,
         device_settings=AnalogSettings,
@@ -27,6 +36,16 @@ def from_model(model: Model) -> RegisterLayout:
 
 
 def from_coords(register_transform: RegisterTransform) -> RegisterLayout:
+    """
+    Function to transform the coordinates into appropriate register layout.
+
+    Args:
+        register_transform (RegisterTransform): Register transform instance containing
+            the coordinates and register-related data
+
+    Returns:
+        `RegisterLayout` data
+    """
     register = Register.from_coordinates(register_transform.coords)
     return register  # type: ignore
 

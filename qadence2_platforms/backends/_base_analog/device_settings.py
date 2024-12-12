@@ -7,7 +7,7 @@ from pulser.devices import Device
 
 class DeviceSettings(ABC):
     """
-    Device settings for easy of building sequence, register and interface logic.
+    Device settings to ease the building of sequence, register and interface logic
 
     name (str): the name of the device, ex: `Analog Device`
     name_short (str): a shorter name version, ex: `analog`

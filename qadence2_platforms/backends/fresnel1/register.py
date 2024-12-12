@@ -38,7 +38,7 @@ def from_layout(register_transform: RegisterTransform) -> RegisterLayout:
     """
 
     layout = register_transform.get_calibrated_layout("TriangularLatticeLayout(61, 5.0µm)")
-    traps = layout.get_traps_from_coordinates(*(register_transform.coords * 5))
+    traps = layout.get_traps_from_coordinates(*register_transform.coords)
     register = layout.define_register(*traps, qubit_ids=range(len(traps)))
 
     return register  # type: ignore

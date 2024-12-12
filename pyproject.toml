@@ -27,8 +27,8 @@ classifiers = [
 # always specify a version for each package
 # to maintain consistency
 dependencies = [
-  "qadence2-ir",
-  "pulser",
+  "qadence2-ir>=0.2",
+  "pulser>=1.1",
   "pyqtorch",
 ]
 

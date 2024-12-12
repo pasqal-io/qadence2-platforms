@@ -10,19 +10,19 @@ from qadence2_ir.types import Model
 from qadence2_platforms.backends._base_analog.sequence import from_instructions
 
 from . import functions as add_pulse
-from .device_settings import AnalogDeviceSettings
+from .device_settings import AnalogSettings
 from .functions import PULSE_FN_MAP
 
 
 # AnalogDevice specs
-AnalogDevice = AnalogDeviceSettings.device
+AnalogDevice = AnalogSettings.device
 
 
 # TODO: check whether this function should be changed or not; if not, consider
 #  placing it on `backends._base_analog.sequence.py` instead, since it is the
 #  same for fresnel1 backend.
 def from_model(model: Model, register: RegisterLayout) -> Sequence:
-    seq = Sequence(register, Fresnel1)  # type: ignore
+    seq = Sequence(register, AnalogDevice)  # type: ignore
     seq.declare_channel("global", "rydberg_global")
 
     if model.directives.get("local_targets"):

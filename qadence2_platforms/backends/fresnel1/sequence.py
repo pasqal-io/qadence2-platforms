@@ -8,7 +8,6 @@ from pulser.sequence.sequence import Sequence
 from qadence2_ir.types import Model
 
 from qadence2_platforms.backends._base_analog.sequence import from_instructions
-from qadence2_platforms.backends._base_analog.functions import base_parse_native_observables
 
 from . import functions as add_pulse
 from .device_settings import Fresnel1Settings

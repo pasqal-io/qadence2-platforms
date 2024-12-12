@@ -32,6 +32,18 @@ class Duration(Enum):
 def base_parse_native_observables(
     num_qubits: int, observable: list[InputType] | InputType
 ) -> list[qutip.Qobj]:
+    """
+    Function to be called by `Interface`'s `expectation` method on Pulser-based backends
+    using QuTiP emulator.
+
+    Args:
+        num_qubits (int): number of qubits
+        observable (list[InputType] | InputType): the input expression. Any
+            qadence2-expressions expression compatible object, with the same
+            methods, or a list of it
+
+    Returns:
+    """
     return BaseQuTiPObservablesParser.build(num_qubits, observable)
 
 
@@ -39,7 +51,7 @@ class BaseQuTiPObservablesParser:
     """
     Convert InputType object to Qutip native quantum objects for simulation on QuTiP.
 
-    It is intended to be used on the expectation method of the Fresnel1 interface class.
+    It is intended to be used on the expectation method of Pulser-based interface classes.
     InputType can be qadence2-expressions expression or any other module with the same
     methods.
     """
@@ -199,13 +211,12 @@ class BaseQuTiPObservablesParser:
 
         Args:
             num_qubits (int): the number of qubits to create the qutip object to
-            observables (InputType): the input expression. Any qadence2-expressions
-                expression compatible object, with the same methods
+            observables (list[InputType], InputType): the input expression. Any
+                qadence2-expressions expression compatible object, with the same
+                methods
 
         Returns:
             A QuTiP object with the Hilbert space compatible with `num_qubits`
-
-        Returns:
         """
         if not isinstance(observables, list):
             return [cls._get_op(num_qubits, observables)]
