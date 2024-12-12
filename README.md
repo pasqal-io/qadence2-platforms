@@ -1,7 +1,7 @@
 # Qadence 2 Platforms
 
 
-!!! node
+!!! note
     Qadence 2 Platforms is currently a *work in progress* and is under active development.
 
     Please be aware that the software is in an early stage, and frequent updates, including breaking changes, are to be expected. This means that:
@@ -15,7 +15,8 @@ Qadence 2 Platforms is a collection of functionalities that transforms [Qadence 
 
 ## Installation
 
-*Note*: it is advised to set up a python environment before installing the package.
+!!! note
+    it is advised to set up a python environment before installing the package.
 
 To install the current version, there is currently one option:
 
@@ -46,7 +47,7 @@ hatch -v shell
 
 This package **should not** be used directly by the user. It is used to convert [Qadence IR](https://github.com/pasqal-io/qadence2-ir) into backend-compatible data, and to execute it with extra options (provided by the compilation process, either on [Qadence 2 expressions](https://github.com/pasqal-io/qadence2-expressions) or [Qadence 2 core](https://github.com/pasqal-io/qadence2-core)).
 
-### Qadence Intermediate Representation (IR)
+### Qadence 2 Intermediate Representation (IR)
 
 Qadence 2 expressions is being compiled into an IR comprised of both quantum and classical operations.
 
@@ -141,7 +142,8 @@ dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
 
 ## Documentation
 
-**Notice**: Documentation in progress.
+!!! note
+    Documentation in progress.
 
 
 ## Contribute

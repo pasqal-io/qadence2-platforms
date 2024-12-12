@@ -28,14 +28,17 @@ def module_loader(module_name: str) -> ModuleType:
     Loads an arbitrary module and returns it.
 
     It can be a backend submodule from
-    an already imported backend, i.e. "pyqtorch", an existing but not imported
-    module, i.e. "fresnel1", or a custom backend module, i.e. "custom_backend1".
+    an already imported backend, i.e. `"pyqtorch"`, an existing but not imported
+    module, i.e. `"fresnel1"`, or a custom backend module, i.e. `"custom_backend1"`.
 
     It facilitates to import and work with custom modules for backends development,
     for instance.
 
-    :param module_name: str: The name of the module to load.
-    :return: ModuleType: The loaded module.
+    Args:
+        module_name (str): The name of the module to load.
+
+    Returns:
+        The loaded module.
     """
 
     base_backend = f"{BASE_BACKEND_MODULE}.{module_name}"
@@ -72,8 +75,11 @@ def resolve_module_path(module_source: str | Path) -> bool:
     if they are not symlinked yet, and ensure that relative imports from
     their files do not break.
 
-    :param module_source: str or Path: module source path.
-    :return: bool: True if the module path is resolved, False otherwise.
+    Args:
+        module_source (str | Path): module source path.
+
+    Returns:
+        True if the module path is resolved, False otherwise.
     """
 
     platforms_spec = find_spec("qadence2_platforms")
