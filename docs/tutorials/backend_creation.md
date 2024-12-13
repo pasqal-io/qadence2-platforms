@@ -16,7 +16,7 @@ Here is a brief description on how you can create your own backend:
 from pathlib import Path
 from qadence2_platforms.utils import BackendTemplate
 
-my_path = Path(".")
+my_path = Path("../contents")
 
 template = BackendTemplate()
 template.create_template("my_backend1", gui=False, use_this_dir=my_path)

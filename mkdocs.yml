@@ -18,10 +18,11 @@ nav:
     - Abstracts: contents/abstracts.md
     - Compiler: contents/compiler.md
     - Backends: contents/backends.md
-    - Building your backend: contents/backend_creation.md
+    - Utils: contents/utils.md
 
   - Tutorials:
     - Tutorials: tutorials/examples.md
+    - Building your backend: tutorials/backend_creation.md
 
   - API:
     - api/index.md
