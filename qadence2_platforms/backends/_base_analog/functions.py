@@ -43,6 +43,7 @@ def base_parse_native_observables(
             methods, or a list of it
 
     Returns:
+        A QuTiP object with the Hilbert space compatible with `num_qubits`
     """
     return BaseQuTiPObservablesParser.build(num_qubits, observable)
 
