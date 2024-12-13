@@ -41,6 +41,9 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
 
         self._params = params
 
+    def draw(self, values: dict[str, Any]) -> None:
+        self.sequence.build(**values).draw()
+
     def _run(
         self,
         run_type: RunEnum,

@@ -94,6 +94,16 @@ class AbstractInterface(
         pass
 
     @abstractmethod
+    def draw(self, values: dict[str, Any]) -> None:
+        """
+        May draw the current sequence with the given values.
+
+        Args:
+            values (dict[str, Any]): the values to be drawn
+        """
+        pass
+
+    @abstractmethod
     def run(
         self,
         values: dict[str, ArrayType] | None = None,
