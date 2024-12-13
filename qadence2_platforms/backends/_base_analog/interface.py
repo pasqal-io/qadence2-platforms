@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Union, cast
+from typing import Any, Union, cast, Callable
 
 from pulser.sequence.sequence import Sequence
 from pulser_simulation.simresults import SimulationResults
@@ -10,14 +10,13 @@ from qutip import Qobj
 
 from qadence2_platforms import AbstractInterface
 from qadence2_platforms.abstracts import OnEnum, RunEnum
-from qadence2_platforms.backends.fresnel1.functions import parse_native_observables
+from qadence2_platforms.backends._base_analog.functions import base_parse_native_observables
 from qadence2_platforms.backends.utils import InputType
 
 RunResult = Union[Counter, Qobj]
 
 
 class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qobj]):
-
     def __init__(self, sequence: Sequence, non_trainable_parameters: set[str]) -> None:
         self._non_trainable_parameters = non_trainable_parameters
         self._params: dict[str, float] = dict()
@@ -75,7 +74,7 @@ class Interface(AbstractInterface[float, Sequence, float, RunResult, Counter, Qo
             case RunEnum.EXPECTATION:
                 if observable is not None:
                     return platform.expect(
-                        obs_list=parse_native_observables(
+                        obs_list=base_parse_native_observables(
                             num_qubits=len(self.sequence.register.qubit_ids), observable=observable
                         )
                     )
