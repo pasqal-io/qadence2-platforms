@@ -56,6 +56,7 @@ def dyn_pulse(
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
+    # FIXME: Centralize unit converions
     duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
     amplitude *= max_amp  # type: ignore
     detuning *= max_abs_detuning  # type: ignore
@@ -69,7 +70,7 @@ def dyn_pulse(
 
 def piecewise_pulse(
     sequence: Sequence,
-    duration: Variable,
+    duration: Variable | VariableItem,
     amplitude: Variable,
     detuning: Variable,
     phase: VariableItem | float,
@@ -89,15 +90,21 @@ def piecewise_pulse(
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
-    amp_pieces = [
-        RampWaveform(dur, amplitude[i], amplitude[i + 1]) for i, dur in enumerate(duration)
-    ]
-    amp_wf = CompositeWaveform(*amp_pieces)
+    dur_factor = 1000 * 2 * np.pi / max_amp  # type: ignore
+    amp_factor = max_amp  # type: ignore
+    det_factor = max_abs_detuning  # type: ignore
 
-    det_pieces = [RampWaveform(dur, detuning[i], detuning[i + 1]) for i, dur in enumerate(duration)]
-    det_wf = CompositeWaveform(*det_pieces)
+    # Needed so a size = 1 variable is made iterable
+    duration = [duration] if isinstance(duration, VariableItem) else duration
 
-    sequence.add(Pulse(amp_wf, det_wf, phase), "global")
+    for i, dur in enumerate(duration):
+        amp_wf = RampWaveform(
+            dur * dur_factor, amplitude[i] * amp_factor, amplitude[i + 1] * amp_factor
+        )
+        det_wf = RampWaveform(
+            dur * dur_factor, detuning[i] * det_factor, detuning[i + 1] * det_factor
+        )
+        sequence.add(Pulse(amp_wf, det_wf, phase), "global")
 
 
 def rx(
