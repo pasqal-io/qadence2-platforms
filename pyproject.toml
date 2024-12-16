@@ -13,7 +13,8 @@ keywords = ["quantum"]
 authors = [
   { name = "Eduardo Maschio", email = "eduardo.maschio@pasqal.com" },
   { name = "Kaonan Micadei", email = "kaonan.micadei@pasqal.com" },
-  { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" }
+  { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" },
+  { name = "Pim Venderbosch", email = "pim.venderbosch@pasqal.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
