@@ -15,7 +15,6 @@ from qadence2_platforms.backends.pyqtorch.register import RegisterInterface
 logger = getLogger(__name__)
 
 
-@dataclass(frozen=True)
 class Compiler:
     """
     A dataclass to compile an IR model data into PyQTorch objects (to be run in a

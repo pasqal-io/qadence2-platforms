@@ -19,7 +19,7 @@ def from_instructions(
     sequence: Sequence,
     inputs: dict[str, Alloc],
     instructions: list[Assign | QuInstruct],
-    allow_time_dependent = False
+    allow_time_dependent=False,
 ) -> list[NamedPulse]:
     variables = dict()
     temp_vars: dict[str, Any] = dict()
@@ -28,7 +28,7 @@ def from_instructions(
         # inputs[var].size holds the points to interpolate time-dependent functions
         if inputs[var].size > 1:
             if allow_time_dependent:
-                variables[var] = sequence.declare_variable(var, size = inputs[var].size)
+                variables[var] = sequence.declare_variable(var, size=inputs[var].size)
             else:
                 raise TypeError("This platform cannot handle time modulated variables.")
         else:

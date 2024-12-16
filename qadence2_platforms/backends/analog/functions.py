@@ -89,10 +89,12 @@ def piecewise_pulse(
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
-    amp_pieces = [RampWaveform(dur, amplitude[i], amplitude[i+1]) for i, dur in enumerate(duration)]
+    amp_pieces = [
+        RampWaveform(dur, amplitude[i], amplitude[i + 1]) for i, dur in enumerate(duration)
+    ]
     amp_wf = CompositeWaveform(*amp_pieces)
 
-    det_pieces = [RampWaveform(dur, detuning[i], detuning[i+1]) for i, dur in enumerate(duration)]
+    det_pieces = [RampWaveform(dur, detuning[i], detuning[i + 1]) for i, dur in enumerate(duration)]
     det_wf = CompositeWaveform(*det_pieces)
 
     sequence.add(Pulse(amp_wf, det_wf, phase), "global")

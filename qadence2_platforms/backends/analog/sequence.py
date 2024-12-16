@@ -43,7 +43,7 @@ def from_model(model: Model, register: RegisterLayout) -> Sequence:
 
         seq.config_detuning_map(detuning_map, "dmm_0")
 
-    pulses = from_instructions(seq, model.inputs, model.instructions, allow_time_dependent = True)
+    pulses = from_instructions(seq, model.inputs, model.instructions, allow_time_dependent=True)
 
     for pulse in pulses:
         fn: Optional[Callable] = getattr(
