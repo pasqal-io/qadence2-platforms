@@ -1,7 +1,7 @@
 # Qadence 2 Platforms
 
 
-!!! node
+!!! note
     Qadence 2 Platforms is currently a *work in progress* and is under active development.
 
     Please be aware that the software is in an early stage, and frequent updates, including breaking changes, are to be expected. This means that:
@@ -141,7 +141,8 @@ dfdx = torch.autograd.grad(wf, f_params["x"], torch.ones_like(wf))[0]
 
 ## Documentation
 
-**Notice**: Documentation in progress.
+!!! note
+    Documentation in progress.
 
 
 ## Contribute

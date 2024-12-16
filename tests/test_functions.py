@@ -10,11 +10,13 @@ from pulser.register import RegisterLayout
 from qadence2_expressions import Z
 from qadence2_ir.types import Model
 from qutip import tensor as qtensor
-import pyqtorch as pyq
 from pyqtorch import (
     Observable as PyQObservable,
     Z as PZ,
+    Sequence as PyQSequence,
+    Add as PyQAdd,
 )
+
 
 from qadence2_platforms.backends.fresnel1.functions import (
     local_pulse,
@@ -67,29 +69,29 @@ qz = qutip.sigmaz()
             "pyq_interface1",
             2,
             Z(0),
-            pyq.Observable([PZ(0)]),
-            pyq.Observable([PZ(1)]),
+            PyQObservable([PZ(0)]),
+            PyQObservable([PZ(1)]),
         ),
         (
             "pyq_interface1",
             2,
             Z(0).__kron__(Z(1)),
-            pyq.Observable(pyq.Sequence([PZ(0), PZ(1)])),
-            pyq.Observable(pyq.Sequence([PZ(1), PZ(2)])),
+            PyQObservable(PyQSequence([PZ(0), PZ(1)])),
+            PyQObservable(PyQSequence([PZ(1), PZ(2)])),
         ),
         (
             "pyq_interface1",
             2,
             Z(0).__kron__(Z(1)),
-            pyq.Observable(pyq.Sequence([PZ(1), PZ(0)])),
-            pyq.Observable(pyq.Sequence([PZ(0), PZ(3)])),
+            PyQObservable(PyQSequence([PZ(1), PZ(0)])),
+            PyQObservable(PyQSequence([PZ(0), PZ(3)])),
         ),
         (
             "pyq_interface1",
             2,
             Z(0) + Z(1),
-            pyq.Observable([pyq.Add([PZ(0), PZ(1)])]),
-            pyq.Observable([pyq.Add([PZ(1), PZ(1)])]),
+            PyQObservable([PyQAdd([PZ(0), PZ(1)])]),
+            PyQObservable([PyQAdd([PZ(1), PZ(1)])]),
         ),
     ],
 )
@@ -109,15 +111,13 @@ def test_pyq_observables(
 
 
 def test_pyq_obs_parsing() -> None:
-    assert hash(PyQObservablesParser._add_op(Z(0) + Z(1))) == hash(pyq.Add([PZ(0), PZ(1)]))
-    assert hash(PyQObservablesParser._mul_op(Z(0) * Z(1))) == hash(pyq.Sequence([PZ(0), PZ(1)]))
+    assert hash(PyQObservablesParser._add_op(Z(0) + Z(1))) == hash(PyQAdd([PZ(0), PZ(1)]))
+    assert hash(PyQObservablesParser._mul_op(Z(0) * Z(1))) == hash(PyQSequence([PZ(0), PZ(1)]))
     assert hash(PyQObservablesParser._kron_op(Z(0).__kron__(Z(1)))) == hash(
-        pyq.Sequence([PZ(0), PZ(1)])
+        PyQSequence([PZ(0), PZ(1)])
     )
-    assert hash(PyQObservablesParser._get_op(Z(0))) == hash(pyq.Z(0))
-    assert hash(tuple(PyQObservablesParser._iterate_over_obs([Z(0), Z(1)]))) == hash(
-        (pyq.Z(0), pyq.Z(1))
-    )
+    assert hash(PyQObservablesParser._get_op(Z(0))) == hash(PZ(0))
+    assert hash(tuple(PyQObservablesParser._iterate_over_obs([Z(0), Z(1)]))) == hash((PZ(0), PZ(1)))
 
 
 ##################

@@ -71,6 +71,9 @@ class Interface(
     def parameters(self) -> Iterable[Any]:
         return self.vparams.values()  # type: ignore [no-any-return]
 
+    def draw(self, values: dict[str, Any]) -> None:
+        raise NotImplementedError("PyQTorch currently does not support drawing the circuit")
+
     def _run(
         self,
         run_type: RunEnum,
