@@ -4,7 +4,7 @@ from typing import Any
 
 import numpy as np
 from pulser import Pulse
-from pulser.parametrized.variable import VariableItem
+from pulser.parametrized.variable import VariableItem, Variable
 from pulser.sequence import Sequence
 from pulser.waveforms import ConstantWaveform, BlackmanWaveform, RampWaveform, CompositeWaveform
 
@@ -69,9 +69,9 @@ def dyn_pulse(
 
 def piecewise_pulse(
     sequence: Sequence,
-    duration: VariableItem | float,
-    amplitude: VariableItem | float,
-    detuning: VariableItem | float,
+    duration: Variable,
+    amplitude: Variable,
+    detuning: Variable,
     phase: VariableItem | float,
     **_: Any,
 ) -> None:

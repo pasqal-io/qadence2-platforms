@@ -19,7 +19,7 @@ def from_instructions(
     sequence: Sequence,
     inputs: dict[str, Alloc],
     instructions: list[Assign | QuInstruct],
-    allow_time_dependent=False,
+    allow_time_dependent: bool = False,
 ) -> list[NamedPulse]:
     variables = dict()
     temp_vars: dict[str, Any] = dict()
