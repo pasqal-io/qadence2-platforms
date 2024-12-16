@@ -6,7 +6,7 @@ import numpy as np
 from pulser import Pulse
 from pulser.parametrized.variable import VariableItem
 from pulser.sequence import Sequence
-from pulser.waveforms import ConstantWaveform, BlackmanWaveform
+from pulser.waveforms import ConstantWaveform, BlackmanWaveform, RampWaveform, CompositeWaveform
 
 from qadence2_platforms.backends._base_analog.functions import (
     Direction,
@@ -65,6 +65,37 @@ def dyn_pulse(
 
     p = Pulse(new_amplitude, new_detuning, phase)
     sequence.add(p, channel="global")
+
+
+def piecewise_pulse(
+    sequence: Sequence,
+    duration: VariableItem | float,
+    amplitude: VariableItem | float,
+    detuning: VariableItem | float,
+    phase: VariableItem | float,
+    **_: Any,
+) -> None:
+    """
+    Dynamic pulse to simulate a specific piecewise time-dependent hamiltonian for neutral-atom devices.
+
+    :param sequence: a `pulser.sequence.Sequence` instance
+    :param duration: duration of the pulse in nanoseconds
+    :param amplitude: amplitude of the pulse in rad/µs
+    :param detuning: detuning of the pulse in rad/s
+    :param phase: phase in rad
+    """
+    max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
+    max_abs_detuning = (
+        sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
+    )
+
+    amp_pieces = [RampWaveform(dur, amplitude[i], amplitude[i+1]) for i, dur in enumerate(duration)]
+    amp_wf = CompositeWaveform(*amp_pieces)
+
+    det_pieces = [RampWaveform(dur, detuning[i], detuning[i+1]) for i, dur in enumerate(duration)]
+    det_wf = CompositeWaveform(*det_pieces)
+
+    sequence.add(Pulse(amp_wf, det_wf, phase), "global")
 
 
 def rx(
