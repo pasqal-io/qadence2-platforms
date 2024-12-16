@@ -6,22 +6,20 @@ build-backend = "hatchling.build"
 name = "qadence2-platforms"
 description = "Platform-dependent engines and model to execute compiled expressions with common set of methods."
 readme = "README.md"
-version = "0.1.2"
-requires-python = ">=3.10"
+version = "0.2.0"
+requires-python = ">=3.10,<3.12"
 license = {text = "Proprietary"}
 keywords = ["quantum"]
 authors = [
   { name = "Eduardo Maschio", email = "eduardo.maschio@pasqal.com" },
   { name = "Kaonan Micadei", email = "kaonan.micadei@pasqal.com" },
-  { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" },
-  { name = "Pim Venderbosch", email= "pim.venderbosch@pasqal.com" },
+  { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" }
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -29,9 +27,9 @@ classifiers = [
 # always specify a version for each package
 # to maintain consistency
 dependencies = [
-  "qadence2-ir~=0.1",
-  "pulser~=1.1",
-  "pyqtorch~=1.4",
+  "qadence2-ir>=0.2",
+  "pulser>=1.1",
+  "pyqtorch",
 ]
 
 [tool.hatch.metadata]
@@ -98,7 +96,7 @@ serve = "mkdocs serve --dev-addr localhost:8000"
 test = "mkdocs build --clean --strict"
 
 [[tool.hatch.envs.test.matrix]]
-python = ["310", "311", "312"]
+python = ["310", "311"]
 
 [tool.hatch.build.targets.sdist]
 exclude = [

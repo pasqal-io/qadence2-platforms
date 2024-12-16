@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar, Iterable
 
 from qadence2_platforms.abstracts import (
     AbstractInterface,
@@ -61,6 +61,11 @@ class Interface(
 
     @property
     def sequence(self) -> SequenceType:
+        # TODO: 1. implement this method logic
+        # TODO: 2. erase these TODO comments
+        pass
+
+    def parameters(self) -> Iterable[Any]:
         # TODO: 1. implement this method logic
         # TODO: 2. erase these TODO comments
         pass

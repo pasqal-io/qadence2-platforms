@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
+
+
+gridtype_literal = Literal["linear", "triangular", "square"]
 
 
 @runtime_checkable

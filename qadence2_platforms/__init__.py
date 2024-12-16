@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from torch import float64, set_default_dtype
-
-from .abstracts import AbstractInterface
-
-set_default_dtype(float64)
+from .abstracts import AbstractInterface, OnEnum
 
 PACKAGE_NAME = __name__
 BACKEND_FOLDER_NAME = "backends"
@@ -14,3 +10,5 @@ TEMPLATES_FOLDER_NAME = "templates"
 
 BASE_BACKEND_MODULE = f"{PACKAGE_NAME}.{BACKEND_FOLDER_NAME}"
 USER_BACKEND_MODULE = f"{PACKAGE_NAME}.{USER_BACKENDS_FOLDER_NAME}"
+
+__all__ = ["AbstractInterface", "OnEnum", "BASE_BACKEND_MODULE", "USER_BACKEND_MODULE"]
