@@ -1,3 +1,3 @@
 # AnalogDevice functions
 
-<> ::: qadence2_platforms.backends.analog.functions
+::: qadence2_platforms.backends.analog.functions

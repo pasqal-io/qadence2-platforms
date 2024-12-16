@@ -1,3 +1,3 @@
 # AnalogDevice register
 
-<> ::: qadence2_platforms.backends.analog.register
+::: qadence2_platforms.backends.analog.register
