@@ -1,18 +1,72 @@
-site_name: qadence2 platforms
-repo_url: "https://gitlab.pasqal.com/pqs/qadence2-platforms"
+site_name: Qadence 2 Platforms
+repo_url: "https://github.com/pasqal-io/qadence2-platforms"
 repo_name: "qadence2_platforms"
 
 nav:
-  - Overview: index.md
-  - Example: getting_started_example.md
+  - Home: index.md
+
   - Getting started:
-      - Development & Info:
-          - Contributing: getting_started/CONTRIBUTING.md
-          - Code of conduct: getting_started/CODE_OF_CONDUCT.md
-          - License: getting_started/LICENSE.md
+    - Installation: getting_started/installation.md
+    - Example: getting_started/example.md
+    - Development & Info:
+      - Contributing: getting_started/CONTRIBUTING.md
+      - Code of conduct: getting_started/CODE_OF_CONDUCT.md
+      - License: getting_started/LICENSE.md
+
+  - Contents:
+    - contents/index.md
+    - Abstracts: contents/abstracts.md
+    - Compiler: contents/compiler.md
+    - Backends: contents/backends.md
+    - Utils: contents/utils.md
+
+  - Tutorials:
+    - Tutorials: tutorials/examples.md
+    - Building your backend: tutorials/backend_creation.md
+
+  - API:
+    - api/index.md
+    - Abstracts: api/abstracts.md
+    - Compiler: api/compiler.md
+    - Backends:
+      - api/backends/index.md
+      - Fresnel-1:
+        - api/backends/fresnel1/index.md
+        - Interface: api/backends/fresnel1/interface.md
+        - Compiler: api/backends/fresnel1/compiler.md
+        - Functions: api/backends/fresnel1/functions.md
+        - Register: api/backends/fresnel1/register.md
+        - Sequence: api/backends/fresnel1/sequence.md
+      - Analog:
+        - api/backends/analog/index.md
+        - Interface: api/backends/analog/interface.md
+        - Compiler: api/backends/analog/compiler.md
+        - Functions: api/backends/analog/functions.md
+        - Register: api/backends/analog/register.md
+        - Sequence: api/backends/analog/sequence.md
+      - Abstract analog backend:
+        - api/backends/_base_analog/index.md
+        - Interface: api/backends/_base_analog/interface.md
+        - Functions: api/backends/_base_analog/functions.md
+        - Register: api/backends/_base_analog/register.md
+        - Sequence: api/backends/_base_analog/sequence.md
+        - Device Settings: api/backends/_base_analog/device_settings.md
+      - PyQTorch:
+        - api/backends/pyqtorch/index.md
+        - Interface: api/backends/pyqtorch/interface.md
+        - Compiler: api/backends/pyqtorch/compiler.md
+        - Functions: api/backends/pyqtorch/functions.md
+        - Register: api/backends/pyqtorch/register.md
+        - Embedding: api/backends/pyqtorch/embedding.md
+    - Utils:
+      - api/utils/index.md
+      - Backend Template: api/utils/backend_template.md
+      - Module Importer: api/utils/module_importer.md
+
 
 theme:
   name: material
+  custom_dir: docs/extras/overrides
   features:
   - content.code.annotate
   - content.action.view
@@ -47,7 +101,6 @@ markdown_extensions:
     anchor_linenums: true
 - pymdownx.inlinehilite
 - pymdownx.snippets
-- pymdownx.superfences
 - pymdownx.details
 - pymdownx.superfences:
     custom_fences:
@@ -86,10 +139,12 @@ extra:
 
 # To get nice tabs
 extra_css:
-- extras/css/mkdocstrings.css
+- css/mkdocstrings.css
+- extras/css/colors.css
+- extras/css/home.css
 
 # For mathjax
 extra_javascript:
-  - extras/javascripts/mathjax.js
+  - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

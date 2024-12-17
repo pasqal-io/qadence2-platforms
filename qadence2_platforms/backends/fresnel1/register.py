@@ -30,8 +30,8 @@ def from_layout(register_transform: RegisterTransform) -> RegisterLayout:
     Transforms a data from coordinates into a register with calibrated layout.
 
     Args:
-        register_transform (RegisterTransform): the instance of RegisterTransform containing
-        the coordinates and device settings
+        register_transform (RegisterTransform): The instance of RegisterTransform containing
+            the coordinates and device settings
 
     Returns:
         A register data with calibrated layout

@@ -32,18 +32,20 @@ class BackendTemplate:
     Class to create new custom backend folder with file templates.
 
     It will
-    follow the same structure as the built-in backends, namely fresnel1 and
-    pyqtorch, having a folder with the custom backend name with the essential
+    follow the same structure as the built-in backends, namely `fresnel1` and
+    `pyqtorch`, having a folder with the custom backend name with the essential
     files inside already built with the functions, classes and their methods.
 
     Ex:
 
+    ```
     selected_root_dir/
     └── custom_backends/
         ├── custom_backend1/
         │   ├── __init__.py
         │   ├── compiler.py
         │   └── interface.py
+    ```
 
     It is intended to help the user when creating their custom backend with
     pre-filled files so the core structure of the backend instances are still
@@ -80,9 +82,12 @@ class BackendTemplate:
         """
         Creates the main folder for the custom backend in a selected path.
 
-        :param backend_name: (str) backend name
-        :param current_path: (str | Path) current path to place the custom backend
-        :return: (bool) returns true if the folder was already existing
+        Args:
+            backend_name (str): backend name
+            current_path (str, Path): current path to place the custom backend
+
+        Returns:
+            Returns true if the folder was already existing
         """
 
         self._backend_name = backend_name
@@ -106,13 +111,16 @@ class BackendTemplate:
         """
         Creates the template, with the main custom backend folder and its content files.
 
-        :param backend_name: (str) backend name
-        :param gui: (bool) whether to use a GUI option to choose where to create the template;
-             tkinter must be installed.
-             On Mac: `brew install python-tk@python3.10`. In case you use a different python
-             version, replace `3.10` by it. On Linux: `apt-get install python-tk`.
-        :param use_this_dir: (str | Path | None) directory to create the custom backend
-        :return: (bool) returns true if the template was successfully created
+        Args:
+            backend_name (str): backend name
+            gui (bool): whether to use a GUI option to choose where to create the template;
+                tkinter must be installed.
+                On Mac: `brew install python-tk@python3.10`. In case you use a different python
+                version, replace `3.10` by it. On Linux: `apt-get install python-tk`.
+            use_this_dir (str | Path | None): directory to create the custom backend
+
+        Returns:
+             Returns true if the template was successfully created
         """
 
         print(
