@@ -2,7 +2,7 @@
 
 
 !!! note
-    The code above is not intended to be used as is, but rather just to show how data flows from expression, to compilation, to IR and to platforms. Those features are wrapped in the user-accessible package [`Qadence 2`](https://github.com/pasqal-io/qadence2-core/).
+    The code below is not intended to be used as is, but rather just to show how data flows from expression, to compilation, to IR and to platforms. Those features are wrapped in the user-accessible package [`Qadence 2`](https://github.com/pasqal-io/qadence2-core/).
 
 ## Computing `grad` for an expression
 
