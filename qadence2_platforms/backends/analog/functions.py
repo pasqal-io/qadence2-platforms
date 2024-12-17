@@ -4,9 +4,9 @@ from typing import Any
 
 import numpy as np
 from pulser import Pulse
-from pulser.parametrized.variable import VariableItem
+from pulser.parametrized.variable import VariableItem, Variable
 from pulser.sequence import Sequence
-from pulser.waveforms import ConstantWaveform, BlackmanWaveform
+from pulser.waveforms import ConstantWaveform, BlackmanWaveform, RampWaveform, CompositeWaveform
 
 from qadence2_platforms.backends._base_analog.functions import (
     Direction,
@@ -45,17 +45,19 @@ def dyn_pulse(
     """
     Dynamic pulse to simulate a specific time-dependent hamiltonian for neutral-atom devices.
 
-    :param sequence: a `pulser.sequence.Sequence` instance
-    :param duration: duration of the pulse in nanoseconds
-    :param amplitude: amplitude of the pulse in rad/µs
-    :param detuning: detuning of the pulse in rad/s
-    :param phase: phase in rad
+    Args:
+        sequence: a `pulser.sequence.Sequence` instance
+        duration: duration of the pulse in dimensionless units
+        amplitude: amplitude of the pulse in dimensionless units
+        detuning: detuning of the pulse in dimensionless units
+        phase: phase in radians
     """
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
         sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
     )
 
+    # FIXME: Centralize unit converions
     duration *= 1000 * 2 * np.pi / max_amp  # type: ignore
     amplitude *= max_amp  # type: ignore
     detuning *= max_abs_detuning  # type: ignore
@@ -65,6 +67,46 @@ def dyn_pulse(
 
     p = Pulse(new_amplitude, new_detuning, phase)
     sequence.add(p, channel="global")
+
+
+def piecewise_pulse(
+    sequence: Sequence,
+    duration: Variable | VariableItem,
+    amplitude: Variable,
+    detuning: Variable,
+    phase: VariableItem | float,
+    **_: Any,
+) -> None:
+    """
+    Dynamic pulse to simulate a specific piecewise time-dependent hamiltonian for neutral-atom devices.
+
+    Args:
+        sequence: a `pulser.sequence.Sequence` instance
+        duration: duration of the pulse in dimensionless units
+        amplitude: amplitude of the pulse in dimensionless units
+        detuning: detuning of the pulse in dimensionless units
+        phase: phase in radians
+    """
+    max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
+    max_abs_detuning = (
+        sequence.device.channels["rydberg_global"].max_abs_detuning or DEFAULT_DETUNING
+    )
+
+    dur_factor = 1000 * 2 * np.pi / max_amp  # type: ignore
+    amp_factor = max_amp  # type: ignore
+    det_factor = max_abs_detuning  # type: ignore
+
+    # Needed so a size = 1 variable is made iterable
+    duration = [duration] if isinstance(duration, VariableItem) else duration
+
+    for i, dur in enumerate(duration):
+        amp_wf = RampWaveform(
+            dur * dur_factor, amplitude[i] * amp_factor, amplitude[i + 1] * amp_factor
+        )
+        det_wf = RampWaveform(
+            dur * dur_factor, detuning[i] * det_factor, detuning[i + 1] * det_factor
+        )
+        sequence.add(Pulse(amp_wf, det_wf, phase), "global")
 
 
 def rx(
