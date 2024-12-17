@@ -45,11 +45,12 @@ def dyn_pulse(
     """
     Dynamic pulse to simulate a specific time-dependent hamiltonian for neutral-atom devices.
 
-    :param sequence: a `pulser.sequence.Sequence` instance
-    :param duration: duration of the pulse in nanoseconds
-    :param amplitude: amplitude of the pulse in rad/µs
-    :param detuning: detuning of the pulse in rad/s
-    :param phase: phase in rad
+    Args:
+        sequence: a `pulser.sequence.Sequence` instance
+        duration: duration of the pulse in dimensionless units
+        amplitude: amplitude of the pulse in dimensionless units
+        detuning: detuning of the pulse in dimensionless units
+        phase: phase in radians
     """
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
@@ -79,11 +80,12 @@ def piecewise_pulse(
     """
     Dynamic pulse to simulate a specific piecewise time-dependent hamiltonian for neutral-atom devices.
 
-    :param sequence: a `pulser.sequence.Sequence` instance
-    :param duration: duration of the pulse in nanoseconds
-    :param amplitude: amplitude of the pulse in rad/µs
-    :param detuning: detuning of the pulse in rad/s
-    :param phase: phase in rad
+    Args:
+        sequence: a `pulser.sequence.Sequence` instance
+        duration: duration of the pulse in dimensionless units
+        amplitude: amplitude of the pulse in dimensionless units
+        detuning: detuning of the pulse in dimensionless units
+        phase: phase in radians
     """
     max_amp = sequence.device.channels["rydberg_global"].max_amp or DEFAULT_AMPLITUDE
     max_abs_detuning = (
