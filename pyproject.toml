@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "qadence2-platforms"
 description = "Platform-dependent engines and model to execute compiled expressions with common set of methods."
 readme = "README.md"
-version = "0.2.0"
+version = "0.2.2"
 requires-python = ">=3.10,<3.13"
 license = { text = "Apache 2.0" }
 keywords = ["quantum"]
