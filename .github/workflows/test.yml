@@ -74,7 +74,7 @@ jobs:
         timeout-minutes: 5
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          until pip download qadence2_expressions==$VERSION
+          until pip download qadence2_platforms==$VERSION
           do
             echo "Failed to download from PyPI, will wait for upload and retry."
             sleep 1
