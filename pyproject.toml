@@ -8,13 +8,14 @@ description = "Platform-dependent engines and model to execute compiled expressi
 readme = "README.md"
 version = "0.2.0"
 requires-python = ">=3.10,<3.12"
-license = {text = "Proprietary"}
+license = { text = "Apache 2.0" }
 keywords = ["quantum"]
 authors = [
   { name = "Eduardo Maschio", email = "eduardo.maschio@pasqal.com" },
   { name = "Kaonan Micadei", email = "kaonan.micadei@pasqal.com" },
   { name = "Dominik Seitz", email = "dominik.seitz@pasqal.com" },
   { name = "Pim Venderbosch", email = "pim.venderbosch@pasqal.com" },
+  { name = "João Moutinho", email = "joao.moutinho@pasqal.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
