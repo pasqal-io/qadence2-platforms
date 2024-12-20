@@ -31,7 +31,7 @@ classifiers = [
 # to maintain consistency
 dependencies = [
   "qadence2-ir~=0.2.0",
-  "pulser~=1.1.0",
+  "pulser~=1.2.0",
   "pyqtorch~=1.6.0",
 ]
 
