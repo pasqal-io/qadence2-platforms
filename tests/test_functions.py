@@ -316,5 +316,7 @@ def test_fresnel1_observables(
     request: Any,
 ) -> None:
     parsed_obs = QuTiPObservablesParser.build(num_qubits=n_qubits, observables=expr_obs)
-    assert np.allclose(parsed_obs, qutip_obs)
-    assert np.allclose(parsed_obs, fresnel1_parse_nat_obs(n_qubits, expr_obs))
+
+    for parsed_ob, parsed_fresnel_ob in zip(parsed_obs, fresnel1_parse_nat_obs(n_qubits, expr_obs)):
+        assert np.allclose(parsed_ob.full(), qutip_obs.full())
+        assert np.allclose(parsed_ob.full(), parsed_fresnel_ob.full())
