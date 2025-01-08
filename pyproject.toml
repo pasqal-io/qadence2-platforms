@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
   "qadence2-ir~=0.2.0",
   "pulser~=1.2.0",
-  "pyqtorch~=1.6.0",
+  "pyqtorch~=1.7.0",
 ]
 
 [tool.hatch.metadata]
