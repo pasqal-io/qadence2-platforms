@@ -65,7 +65,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.default.scripts]
-test = "pytest -n auto --cov-config=pyproject.toml --cov=qadence2_platforms {args}"
+test = "pytest -n auto --cov-report=xml --cov-config=pyproject.toml --cov=qadence2_platforms --cov=tests {args}"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
