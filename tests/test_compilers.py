@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+from typing import Callable
+
 import numpy as np
+import pytest
+import torch
+
+from qadence2_expressions import compile_to_model, parameter, RX, reset_ir_options, Expression
+
+from pyqtorch.utils import OrderedCounter
 from qadence2_ir.types import Model
 
+from qadence2_platforms.compiler import compile_to_backend
 from qadence2_platforms.backends.fresnel1 import compile_to_backend as fresnel1_compile
 from qadence2_platforms.backends.fresnel1.interface import Interface as Fresnel1Interface
 from qadence2_platforms.backends.pyqtorch import compile_to_backend as pyq_compile
@@ -20,6 +29,18 @@ def test_pyq_compiler(model1: Model, pyq_interface1: PyQInterface) -> None:
         p1 == p2
         for p1, p2 in zip(pyq_interface1.sequence.operations, interface.sequence.operations)
     ]
+
+
+@pytest.mark.parametrize(
+    "operator, angle, values", [(RX, 2.0, {}), (RX, parameter("x"), {"x": torch.rand(1)})]
+)
+def test_pyq_expr_compilation(operator: Callable, angle: float | Expression, values: dict) -> None:
+    reset_ir_options()
+    model = compile_to_model(operator(angle)(0))
+    bkd = compile_to_backend(model, "pyqtorch")
+    (sample,) = bkd.sample(values=values, shots=2000)
+    assert isinstance(sample, OrderedCounter)
+    reset_ir_options()
 
 
 def test_fresnel1_compiler(model1: Model, fresnel1_interface1: Fresnel1Interface) -> None:

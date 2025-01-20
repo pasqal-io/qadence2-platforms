@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from logging import getLogger
 
 import pyqtorch as pyq
@@ -64,10 +63,8 @@ class Compiler:
                 if len(instr.args) > 0:
                     assert len(instr.args) == 1, "More than one arg not supported"
                     (maybe_load,) = instr.args
-                    assert isinstance(maybe_load, Load), "only support load"
-                    pyq_operations.append(
-                        native_op(native_support, maybe_load.variable).to(dtype=torch.complex128)
-                    )
+                    arg = maybe_load.variable if isinstance(maybe_load, Load) else maybe_load
+                    pyq_operations.append(native_op(native_support, arg).to(dtype=torch.complex128))
 
                 else:
                     pyq_operations.append(native_op(*native_support).to(dtype=torch.complex128))
