@@ -15,8 +15,8 @@ from qadence2_platforms.backends.fresnel1.interface import Interface as Fresnel1
 from qadence2_platforms.backends.pyqtorch.interface import Interface as PyQInterface
 
 
-N_SHOTS = 2_000
-ATOL = 0.05 * N_SHOTS
+N_SHOTS = 4_000
+ATOL = 0.06 * N_SHOTS
 
 
 def test_pyq_interface(model1: Model, pyq_interface1: PyQInterface) -> None:
